@@ -40,5 +40,10 @@ Här presenteras statistik över quizet, hur många som har gjort quizet, hur m�
 
 UC 6 Se quiz historik
 Användaren går in på sin sida.
-Historik presenteras med alla quiz som användaren har gjort, hur väl användaren har preseterat och liknande.
+Två listor presenteras med tillgängliga och gjorda quiz.
+Historik presenteras över de quiz som användaren har gjort, hur väl användaren har preseterat och liknande.
 
+UC 7 Delning av quizet
+Administratören går in på ett quiz.
+Urlen som är tillgänglig är den som man kan använda för att dela quizet till valda användare, eller vem som helst om det var valet vid skapandet av quizet.
+Quizet kommer också att finnas på användarnas lista över tillgängliga quiz om quizet är öppet för dem att göra.
