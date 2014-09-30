@@ -32,7 +32,7 @@ Systemet skapar frågan i quizet.
 
 UC 4 Välja användare till quizen
 Administratören går in i ett quiz.
-Administratören kan där välja om quizet ska vara öppet för alla eller vara begränsat till ett antal användare.
+Administratören kan där välja om quizet ska vara öppet för alla eller vara begränsat till ett antal användare som han kan välja via en lista.
 
 UC 5 Statistik över quiz
 Administratören går in i ett quiz.
