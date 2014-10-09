@@ -8,12 +8,11 @@
 require_once("Controller.php");
 class QuizController extends Controller {
     private $view;
-    private $model;
 
     public function __construct(){
-
+        parent::__construct();
     }
-    public function getHTML(){
+    public function getHTML($route){
 
     }
 }

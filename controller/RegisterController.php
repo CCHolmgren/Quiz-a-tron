@@ -12,18 +12,30 @@ require_once(__ROOT__."model/UserModel.php");
 
 class RegisterController extends Controller {
     private $registerView;
-    private $userModel;
 
     public function __construct($view = null, $model = null){
         $this->registerView = $view === null ? new RegisterView() : $view;
-        $this->userModel = $model === null ? new UserModel() : $model;
+        parent::__construct();
     }
-    public function getHTML(){
-        if($this->userModel->isLoggedIn()){
+    public function getHTML($route){
+        var_dump($route);
+
+        if($this->model->isLoggedIn()){
             RedirectHandler::routeTo("?/");
         } else {
             if($this->registerView->getRequestMethod() === "POST"){
-                if($this->userModel->validateInput()){
+                if($this->model->validateInput($this->registerView->getUserData())){
+                    $tempUser = new UserModel();
+                    $username = $this->registerView->getUsername();
+                    $password = $this->registerView->getPassword();
+                    $repeatedpassword = $this->registerView->getRepeatedPassword();
+
+                    try{
+                        $tempUser->registerUser($username, $password, $repeatedpassword);
+                    }
+                    catch(Exception $e){
+                        throw $e;
+                    }
                     RedirectHandler::routeTo("?/login");
                 }
                 return "You posted something and it failed";

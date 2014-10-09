@@ -4,6 +4,7 @@
  * As such, it will have a switchstatement or something that will handle the routing and then hand away the control to
  * the controllers that handles the different functions (such as login, register, doing quizes, making quizes and such
  */
+
 /*
  * Define the __ROOT__ global so that it won't be a real pain to move this to a webserver later
  */
@@ -11,28 +12,27 @@ define("__ROOT__", "C:/Users/Chrille/Desktop/PHP-projekt/");
 
 /*
  * All requires that are needed by this page
+ * We must do the requires first since we are storing the user in the session and as such it will get unserialized
+ * And if it doesn't know what a UserModel is before the session is created, then it will break horribly
  */
 require_once(__ROOT__."controller/Routing.php");
 require_once(__ROOT__."controller/RegisterController.php");
 require_once(__ROOT__."controller/LoginController.php");
+require_once(__ROOT__."controller/LogoutController.php");
+require_once(__ROOT__."controller/DefaultController.php");
 require_once(__ROOT__."controller/RoutingDirective.php");
 
-/*
- * This is the DefaultController, that will be moved to a different controller later, maybe even change the way that
- * the routing works and that importing will happen based on the RoutingDirectives?
- */
-class DefaultController{
-    public function getHTML(){
-        echo "Inside mycontroller->handler";
-    }
-}
+session_start();
+
+class NotImplementedException extends Exception{}
 
 /*
- * Define the ROutingDirective so that the routing knows to what controller to send the controls to
+ * Define the RoutingDirectives so that the routing knows to what controller to send the controls to
  */
-$routes = array(new RoutingDirective("/\/register/", "RegisterController", "getHTML", "register"),
-    new RoutingDirective("/\/login/", "LoginController", "getHTML", "login"),
-    new RoutingDirective("/\//", "DefaultController", "getHTML", ""));
+$routes = array(new RoutingDirective("/^\/register/", "RegisterController", "getHTML", "register"),
+    new RoutingDirective("/^\/login/", "LoginController", "getHTML", "login"),
+    new RoutingDirective("/^\/logout/", "LogoutController", "getHTML", "logout"),
+    new RoutingDirective("/^\/?/", "DefaultController", "getHTML", "default"));
 
 // The Route is a class that handles routes, at this moment it only does handleRoute, but maybe more in the future
 $routing = new Route($routes);
@@ -48,23 +48,32 @@ $matches = $values["matches"];
 /*
  * This is an ugly way to handle stuff, but it works, doesn't it?
  */
+$x = new $rd->controllername();
+$fn = $rd->functionname;
+echo $x->$fn(preg_replace($rd->regex, "", $_SERVER["QUERY_STRING"]));
+
+/*
 switch($rd->name){
     case "register":
         $x = new $rd->controllername();
         $fn = $rd->functionname;
-        echo $x->$fn();
+        echo $x->$fn(preg_replace($rd->regex, "", $_SERVER["QUERY_STRING"]));
         //$x->($rd->$functionname)();
         break;
     case "login":
         $x = new $rd->controllername();
         $fn = $rd->functionname;
-        echo $x->$fn();
+        echo $x->$fn(preg_replace($rd->regex, "", $_SERVER["QUERY_STRING"]));
+        break;
+    case "default":
+        $x = new $rd->controllername();
+        $fn = $rd->functionname;
+        echo $x->$fn(preg_replace($rd->regex, "", $_SERVER["QUERY_STRING"]));
         break;
     default:
-        echo "What now then";
         break;
 }
-
+*/
 
 
 

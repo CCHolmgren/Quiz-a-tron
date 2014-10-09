@@ -10,18 +10,17 @@ require_once(__ROOT__."model/UserModel.php");
 
 class LoginController extends Controller {
     private $view;
-    private $model;
 
     public function __construct($view = null, $model = null){
         $this->loginView = $view === null ? new LoginView() : $view;
-        $this->userModel = $model === null ? new UserModel() : $model;
+        parent::__construct();
     }
-    public function getHTML(){
-        if($this->userModel->isLoggedIn()){
+    public function getHTML($route){
+        if($this->model->isLoggedIn()){
             RedirectHandler::routeTo("?/");
         } else {
             if($this->loginView->getRequestMethod() === "POST"){
-                if($this->userModel->validateLogin()){
+                if($this->model->validateLogin($this->loginView->getUserData())){
                     RedirectHandler::routeTo("?/");
                 }
                 return "You tried to login and it failed";

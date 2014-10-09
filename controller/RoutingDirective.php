@@ -6,6 +6,10 @@
  * Time: 12:38
  */
 
+/*
+ * This is a nice way to handle the otherwise ugly hashmap and array that would be used
+ * Might add more functions to this class , maybe change stuff or something?
+ */
 class RoutingDirective{
     public $regex;
     public $controllername;

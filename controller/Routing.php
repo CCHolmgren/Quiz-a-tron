@@ -17,6 +17,7 @@
 class Route{
     private $routes;
     public function __construct($routes){
+        //Empty array would be hard to do something with
         assert(count($routes) !== 0,"You can't pass in an empty route array, you have to provide atleast one route");
 
         $this->routes = $routes;
@@ -27,10 +28,13 @@ class Route{
      */
     public function handleRoute(){
         foreach($this->routes as $routingDirective){
+            //If the regex or the controllername is empty, then there is no way to do this.
             assert(!empty($routingDirective->regex)&&!empty($routingDirective->controllername),
                 "You have to provide a regular expression and a controller pair");
 
             //var_dump($routingDirective->regex,$_SERVER["QUERY_STRING"],preg_match($routingDirective->regex, $_SERVER["QUERY_STRING"]));
+            //If the route is matched, we return the routingdirective, with all its information and also all the matched
+            //parameters so that the controller can do something with them
             if(preg_match($routingDirective->regex, $_SERVER["QUERY_STRING"],$matches)){
                 return array("routingdirective" => $routingDirective, "matches" => $matches);
             }

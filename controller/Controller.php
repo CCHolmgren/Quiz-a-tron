@@ -6,7 +6,11 @@
  * Time: 21:30
  */
 class Controller{
-    public function getHTML(){
+    protected $model;
+    public function __construct(){
+        $this->model = UserModel::getCurrentUser();
+    }
+    public function getHTML($route){
 
     }
 }
