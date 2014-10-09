@@ -15,7 +15,9 @@ class LoginController extends Controller {
         $this->loginView = $view === null ? new LoginView() : $view;
         parent::__construct();
     }
-    public function getHTML($route){
+
+    protected function __getHTML($route)
+    {
         if($this->model->isLoggedIn()){
             RedirectHandler::routeTo("?/");
         } else {

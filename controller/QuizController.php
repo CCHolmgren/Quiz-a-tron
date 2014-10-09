@@ -12,7 +12,9 @@ class QuizController extends Controller {
     public function __construct(){
         parent::__construct();
     }
-    public function getHTML($route){
+
+    protected function __getHTML($route)
+    {
 
     }
 }

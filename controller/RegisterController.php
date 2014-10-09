@@ -5,7 +5,7 @@
  * Date: 2014-10-06
  * Time: 21:32
  */
-require_once("RedirectHandler.php");
+require_once(__ROOT__ . "view/RedirectHandler.php");
 require_once("Controller.php");
 require_once(__ROOT__."view/RegisterView.php");
 require_once(__ROOT__."model/UserModel.php");
@@ -17,9 +17,9 @@ class RegisterController extends Controller {
         $this->registerView = $view === null ? new RegisterView() : $view;
         parent::__construct();
     }
-    public function getHTML($route){
-        var_dump($route);
 
+    protected function __getHTML($route)
+    {
         if($this->model->isLoggedIn()){
             RedirectHandler::routeTo("?/");
         } else {

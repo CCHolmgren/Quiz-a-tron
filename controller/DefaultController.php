@@ -6,7 +6,7 @@
  * Time: 12:16
  */
 
-require_once("RedirectHandler.php");
+require_once(__ROOT__ . "view/RedirectHandler.php");
 require_once("Controller.php");
 require_once(__ROOT__."view/DefaultView.php");
 require_once(__ROOT__."model/UserModel.php");
@@ -24,7 +24,8 @@ class DefaultController extends Controller{
         parent::__construct();
     }
 
-    public function getHTML($route){
+    protected function __getHTML($route)
+    {
         if($_SERVER["QUERY_STRING"] !== "/")
             RedirectHandler::routeTo("?/");
 

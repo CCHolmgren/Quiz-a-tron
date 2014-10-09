@@ -5,7 +5,7 @@
  * Date: 2014-10-09
  * Time: 12:32
  */
-require_once("RedirectHandler.php");
+require_once(__ROOT__ . "view/RedirectHandler.php");
 require_once(__ROOT__."model/UserModel.php");
 require_once(__ROOT__."view/LogoutView.php");
 
@@ -15,9 +15,11 @@ class LogoutController extends Controller {
         $this->view = $view === null ? new LogoutView() : $view;
         parent::__construct();
     }
-    public function getHTML($route){
+
+    protected function __getHTML($route)
+    {
         if($this->model->isLoggedIn()){
-            if($_SERVER["REQUEST_METHOD"] === "POST") {
+            if ($this->view->getRequestMethod() === "POST") {
                 $this->model->logout();
                 RedirectHandler::routeTo("?/");
             }
