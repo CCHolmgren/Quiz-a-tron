@@ -6,7 +6,7 @@
  * Time: 21:30
  */
 class Controller{
-    protected function __construct(){
+    public function getHTML(){
 
     }
 }

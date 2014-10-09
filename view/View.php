@@ -6,7 +6,10 @@
  * Time: 21:30
  */
 class View{
-    protected function __construct(){
+    public function __construct(){
 
+    }
+    public function getRequestMethod(){
+        return $_SERVER["REQUEST_METHOD"];
     }
 }
