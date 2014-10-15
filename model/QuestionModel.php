@@ -53,8 +53,13 @@ class QuestionModel extends Model{
         }
     }
 
+    /**
+     * @param $id
+     * @return AnswerModel
+     */
     public function getAnswerById($id)
     {
+        /** @var AnswerModel $answer */
         foreach ($this->answers as $answer) {
             if ($answer->getId() === $id) {
                 return $answer;
@@ -62,11 +67,62 @@ class QuestionModel extends Model{
         }
     }
 
+    /**
+     * You must answer all correct and nothing wrong to get a allCorrect
+     * Returns the right and the wrong of the answered questions
+     * @param array $data Array with the answer id's
+     * @return array The keys of the $data array with either true or false if it was a correct answer or a wrong one
+     * the $result array will also have a allCorrect key set to either true or false based on if it was all the correct
+     * answers that was available or not
+     */
     public function validateAnswers(array $data)
     {
-        return true;
+        //Anonymous functions in PHP? Aw yess
+        //Make an array of all the answers id's
+        /**
+         * @param $answer AnswerModel
+         * @return integer
+         */
+        $getIdsOfAnswers = function ($answer) {
+            return $answer->getId();
+        };
+        //So we can get all rightAnswers and loop through them
+        $rightAnswersIds = array_map($getIdsOfAnswers, $this->rightAnswers);
+
+        $totalRight = 0;
+
+        $result = array();
+        foreach ($data as $key => $answer) {
+            if (in_array($answer, $rightAnswersIds)) {
+                $result[$key] = true;
+                $totalRight += 1;
+            } else {
+                $result[$key] = false;
+                $totalRight = 0;
+            }
+        }
+        if ($totalRight === $this->getCountRightAnswers()) {
+            $result["allCorrect"] = true;
+        } else {
+            $result["allCorrect"] = false;
+        }
+        return $result;
     }
 
+    public function getCountRightAnswers()
+    {
+        return count($this->rightAnswers);
+    }
+
+    public function getCountAnswers()
+    {
+        return count($this->answers);
+    }
+
+    public function getCountWrongAnswers()
+    {
+        return count($this->wrongAnswers);
+    }
     /**
      * @return array
      */

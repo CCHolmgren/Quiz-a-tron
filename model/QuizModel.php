@@ -58,7 +58,7 @@ class QuizModel extends Model{
     }
 
     /**
-     * @return mixed
+     * @return array
      */
     public function getQuestions()
     {
@@ -72,12 +72,14 @@ class QuizModel extends Model{
      */
     public function validateAnswers(array $data)
     {
+        $result = array();
         foreach ($data as $key => $dataGroup) {
-            $this->questions[$key - 1]->validateAnswers($dataGroup);
-            var_dump($key, $dataGroup);
+            /** @var QuestionModel $question */
+            $question = $this->questions[$key - 1];
+            $result[] = $question->validateAnswers($dataGroup);
         }
         $this->saveAnswers($data);
-        return $data;
+        return $result;
     }
 
     public function saveAnswers(array $data)
