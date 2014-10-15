@@ -64,8 +64,26 @@ class QuizView extends View
     public function getResultsPage($result, $quiz)
     {
         $html = "";
-        foreach ($result as $resultRow) {
-            $html .= var_export($resultRow, true);
+        $html .= "<h3>Result</h3>";
+        var_dump($result);
+        foreach ($result as $key => $resultRow) {
+            //Typesafety in PHP is, well, really bad, but I do not want the string keys, just the resultrows that contain the good info
+
+            if (gettype($key) === "integer") {
+                $questionCount = $key + 1;
+                $html .= "<h4>Question $questionCount</h4>";
+                $html .= $resultRow["countRightAnswers"];
+                $html .= " out of " . $resultRow["rightAnswerCount"];
+                if ($resultRow["countWrongAnswers"]) {
+                    $html .= " with " . $resultRow["countWrongAnswers"] . " extra wrong answers.";
+                } else {
+                    $html .= "!";
+                }
+
+            }
+            if ($key === "allCorrect" && $resultRow["allCorrect"] === true) {
+                $html .= "<p>Wow you got all the questions correct!</p>";
+            }
         }
         return $html;
     }
