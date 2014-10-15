@@ -20,27 +20,33 @@ class RegisterController extends Controller {
 
     protected function __getHTML($route)
     {
+        $message = "";
         if($this->model->isLoggedIn()){
             RedirectHandler::routeTo("?/");
         } else {
             if($this->registerView->getRequestMethod() === "POST"){
-                if($this->model->validateInput($this->registerView->getUserData())){
+                if ($this->model->validateInput($this->registerView->getRegisterData())) {
                     $tempUser = new UserModel();
                     $username = $this->registerView->getUsername();
                     $password = $this->registerView->getPassword();
-                    $repeatedpassword = $this->registerView->getRepeatedPassword();
+                    $email = $this->registerView->getEmail();
 
                     try{
-                        $tempUser->registerUser($username, $password, $repeatedpassword);
+                        //We get another user out of the registerUser function
+                        //Might as well capture it.
+                        $tempUser = $tempUser->registerUser($username, $password, $email);
+                        RedirectHandler::routeTo("?/login");
                     }
                     catch(Exception $e){
-                        throw $e;
+                        $message = $e->getMessage();
                     }
-                    RedirectHandler::routeTo("?/login");
+                } else {
+                    return "You posted something and it failed";
                 }
-                return "You posted something and it failed";
+
             }
-            return $this->registerView->getRegisterPage();
+            var_dump($message);
+            return $this->registerView->getRegisterPage($message);
         }
     }
 }

@@ -9,6 +9,12 @@ class View{
     public function __construct(){
 
     }
+
+    public function getHead()
+    {
+        $head = "<title>Default title</title>";
+        return $head;
+    }
     public function getRequestMethod(){
         return $_SERVER["REQUEST_METHOD"];
     }
@@ -22,7 +28,13 @@ class View{
      *
      * @todo: Do basic validation of data here, maybe even escape the data if needed
      */
-    public function getUserData(){
-        return $_POST;
+    public function getRegisterData()
+    {
+        return array("username" => $_POST["username"], "password" => $_POST["password"], "repeatedpassword" => $_POST["repeatedpassword"], "email" => $_POST["email"]);
+    }
+
+    public function getLoginData()
+    {
+        return array("username" => $_POST["username"], "password" => $_POST["password"]);
     }
 }

@@ -12,8 +12,13 @@ class LoginController extends Controller {
     private $view;
 
     public function __construct($view = null, $model = null){
-        $this->loginView = $view === null ? new LoginView() : $view;
+        $this->view = $view === null ? new LoginView() : $view;
         parent::__construct();
+    }
+
+    protected function __getHead()
+    {
+        return $this->view->getHead();
     }
 
     protected function __getHTML($route)
@@ -21,13 +26,13 @@ class LoginController extends Controller {
         if($this->model->isLoggedIn()){
             RedirectHandler::routeTo("?/");
         } else {
-            if($this->loginView->getRequestMethod() === "POST"){
-                if($this->model->validateLogin($this->loginView->getUserData())){
+            if ($this->view->getRequestMethod() === "POST") {
+                if ($this->model->validateLogin($this->view->getLoginData())) {
                     RedirectHandler::routeTo("?/");
                 }
                 return "You tried to login and it failed";
             }
-            return $this->loginView->getLoginPage();
+            return $this->view->getLoginPage();
         }
     }
 }

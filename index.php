@@ -19,6 +19,7 @@ require_once(__ROOT__."controller/Routing.php");
 require_once(__ROOT__."controller/RegisterController.php");
 require_once(__ROOT__."controller/LoginController.php");
 require_once(__ROOT__."controller/LogoutController.php");
+require_once(__ROOT__ . "controller/QuizController.php");
 require_once(__ROOT__."controller/DefaultController.php");
 require_once(__ROOT__."controller/RoutingDirective.php");
 
@@ -32,6 +33,7 @@ class NotImplementedException extends Exception{}
 $routes = array(new RoutingDirective("/^\/register/", "RegisterController", "getHTML", "register"),
     new RoutingDirective("/^\/login/", "LoginController", "getHTML", "login"),
     new RoutingDirective("/^\/logout/", "LogoutController", "getHTML", "logout"),
+    new RoutingDirective("/^\/quizes/", "QuizController", "getHTML", "quizes"),
     new RoutingDirective("/^\/?/", "DefaultController", "getHTML", "default"));
 
 // The Route is a class that handles routes, at this moment it only does handleRoute, but maybe more in the future

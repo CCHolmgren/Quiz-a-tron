@@ -23,10 +23,11 @@ class Controller{
         $this->model = UserModel::getCurrentUser();
     }
 
-    final public function getHTML()
+    final public function getHTML($route = "")
     {
         $head = $this->__getHead();
-        $body = $this->__getHTML("");
+        $body = $this->__getHTML($route);
+
         return HTMLHelper::spliceBaseHTML($head, $body);
     }
 
@@ -36,7 +37,7 @@ class Controller{
      */
     protected function __getHead()
     {
-        return "";
+        return "<title>Whatnow</title>";
     }
 
     /*

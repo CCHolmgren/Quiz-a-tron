@@ -27,23 +27,23 @@ class RegisterView extends View {
     public function getRepeatedPassword(){
         return $_POST["repeatedpassword"];
     }
-    public function getRegisterPage(){
-        $html = '<!doctype html>
-                <html>
-                <head>
-                    <title>Register page</title>
-                    <meta charset="utf-8">
-                </head>
-                <body>
-                    <p>This is the Register page</p>
+
+    public function getEmail()
+    {
+        return $_POST["email"];
+    }
+
+    public function getRegisterPage($message = "")
+    {
+        $html = '<p>This is the Register page</p>
+                    ' . $message . '
                     <form method="post">
-                        <input type="text" name="username">
-                        <input type="password" name="password">
-                        <input type="password" name="repeatedpassword">
+                        <input type="text" name="username" placeholder="Username">
+                        <input type="password" name="password" placeholder="Password">
+                        <input type="password" name="repeatedpassword" placeholder="Repeat password">
+                        <input type="email" name="email" placeholder="Email">
                         <input type="submit" value="Register">
                     </form>
-                </body>
-                <html>
         ';
         return $html;
     }

@@ -1,0 +1,7 @@
+[Model|::getConnection()]^-[AnswerModel|id;answertext;iscorrect;questionid]
+[Model]^-[QuestionModel|id;answers;questiontext;rightAnswers;wrongAnswers;quizid|addAnswers();]
+[QuestionModel]->$answers[AnswerModel]
+[QuizList|quiez|getAllQuizes();getQuizById()]->$quizes[QuizModel]
+[Model]^- [QuizModel|id;name;creator;questions;opento;description|getQuestions();loadQuestions();::getAllQuizes()]->$questions[QuestionModel]
+[Model]^-[UserModel|id;errors;username;password;quizes;email|registerUser();::getUserById();usernameExists();userExists();isLoggedIn();validateInput();validateLogin();::getCurrentUser();logout();]
+[UserModel]->$quizes[QuizModel]

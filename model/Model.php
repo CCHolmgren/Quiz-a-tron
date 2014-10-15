@@ -9,7 +9,15 @@
  * @todo: Implement the database connection
  */
 class Model{
-    protected function __construct(){
 
+    public function __construct()
+    {
+    }
+
+    static public function getConnection()
+    {
+        $PDO = new PDO("pgsql:host=localhost;dbname=project;", "php", "password");
+        $PDO->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        return $PDO;
     }
 }
