@@ -80,7 +80,9 @@ class QuestionModel extends Model{
         if (!$data) {
             $result["onlyCorrect"] = false;
             $result["countRightAnswers"] = 0;
+            $result["countWrongAnswers"] = 0;
             $result["rightAnswerCount"] = $this->getCountRightAnswers();
+            $result["wrongAnswerCount"] = $this->getCountWrongAnswers();
             return $result;
         }
         //Anonymous functions in PHP? Aw yess
@@ -149,6 +151,22 @@ class QuestionModel extends Model{
     public function getCountWrongAnswers()
     {
         return count($this->wrongAnswers);
+    }
+
+    public function saveQuestion($quizId)
+    {
+        $conn = $this->getConnection();
+        $sth = $conn->prepare("INSERT INTO questions (questiontext, quizid) VALUES(?,?) RETURNING id");
+        $sth->execute(array($this->questiontext, $quizId));
+        echo "RETURNING ID from question";
+        $result = $sth->fetch(PDO::FETCH_ASSOC);
+        $this->id = $result["id"];
+
+        /** @var AnswerModel $answer */
+        foreach ($this->answers as $answer) {
+            $answer->saveAnswer($this->id);
+        }
+        return;
     }
 
     public function getCountAnswers()

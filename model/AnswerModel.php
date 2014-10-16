@@ -11,11 +11,13 @@ class AnswerModel extends Model{
     private $iscorrect;
     private $questionid;
 
-    public function __construct()
+    public function __construct($answertext = null, $iscorrect = null)
     {
-        /*$this->answertext = $text;
-        $this->iscorrect = $iscorrect;
-        $this->questionid = $questionId;*/
+        if ($answertext !== null)
+            $this->answertext = $answertext;
+        if ($iscorrect !== null)
+            $this->iscorrect = $iscorrect;
+        //$this->questionid = $questionId;
     }
 
     /**
@@ -82,6 +84,16 @@ class AnswerModel extends Model{
     public function setId($id)
     {
         $this->id = $id;
+    }
+
+    public function saveAnswer($id)
+    {
+        $conn = $this->getConnection();
+        $sth = $conn->prepare("INSERT INTO answers(answertext, iscorrect, questionid) VALUES(:answertext,:iscorrect,:questionid) RETURNING id");
+        $sth->execute(array("answertext" => $this->answertext, "iscorrect" => $this->iscorrect, "questionid" => $id));
+        $result = $sth->fetch(PDO::FETCH_ASSOC);
+        $this->id = $result["id"];
+        return;
     }
 
 }

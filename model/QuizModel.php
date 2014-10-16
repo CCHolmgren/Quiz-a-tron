@@ -14,18 +14,30 @@ class QuizModel extends Model{
     private $creator;
     private $questions;
     private $opento;
+    private $userWhoCreated;
 
-    public function __construct(){
+    public function __construct($name = null, $description = null, $opento = null)
+    {
+        if ($name !== null)
+            $this->name = $name;
+        if ($description !== null)
+            $this->description = $description;
+        if ($opento !== null)
+            $this->opento = $opento;
+
         $this->loadQuestions();
+        $this->userWhoCreated = UserModel::getUserById($this->creator);
     }
 
     public function loadQuestions()
     {
-        $conn = $this->getConnection();
-        $sth = $conn->prepare("SELECT * FROM questions WHERE quizid = ?");
-        $sth->execute(array($this->id));
-        while ($object = $sth->fetchObject("QuestionModel")) {
-            $this->questions[] = $object;
+        if ($this->id) {
+            $conn = $this->getConnection();
+            $sth = $conn->prepare("SELECT * FROM questions WHERE quizid = ?");
+            $sth->execute(array($this->id));
+            while ($object = $sth->fetchObject("QuestionModel")) {
+                $this->questions[] = $object;
+            }
         }
     }
 
@@ -39,6 +51,15 @@ class QuizModel extends Model{
             $quizes[] = $object;
         }
         return $quizes;
+    }
+
+    static public function getDoneQuizes($userid)
+    {
+        $conn = self::getConnection();
+        $sth = $conn->prepare("SELECT * FROM donequizes WHERE userid = ?");
+        $sth->execute(array($userid));
+        $result = $sth->fetchAll(PDO::FETCH_ASSOC);
+        return $result;
     }
 
     /**
@@ -110,12 +131,18 @@ class QuizModel extends Model{
         return true;
     }
 
-    public function getDoneQuizes($userid)
+    public function saveQuiz(array $questions)
     {
         $conn = $this->getConnection();
-        $sth = $conn->prepare("SELECT * FROM donequizes WHERE userid = ?");
-        $sth->execute(array($userid));
-        $result = $sth->fetchAll(PDO::FETCH_ASSOC);
-        return $result;
+        $sth = $conn->prepare("INSERT INTO quiz(creator, name, opento, description) VALUES (?,?,?,?) RETURNING id");
+        $sth->execute(array(UserModel::getCurrentUser()->getId(), $this->name, "all", $this->description));
+        $result = $sth->fetch(PDO::FETCH_ASSOC);
+        $this->id = $result["id"];
+
+        /** @var QuestionModel $question */
+        foreach ($questions as $question) {
+            $question->saveQuestion($this->id);
+        }
+
     }
 }

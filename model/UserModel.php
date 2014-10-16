@@ -22,6 +22,7 @@ class UserModel extends Model {
 
     public function __construct(){
         parent::__construct();
+        $this->quizes = QuizModel::getDoneQuizes($this->id);
     }
 
     static public function getCurrentUser()
@@ -43,6 +44,11 @@ class UserModel extends Model {
         } catch (PDOException $e) {
             throw $e;
         }
+    }
+
+    public function isAnonymous()
+    {
+        return false;
     }
 
     public function registerUser($username, $password, $email)
@@ -81,6 +87,19 @@ class UserModel extends Model {
         }
         return false;
     }
+
+    public function emailExists($email)
+    {
+        $conn = $this->getConnection();
+
+        $sth = $conn->prepare("SELECT 1 FROM users WHERE email = ?");
+        $sth->execute(array($email));
+
+        if ($sth->fetch()) {
+            return true;
+        }
+        return false;
+    }
     /*
      * @todo: Implement this function properly
      */
@@ -97,6 +116,27 @@ class UserModel extends Model {
         $password = $data["password"];
         $repeatedpassword = $data["repeatedpassword"];
         $email = $data["email"];
+        return true;
+        $errors = array();
+        if ($username !== filter_input(FILTER_SANITIZE_FULL_SPECIAL_CHARS, $username)) {
+            $errors[] = "The username can't contain other symbols than a-z, A-Z, 0-9";
+        }
+        if ($this->usernameExists($username)) {
+            $errors[] = "The username already exists.";
+        }
+        if ($email !== filter_input(FILTER_VALIDATE_EMAIL, $email)) {
+            $errors[] = "The email isn't really an email";
+        }
+        if ($this->emailAlreadyExists($email)) {
+            $errors[] = "The email already exists.";
+        }
+        if ($password !== $repeatedpassword) {
+            $errors[] = "The two passwords do not match.";
+        }
+        if (count($errors)) {
+            return $errors;
+        }
+
         return true;
     }
     /*

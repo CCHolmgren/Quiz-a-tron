@@ -33,10 +33,16 @@ class RegisterView extends View {
         return $_POST["email"];
     }
 
-    public function getRegisterPage($message = "")
+    public function getRegisterPage($message = "", $errors = null)
     {
+        $errorResult = "";
+        if ($errors) {
+            foreach ($errors as $error) {
+                $errorResult .= $error;
+            }
+        }
         $html = '<p>This is the Register page</p>
-                    ' . $message . '
+                    ' . $message . $errorResult . '
                     <form method="post">
                         <input type="text" name="username" placeholder="Username">
                         <input type="password" name="password" placeholder="Password">

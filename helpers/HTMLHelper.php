@@ -16,31 +16,14 @@ class HTMLHelper
      */
     public static function spliceBaseHTML($head, $body)
     {
-        $html = "
-        <!doctype html>
+        $html = "<!doctype html>
         <html>
             <head>
                 {$head}
                 <meta charset='UTF-8'>
             </head>
             <body>
-                <ul>
-                    <li>
-                        <a href='?/'>Home</a>
-                    </li>
-                    <li>
-                        <a href='?/login'>Login</a>
-                    </li>
-                    <li>
-                        <a href='?/logout'>Logout</a>
-                    </li>
-                    <li>
-                        <a href='?/register'>Register</a>
-                    </li>
-                    <li>
-                        <a href='?/quizes'>Quizes</a>
-                    </li>
-                </ul>
+
                 {$body}
             </body>
         </html>

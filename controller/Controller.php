@@ -17,18 +17,31 @@ require_once(__ROOT__ . "helpers/HTMLHelper.php");
  *
  * For your usage there is __getHead and __getHTML that will be where you place your code
  */
+require_once(__ROOT__ . "model/UserModel.php");
+require_once(__ROOT__ . "view/NavigationView.php");
+
 class Controller{
     protected $model;
     public function __construct(){
         $this->model = UserModel::getCurrentUser();
+        $this->navigationView = new NavigationView();
     }
 
-    final public function getHTML($route = "")
+    /**
+     * @param string $route The route that should be passed on to the __getHTML function
+     * @param bool $splice If true use spliceBaseHTML and give out the HTML, if false just return body
+     * This way we can use a controller inside another controller without any problem, as long as we remember to set
+     * splice to false
+     * @return string Either a HTML document or the body of a html document without the navigation
+     */
+    final public function getHTML($route = "", $splice = true)
     {
         $head = $this->__getHead();
         $body = $this->__getHTML($route);
-
-        return HTMLHelper::spliceBaseHTML($head, $body);
+        $navigation = $this->navigationView->getNavigation();
+        if ($splice)
+            return HTMLHelper::spliceBaseHTML($head, $navigation . $body);
+        return $body;
     }
 
     /*

@@ -25,7 +25,7 @@ class QuizView extends View
     {
         $html = '';
         foreach ($this->quizes as $quiz) {
-            $html .= $quiz->description . "<a href='?/quizes/quiz/{$quiz->getId()}'>Whatnow</a>";
+            $html .= "<p>" . $quiz->description . "<a href='?/quizes/quiz/{$quiz->getId()}'>Whatnow</a></p>";
         }
         return $html;
     }
@@ -41,6 +41,9 @@ class QuizView extends View
         if ($quiz) {
             /** @var QuestionModel $question */
             $questions = $quiz->getQuestions();
+            if (!$questions) {
+                return "<p>There seems to be no questions in this quiz. How odd...</p>";
+            }
             $html .= "<form method='post'>";
             foreach ($questions as $question) {
                 $html .= "These are the answers<br>";
@@ -65,7 +68,8 @@ class QuizView extends View
     {
         $html = "";
         $html .= "<h3>Result</h3>";
-        var_dump($result);
+        echo "Current user";
+        var_dump(UserModel::getCurrentUser());
         foreach ($result as $key => $resultRow) {
             //Typesafety in PHP is, well, really bad, but I do not want the string keys, just the resultrows that contain the good info
 
@@ -74,7 +78,7 @@ class QuizView extends View
                 $html .= "<h4>Question $questionCount</h4>";
                 $html .= $resultRow["countRightAnswers"];
                 $html .= " out of " . $resultRow["rightAnswerCount"];
-                if ($resultRow["countWrongAnswers"]) {
+                if ($resultRow["countWrongAnswers"] > 0) {
                     $html .= " with " . $resultRow["countWrongAnswers"] . " extra wrong answers.";
                 } else {
                     $html .= "!";

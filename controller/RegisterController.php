@@ -21,11 +21,14 @@ class RegisterController extends Controller {
     protected function __getHTML($route)
     {
         $message = "";
+        $errors = "";
         if($this->model->isLoggedIn()){
             RedirectHandler::routeTo("?/");
         } else {
             if($this->registerView->getRequestMethod() === "POST"){
-                if ($this->model->validateInput($this->registerView->getRegisterData())) {
+                $errors = $this->model->validateInput($this->registerView->getRegisterData());
+
+                if ($errors === true) {
                     $tempUser = new UserModel();
                     $username = $this->registerView->getUsername();
                     $password = $this->registerView->getPassword();
@@ -40,13 +43,9 @@ class RegisterController extends Controller {
                     catch(Exception $e){
                         $message = $e->getMessage();
                     }
-                } else {
-                    return "You posted something and it failed";
                 }
-
             }
-            var_dump($message);
-            return $this->registerView->getRegisterPage($message);
+            return $this->registerView->getRegisterPage($message, $errors);
         }
     }
 }
