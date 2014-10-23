@@ -10,12 +10,10 @@ require_once("QuizModel.php");
 require_once("QuestionModel.php");
 require_once("AnswerModel.php");
 
-class QuizList
-{
+class QuizList {
     private $quizes;
 
-    public function __construct()
-    {
+    public function __construct() {
         $this->quizes = $this->loadQuizes();
 
         //$question = new QuestionModel();
@@ -28,13 +26,11 @@ class QuizList
      *  This might not be the optimal way and will probably depend on something like the user that is logged in
      *  (or not logged in)
      */
-    private function loadQuizes()
-    {
+    private function loadQuizes() {
         return QuizModel::getAllQuizes();
     }
 
-    public function getAllQuizes()
-    {
+    public function getAllQuizes() {
         return $this->quizes;
     }
 
@@ -44,14 +40,14 @@ class QuizList
      * @param $qid
      * @return QuizModel
      */
-    public function getQuizById($qid)
-    {
+    public function getQuizById($qid) {
         /** @var QuizModel $quizes */
         foreach ($this->quizes as $quizes) {
             if ($quizes->getId() == $qid) {
                 return $quizes;
             }
         }
+
         return false;
     }
 }

@@ -7,7 +7,7 @@ defined("__ROOT__") or die("Noh!");
  * Date: 2014-10-09
  * Time: 13:01
  */
-class QuestionModel extends Model{
+class QuestionModel extends Model {
     private $id;
     private $answers;
     private $questiontext;
@@ -15,15 +15,14 @@ class QuestionModel extends Model{
     private $wrongAnswers;
     private $quizid;
 
-    public function __construct(){
+    public function __construct() {
         $this->answers = array();
         $this->rightAnswers = array();
         $this->wrongAnswers = array();
         $this->loadAnswers();
     }
 
-    private function loadAnswers()
-    {
+    private function loadAnswers() {
         $conn = $this->getConnection();
         $sth = $conn->prepare("SELECT * FROM answers WHERE questionid = ?");
         $sth->execute(array($this->id));
@@ -32,8 +31,10 @@ class QuestionModel extends Model{
             $this->answers[] = $object;
             if ($object->getIscorrect() === 1) {
                 $this->rightAnswers[] = $object;
-            } else if ($object->getIscorrect() === 0) {
-                $this->wrongAnswers[] = $object;
+            } else {
+                if ($object->getIscorrect() === 0) {
+                    $this->wrongAnswers[] = $object;
+                }
             }
         }
     }
@@ -42,8 +43,7 @@ class QuestionModel extends Model{
      * Adds the answers to this->answers, $this->rightAnswers and $this->wrongAnswers based on if getIscorrect()
      * @param array $answers
      */
-    public function addAnswers(array $answers)
-    {
+    public function addAnswers(array $answers) {
         /** @var AnswerModel $answer */
         foreach ($answers as $answer) {
             $this->answers[] = $answer;
@@ -59,8 +59,7 @@ class QuestionModel extends Model{
      * @param $id
      * @return null|AnswerModel
      */
-    public function getAnswerById($id)
-    {
+    public function getAnswerById($id) {
         /** @var AnswerModel $answer */
         foreach ($this->answers as $answer) {
             if ($answer->getId() == $id) {
@@ -79,14 +78,14 @@ class QuestionModel extends Model{
      * the $result array will also have a onlyCorrect key set to either true or false based on if it was all the correct
      * answers that was available or not
      */
-    public function validateAnswers(array $data)
-    {
+    public function validateAnswers(array $data) {
         if (!$data) {
             $result["onlyCorrect"] = false;
             $result["countRightAnswers"] = 0;
             $result["countWrongAnswers"] = 0;
             $result["rightAnswerCount"] = $this->getCountRightAnswers();
             $result["wrongAnswerCount"] = $this->getCountWrongAnswers();
+
             return $result;
         }
         //Anonymous functions in PHP? Aw yess
@@ -114,10 +113,12 @@ class QuestionModel extends Model{
             if (in_array($answer, $rightAnswersIds)) {
                 $result[$key] = true;
                 $rightStreak += 1;
-            } else if (in_array($answer, $wrongAnswersIds)) {
-                $result[$key] = false;
-                $rightStreak = 0;
-                $wrongCount += 1;
+            } else {
+                if (in_array($answer, $wrongAnswersIds)) {
+                    $result[$key] = false;
+                    $rightStreak = 0;
+                    $wrongCount += 1;
+                }
             }
         }
         //More anonymous functions, oh yes
@@ -125,12 +126,14 @@ class QuestionModel extends Model{
             if ($item === true) {
                 $carry += 1;
             }
+
             return $carry;
         };
         $countWrongAnswers = function ($carry, $item) {
             if ($item === false) {
                 $carry += 1;
             }
+
             return $carry;
         };
         $result["countRightAnswers"] = array_reduce($result, $countRightAnswers, 0);
@@ -144,16 +147,15 @@ class QuestionModel extends Model{
         }
         $result["rightAnswerCount"] = $this->getCountRightAnswers();
         $result["wrongAnswerCount"] = $this->getCountWrongAnswers();
+
         return $result;
     }
 
-    public function getCountRightAnswers()
-    {
+    public function getCountRightAnswers() {
         return count($this->rightAnswers);
     }
 
-    public function getCountWrongAnswers()
-    {
+    public function getCountWrongAnswers() {
         return count($this->wrongAnswers);
     }
 
@@ -164,8 +166,8 @@ class QuestionModel extends Model{
         $result = $sth->fetch(PDO::FETCH_ASSOC);
         $this->id = $result["id"];
     }
-    public function saveQuestion($quizId)
-    {
+
+    public function saveQuestion($quizId) {
         $conn = $this->getConnection();
         $sth = $conn->prepare("INSERT INTO questions (questiontext, quizid) VALUES(?,?) RETURNING id");
         $sth->execute(array($this->questiontext, $quizId));
@@ -177,6 +179,7 @@ class QuestionModel extends Model{
         foreach ($this->answers as $answer) {
             $answer->saveAnswer($this->id);
         }
+
         return;
     }
 
@@ -189,104 +192,91 @@ class QuestionModel extends Model{
         var_dump("Now we've been in the updateQuestion function");
     }
 
-    public function getCountAnswers()
-    {
+    public function getCountAnswers() {
         return count($this->answers);
     }
 
     /**
      * @return array
      */
-    public function getAnswers()
-    {
+    public function getAnswers() {
         return $this->answers;
     }
 
     /**
      * @param array $answers
      */
-    public function setAnswers($answers)
-    {
+    public function setAnswers($answers) {
         $this->answers = $answers;
     }
 
     /**
      * @return mixed
      */
-    public function getId()
-    {
+    public function getId() {
         return $this->id;
     }
 
     /**
      * @param mixed $id
      */
-    public function setId($id)
-    {
+    public function setId($id) {
         $this->id = $id;
     }
 
     /**
      * @return mixed
      */
-    public function getQuestionText()
-    {
+    public function getQuestionText() {
         return $this->questiontext;
     }
 
     /**
      * @param mixed $questionText
      */
-    public function setQuestiontext($questiontext)
-    {
+    public function setQuestiontext($questiontext) {
         $this->questiontext = $questiontext;
     }
 
     /**
      * @return array
      */
-    public function getRightAnswers()
-    {
+    public function getRightAnswers() {
         return $this->rightAnswers;
     }
 
     /**
      * @param array $rightAnswers
      */
-    public function setRightAnswers($rightAnswers)
-    {
+    public function setRightAnswers($rightAnswers) {
         $this->rightAnswers = $rightAnswers;
     }
 
     /**
      * @return array
      */
-    public function getWrongAnswers()
-    {
+    public function getWrongAnswers() {
         return $this->wrongAnswers;
     }
 
     /**
      * @param array $wrongAnswers
      */
-    public function setWrongAnswers($wrongAnswers)
-    {
+    public function setWrongAnswers($wrongAnswers) {
         $this->wrongAnswers = $wrongAnswers;
     }
 
     /**
      * @return mixed
      */
-    public function getQuizid()
-    {
+    public function getQuizid() {
         return $this->quizid;
     }
 
     /**
      * @param mixed $quizId
      */
-    public function setQuizid($quizid)
-    {
+    public function setQuizid($quizid) {
         $this->quizid = $quizid;
     }
 }

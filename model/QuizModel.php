@@ -8,7 +8,7 @@ defined("__ROOT__") or die("Noh!");
  */
 require_once("Model.php");
 
-class QuizModel extends Model{
+class QuizModel extends Model {
     public $description = "Default description";
     private $id;
     private $name;
@@ -17,21 +17,22 @@ class QuizModel extends Model{
     private $opento;
     private $userWhoCreated;
 
-    public function __construct($name = null, $description = null, $opento = null)
-    {
-        if ($name !== null)
+    public function __construct($name = null, $description = null, $opento = null) {
+        if ($name !== null) {
             $this->name = $name;
-        if ($description !== null)
+        }
+        if ($description !== null) {
             $this->description = $description;
-        if ($opento !== null)
+        }
+        if ($opento !== null) {
             $this->opento = $opento;
+        }
 
         $this->loadQuestions();
         $this->userWhoCreated = UserModel::getUserById($this->creator);
     }
 
-    public function loadQuestions()
-    {
+    public function loadQuestions() {
         if ($this->id) {
             $conn = $this->getConnection();
             $sth = $conn->prepare("SELECT * FROM questions WHERE quizid = ?");
@@ -42,8 +43,7 @@ class QuizModel extends Model{
         }
     }
 
-    static public function getAllQuizes()
-    {
+    static public function getAllQuizes() {
         $conn = self::getConnection();
         $sth = $conn->prepare("SELECT * FROM quiz WHERE visible = 1");
         $sth->execute();
@@ -51,15 +51,16 @@ class QuizModel extends Model{
         while ($object = $sth->fetchObject("QuizModel")) {
             $quizes[] = $object;
         }
+
         return $quizes;
     }
 
-    static public function getDoneQuizes($userid)
-    {
+    static public function getDoneQuizes($userid) {
         $conn = self::getConnection();
         $sth = $conn->prepare("SELECT * FROM donequizes WHERE userid = ?");
         $sth->execute(array($userid));
         $result = $sth->fetchAll(PDO::FETCH_ASSOC);
+
         return $result;
     }
 
@@ -81,8 +82,7 @@ class QuizModel extends Model{
     /**
      * @return array QuestionModel
      */
-    public function getQuestions()
-    {
+    public function getQuestions() {
         return $this->questions;
     }
 
@@ -91,8 +91,7 @@ class QuizModel extends Model{
      * @param array $data
      * @return array
      */
-    public function validateAnswers(array $data)
-    {
+    public function validateAnswers(array $data) {
         $result = array();
         /** @var QuestionModel $question */
         foreach ($this->questions as $key => $question) {
@@ -124,8 +123,7 @@ class QuizModel extends Model{
         return $result;
     }
 
-    public function saveAnswers(array $data, array $result)
-    {
+    public function saveAnswers(array $data, array $result) {
         $conn = $this->getConnection();
         $sth = $conn->prepare("INSERT INTO donequizes(quizid, userid, donewhen, answers, result) VALUES(?,?,?,?, ?)");
         $sth->execute(array($this->id, UserModel::getCurrentUser()->getId(), date("Y-m-d h:i:s",
@@ -134,8 +132,7 @@ class QuizModel extends Model{
         return true;
     }
 
-    public function saveQuiz(array $questions)
-    {
+    public function saveQuiz(array $questions) {
         $conn = $this->getConnection();
         $sth = $conn->prepare("INSERT INTO quiz(creator, name, opento, description) VALUES (?,?,?,?) RETURNING id");
         $sth->execute(array(UserModel::getCurrentUser()->getId(), $this->name, "all", $this->description));
@@ -175,8 +172,7 @@ class QuizModel extends Model{
     /**
      * @return mixed
      */
-    public function getId()
-    {
+    public function getId() {
         return $this->id;
     }
 
@@ -189,7 +185,7 @@ class QuizModel extends Model{
 
     public function removeQuiz() {
         $conn = $this->getConnection();
-        $sth = $conn->prepare("UPDATE quiz set visible = 0 WHERE id = ?");
+        $sth = $conn->prepare("UPDATE quiz SET visible = 0 WHERE id = ?");
         $sth->execute(array($this->getId()));
     }
 
@@ -242,5 +238,9 @@ class QuizModel extends Model{
      */
     public function setCreator($creator) {
         $this->creator = $creator;
+    }
+
+    public function getQuestionCount() {
+        return count($this->questions);
     }
 }

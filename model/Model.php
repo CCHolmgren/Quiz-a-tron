@@ -9,19 +9,20 @@ defined("__ROOT__") or die("Noh!");
 /*
  * @todo: Implement the database connection
  */
-class Model{
+
+class Model {
     protected static $PDO;
 
-    public function __construct()
-    {
+    public function __construct() {
     }
 
-    static public function getConnection()
-    {
-        if (self::$PDO === null)
+    static public function getConnection() {
+        if (self::$PDO === null) {
             self::$PDO = new PDO("pgsql:host=localhost;dbname=project;", "php", "password");
+        }
 
         self::$PDO->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
         return self::$PDO;
     }
 }

@@ -28,9 +28,14 @@ class HTMLHelper
 
     <!-- Bootstrap -->
     <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css'>
+    <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
     <style>
     main{
     width: 95%;
+    }
+    body {
+      font-family: 'Roboto', sans-serif;
+      font-weight: 400;
     }
     </style>
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->

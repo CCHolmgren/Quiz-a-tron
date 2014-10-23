@@ -12,8 +12,9 @@ class DefaultView extends View {
     }
     public function getDefaultPage(){
         $html = '';
-        if(isset($_SESSION["loggedin"])) {
-            $html .= '<p>Hello there. You are logged in!</p>';
+        if (UserModel::isLoggedIn()) {
+            $html .= '<h2>Hello there. You are logged in!</h2>';
+            $html .= 'You are logged in as ' . UserModel::getCurrentUser()->getUsername();
         }
             $html .= '
                 <p>Hello there from default view</p>';

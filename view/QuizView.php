@@ -8,13 +8,11 @@ defined("__ROOT__") or die("Noh!");
  */
 require_once(__ROOT__ . "model/QuizList.php");
 
-class QuizView extends View
-{
+class QuizView extends View {
     private $quizmodel;
     private $quizes;
 
-    public function __construct()
-    {
+    public function __construct() {
         $this->quizList = new QuizList();
         $this->quizes = $this->quizList->getAllQuizes();
     }
@@ -53,8 +51,7 @@ class QuizView extends View
         return $html;
     }
 
-    public function getResultsPage($result, $quiz)
-    {
+    public function getResultsPage($result, $quiz) {
         $html = "";
         $html .= "<h3>Result</h3>";
         echo "Current user";
@@ -78,11 +75,11 @@ class QuizView extends View
                 $html .= "<p>Wow you got all the questions correct!</p>";
             }
         }
+
         return $html;
     }
 
-    public function getEditQuizPage(QuizModel $quiz)
-    {
+    public function getEditQuizPage(QuizModel $quiz) {
         $html = "This will require just as much as the other one. Hold on for a long while until I fix this.";
         $html .= "<form method='post'>";
         $html .= "<input type='text' name='quiztext' value='" . $quiz->getDescription() . "'>";
@@ -239,15 +236,50 @@ class QuizView extends View
      * @return string
      */
     public function getQuizesPage($editMethods = false) {
-        $html = '';
+        $html = '<h3>Hello there. This is the quiz page. These are all the quizes available for you:</h3>';
+        $html .= "<table class='table table-striped table-condensed'>
+                    <thead>
+                        <tr>
+                            <th>Quiz name</th>
+                            <th>Description</th>
+                            <th>Questions</th>
+                            <th>Done?</th>
+                            <th>Link</th>";
+        if ($editMethods) {
+            $html .= "<th>Methods</th>";
+        }
+        $html .= "
+                        </tr>
+                    </thead>
+                    <tbody>";
+        /** @var QuizModel $quiz */
+        sort($this->quizes);
         foreach ($this->quizes as $quiz) {
-            $html .= "<p>" . $quiz->description . "<a href='?/quizes/quiz/{$quiz->getId()}'>Go do this quiz!</a>";
+            if (mb_strlen($quiz->getDescription()) - 3 > 31) {
+                $descriptionText = mb_substr($quiz->getDescription(), 0, 30) . "...";
+            } else {
+                $descriptionText = $quiz->getDescription();
+            }
+            if (mb_strlen($quiz->getName()) - 3 > 26) {
+                $quizName = mb_substr($quiz->getName(), 0, 25) . "...";
+            } else {
+                $quizName = $quiz->getName();
+            }
+            if (UserModel::getCurrentUser()->hasDoneQuiz($quiz->getId())) {
+                $hasDone = "Yes";
+            } else {
+                $hasDone = "No";
+            }
+
+            $html .= "<tr><td>";
+            $html .= $quizName . "</td><td>" . $descriptionText . "</td><td>" . $quiz->getQuestionCount() . "</td><td>" . $hasDone . "</td><td>" . "<a href='?/quizes/quiz/{$quiz->getId()}'>Go do this quiz!</a></td>";
 
             if ($editMethods) {
-                $html .= " <a href='?/quizes/edit/{$quiz->getId()}'>Edit</a> | <a href='?/quizes/delete/{$quiz->getId()}'>Delete</a>";
+                $html .= "<td><a href='?/quizes/edit/{$quiz->getId()}'>Edit</a> | <a href='?/quizes/delete/{$quiz->getId()}'>Delete</a></td>";
             }
-            $html .= "</p>";
+            $html .= "</tr>";
         }
+        $html .= "</tbody></table>";
 
         return $html;
     }
