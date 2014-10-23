@@ -29,11 +29,11 @@ class NotImplementedException extends Exception{}
 /*
  * Define the RoutingDirectives so that the routing knows to what controller to send the controls to
  */
-$routes = array(new RoutingDirective("/^\/register/", "RegisterController", "getHTML", "register"),
-    new RoutingDirective("/^\/login/", "LoginController", "getHTML", "login"),
-    new RoutingDirective("/^\/logout/", "LogoutController", "getHTML", "logout"),
-    new RoutingDirective("/^\/quizes/", "QuizController", "getHTML", "quizes"),
-    new RoutingDirective("/^\/?/", "DefaultController", "getHTML", "default"));
+$routes = array(new RoutingDirective("/register/", "RegisterController", "getHTML", "register"),
+                new RoutingDirective("/login/", "LoginController", "getHTML", "login"),
+                new RoutingDirective("/logout/", "LogoutController", "getHTML", "logout"),
+                new RoutingDirective("/project\/quizes\/?/", "QuizController", "getHTML", "quizes"),
+                new RoutingDirective("//", "DefaultController", "getHTML", "default"));
 
 // The Route is a class that handles routes, at this moment it only does handleRoute, but maybe more in the future
 $routing = new Route($routes);
@@ -51,7 +51,7 @@ $matches = $values["matches"];
  */
 $x = new $rd->controllername();
 $fn = $rd->functionname;
-echo $x->$fn(preg_replace($rd->regex, "", View::getQueryString()));
+echo $x->$fn(preg_replace($rd->regex, "", View::getRequestURI()));
 
 /*
 switch($rd->name){

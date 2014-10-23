@@ -29,11 +29,11 @@ class NavigationView extends View
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav">
-                <li class="active">
-                    <a href="?/">Home</a>
+                <li>
+                    <a href="/project/">Home</a>
                 </li>
                 <li>
-                    <a href="?/quizes">Quizes</a>
+                    <a href="/project/quizes">Quizes</a>
                 </li>
 
             </ul>
@@ -41,18 +41,18 @@ class NavigationView extends View
         if (!UserModel::isLoggedIn()) {
             $html .= '
                 <li>
-                    <a href="?/login">Login</a>
+                    <a href="/project/login">Login</a>
                 </li>';
             $html .= '
                 <li>
-                    <a href="?/register">Register</a>
+                    <a href="/project/register">Register</a>
                 </li>';
         } else {
             $username = UserModel::getCurrentUser()->getUsername();
             $userid = UserModel::getCurrentUser()->getId();
             $html .= '
             <li>
-                <a href="?/user/' . $username . '"> ' . $username . '</a>
+                <a href="/project/user/' . $username . '"> ' . $username . '</a>
             </li>
             <li>
                 <a>User id: ' . $userid . '</a>
@@ -60,7 +60,7 @@ class NavigationView extends View
             ';
             $html .= '
                 <li>
-                    <a href="?/logout">Logout</a>
+                    <a href="/project/logout">Logout</a>
                 </li>';
         }
         $html .= '

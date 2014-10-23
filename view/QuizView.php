@@ -32,17 +32,21 @@ class QuizView extends View {
             }
             $html .= "<form method='post'>";
             foreach ($questions as $question) {
-                $html .= "These are the answers<br>";
+
+                $html .= "<div class='question'>";
+
 
                 /** @var AnswerModel $answer */
                 $html .= $question->getQuestionText() . "<br>";
                 foreach ($question->getAnswers() as $answer) {
-                    $html .= "<span>" . $answer->getAnswertext() . "</span>";
-                    $html .= $answer->getIscorrect();
-                    $html .= $answer->getId();
+                    $html .= "<div class='answer' style='border:1px solid grey'>";
+                    $html .= "<span class='answertext'>" . $answer->getAnswertext() . "</span>";
                     $html .= "<input type='checkbox' name='{$question->getId()}[]' value={$answer->getId()}>";
                     $html .= "<br/>";
+
+                    $html .= "</div>";
                 }
+                $html .= "</div>";
             }
             $html .= "<input type='submit' value='Submit answers'>";
             $html .= "</form>";
@@ -85,7 +89,7 @@ class QuizView extends View {
         $html .= "<input type='text' name='quiztext' value='" . $quiz->getDescription() . "'>";
         $html .= "<input type='submit' value='Save'>";
         $html .= "</form>";
-        $html .= "<a href='?/quizes/add/{$quiz->getId()}'>Add questions</a>";
+        $html .= "<a href='/project/quizes/add/{$quiz->getId()}'>Add questions</a>";
         /*
         $html .= "
                 <form method='post'>";*/
@@ -94,8 +98,8 @@ class QuizView extends View {
 
             foreach ($quiz->getQuestions() as $question) {
                 $html .= $question->getQuestionText();
-                $html .= "<a href='?/quizes/edit/{$quiz->getId()}/{$question->getId()}'>Edit</a>";
-                $html .= "<a href='?/quizes/delete/{$quiz->getId()}/{$question->getId()}'>Delete</a>";
+                $html .= "<a href='/project/quizes/edit/{$quiz->getId()}/{$question->getId()}'>Edit</a>";
+                $html .= "<a href='/project/quizes/delete/{$quiz->getId()}/{$question->getId()}'>Delete</a>";
                 $html .= "<br>";
                 /*
                 $html .= "<input type='hidden' name='objecttype;question;{$question->getId()}' value='question'>";
@@ -127,14 +131,14 @@ class QuizView extends View {
         $html .= "<input type='text' name='questiontext' value='" . $question->getQuestionText() . "'>";
         $html .= "<input type='submit' value='Save'>";
         $html .= "</form>";
-        $html .= "<a href='?/quizes/add/{$quiz->getId()}/{$question->getId()}'>Add answers</a>";
+        $html .= "<a href='/project/quizes/add/{$quiz->getId()}/{$question->getId()}'>Add answers</a>";
         /** @var AnswerModel $answer */
         foreach ($question->getAnswers() as $answer) {
 
             $html .= $answer->getAnswertext();
             $html .= $answer->getIscorrect();
-            $html .= "<a href='?/quizes/edit/{$quiz->getId()}/{$question->getId()}/{$answer->getId()}'>Edit</a>";
-            $html .= "<a href='?/quizes/delete/{$quiz->getId()}/{$question->getId()}/{$answer->getId()}'>Delete</a>";
+            $html .= "<a href='/project/quizes/edit/{$quiz->getId()}/{$question->getId()}/{$answer->getId()}'>Edit</a>";
+            $html .= "<a href='/project/quizes/delete/{$quiz->getId()}/{$question->getId()}/{$answer->getId()}'>Delete</a>";
             $html .= "<br>";
         }
 
@@ -160,8 +164,8 @@ class QuizView extends View {
         foreach ($question->getAnswers() as $answer) {
             $html .= $answer->getAnswertext();
             $html .= $answer->getIscorrect();
-            $html .= "<a href='?/quizes/edit/{$question->getQuizid()}/{$question->getId()}/{$answer->getId()}'>Edit</a>";
-            $html .= "<a href='?/quizes/delete/{$question->getId()}/{$question->getId()}/{$answer->getId()}'>Delete</a>";
+            $html .= "<a href='/project/quizes/edit/{$question->getQuizid()}/{$question->getId()}/{$answer->getId()}'>Edit</a>";
+            $html .= "<a href='/project/quizes/delete/{$question->getId()}/{$question->getId()}/{$answer->getId()}'>Delete</a>";
             $html .= "<br>";
         }
         $html .= "<form method='post'>";
@@ -182,8 +186,8 @@ class QuizView extends View {
         foreach ($quiz->getQuestions() as $question) {
 
             $html .= "<div class=''>";
-            $html .= "<p class=''><a class='btn btn-default btn-xs' role='button' href='?/quizes/edit/{$quiz->getId()}/{$question->getId()}'>Edit</a>";
-            $html .= "<a class='btn btn-danger btn-xs' role='button'  href='?/quizes/delete/{$quiz->getId()}/{$question->getId()}'>Delete</a>";
+            $html .= "<p class=''><a class='btn btn-default btn-xs' role='button' href='/project/quizes/edit/{$quiz->getId()}/{$question->getId()}'>Edit</a>";
+            $html .= "<a class='btn btn-danger btn-xs' role='button'  href='/project/quizes/delete/{$quiz->getId()}/{$question->getId()}'>Delete</a>";
             $html .= " " . $question->getQuestionText() . "</p>";
 
             $html .= "</div>";
@@ -272,10 +276,10 @@ class QuizView extends View {
             }
 
             $html .= "<tr><td>";
-            $html .= $quizName . "</td><td>" . $descriptionText . "</td><td>" . $quiz->getQuestionCount() . "</td><td>" . $hasDone . "</td><td>" . "<a href='?/quizes/quiz/{$quiz->getId()}'>Go do this quiz!</a></td>";
+            $html .= $quizName . "</td><td>" . $descriptionText . "</td><td>" . $quiz->getQuestionCount() . "</td><td>" . $hasDone . "</td><td>" . "<a href='/project/quizes/quiz/{$quiz->getId()}'>Go do this quiz!</a></td>";
 
             if ($editMethods) {
-                $html .= "<td><a href='?/quizes/edit/{$quiz->getId()}'>Edit</a> | <a href='?/quizes/delete/{$quiz->getId()}'>Delete</a></td>";
+                $html .= "<td><a href='/project/quizes/edit/{$quiz->getId()}'>Edit</a> | <a href='/project/quizes/delete/{$quiz->getId()}'>Delete</a></td>";
             }
             $html .= "</tr>";
         }

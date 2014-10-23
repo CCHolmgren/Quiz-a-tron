@@ -21,12 +21,12 @@ class LogoutController extends Controller {
         if ($this->model->isLoggedIn()) {
             if ($this->view->getRequestMethod() === "POST") {
                 $this->model->logout();
-                RedirectHandler::routeTo("?/");
+                RedirectHandler::routeTo("/");
             }
 
             return $this->view->getLogoutPage();
         }
-        RedirectHandler::routeTo("?/");
+        RedirectHandler::routeTo("/");
 
         return "";
     }

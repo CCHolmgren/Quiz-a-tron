@@ -21,7 +21,7 @@ class QuizController extends Controller {
 
     protected function __getHTML($route) {
         if (!UserModel::getCurrentUser()->isLoggedIn()) {
-            RedirectHandler::routeTo("?/");
+            RedirectHandler::routeTo("/");
         }
         /** @var QuizModel $quiz */
         /*$quiz = new QuizModel("Some name", "Desciption here", "all");
@@ -34,7 +34,6 @@ class QuizController extends Controller {
         /*
          * Hand of the controlling to the cud controller if we find out that the user wanted to edit, add or delete a quiz
          */
-
         $didCUDMatch = preg_match("/^\/(edit|add|delete)/", $route, $CUDmatches);
         if ($didCUDMatch) {
             $cudController = new QuizCUDController();

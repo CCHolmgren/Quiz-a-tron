@@ -27,9 +27,9 @@ class DefaultController extends Controller {
     }
 
     protected function __getHTML($route) {
-        if (View::getQueryString() !== "/") {
-            RedirectHandler::routeTo("?/");
-        }
+        /*if (View::getQueryString() !== "/") {
+            RedirectHandler::routeTo("/");
+        }*/
 
         return $this->defaultView->getDefaultPage();
     }

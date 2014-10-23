@@ -21,6 +21,10 @@ class View{
         return $_SERVER["QUERY_STRING"];
     }
 
+    public static function getRequestURI() {
+        return $_SERVER["REQUEST_URI"];
+    }
+
     public function getHead() {
         $head = "<title>Default title</title>";
         return $head;

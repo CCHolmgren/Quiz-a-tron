@@ -263,21 +263,21 @@ class UserModel extends Model {
     }
 
     /**
-     * @return mixed
+     * @return null|string
      */
     public function getPassword() {
         return $this->password;
     }
 
     /**
-     * @return mixed
+     * @return null|string
      */
     public function getUsername() {
         return $this->username;
     }
 
     /**
-     * @return mixed
+     * @return null|string
      */
     public function getEmail() {
         return $this->email;

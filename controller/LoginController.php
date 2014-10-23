@@ -28,7 +28,7 @@ class LoginController extends Controller {
         } else {
             if ($this->view->getRequestMethod() === "POST") {
                 if ($this->model->validateLogin($this->view->getLoginData())) {
-                    RedirectHandler::routeTo("?/");
+                    RedirectHandler::routeTo("/");
                 }
                 $message = "You tried to login and it failed";
             }

@@ -39,7 +39,7 @@ class Route {
             //var_dump($routingDirective->regex,$_SERVER["QUERY_STRING"],preg_match($routingDirective->regex, $_SERVER["QUERY_STRING"]));
             //If the route is matched, we return the routingdirective, with all its information and also all the matched
             //parameters so that the controller can do something with them
-            if (preg_match($routingDirective->regex, View::getQueryString(), $matches)) {
+            if (preg_match($routingDirective->regex, View::getRequestURI(), $matches)) {
                 return array("routingdirective" => $routingDirective, "matches" => $matches);
             }
         }

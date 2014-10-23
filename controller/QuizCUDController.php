@@ -22,7 +22,6 @@ class QuizCUDController extends Controller {
      * @return string
      */
     protected function __getHTML($route) {
-
         $didMatch =
             preg_match("/^\/(?P<method>edit|add|delete)\/?(?P<quizid>\d+)?\/?(?P<questionid>\d+)?\/?(?P<answerid>\d+)?/",
                        $route, $matches);
@@ -34,17 +33,15 @@ class QuizCUDController extends Controller {
         if (isset($matches["quizid"])) {
             $quiz = $this->quizList->getQuizById($matches["quizid"]);
         }
-
         if ($matches["method"] === "edit") {
             if ($requestMethod === "POST") {
-                var_dump($_POST);
                 if (isset($matches["answerid"])) {
                     $data = $this->view->getEditData();
                     $answer = $quiz->getQuestionById($matches["questionid"])->getAnswerById($matches["answerid"]);
                     $answer->setAnswertext($data["answertext"]);
                     $answer->setIscorrect($data["iscorrect"] == "on" ? 1 : 0);
                     $answer->updateAnswer();
-                    RedirectHandler::routeTo("?/quizes/{$matches["method"]}/{$matches["quizid"]}/{$matches["questionid"]}");
+                    RedirectHandler::routeTo("/project/quizes/{$matches["method"]}/{$matches["quizid"]}/{$matches["questionid"]}");
                     echo "Editing an answer";
                 } else {
                     if (isset($matches["questionid"])) {
@@ -53,53 +50,17 @@ class QuizCUDController extends Controller {
                         $question = $quiz->getQuestionById($matches["questionid"]);
                         $question->setQuestiontext($data["questiontext"]);
                         $question->updateQuestion();
-                        RedirectHandler::routeTo("?/quizes/{$matches["method"]}/{$matches["quizid"]}");
+                        RedirectHandler::routeTo("/project/quizes/{$matches["method"]}/{$matches["quizid"]}");
                     } else {
                         if (isset($matches["quizid"])) {
                             $data = $this->view->getEditData();
                             $quiz->description = $data["quiztext"];
                             $quiz->updateQuiz();
-                            RedirectHandler::routeTo("?/quizes/{$matches["method"]}/");
+                            RedirectHandler::routeTo("/project/quizes/{$matches["method"]}/");
                             echo "Editing a quiz";
                         }
                     }
                 }
-                /*
-                var_dump($this->view->getEditData());
-                $questions = array();
-                $answers = array();
-                foreach($this->view->getEditData() as $key=>$thing){
-                    $arraything = explode(";", $key);
-                    if(count($arraything) === 3){
-                        $objecttype = true;
-                        $type = $arraything[1];
-                        $id = $arraything[2];
-                    }
-                    else if(count($arraything) === 2){
-                        $objecttype = false;
-                        $type = $arraything[0];
-                        $id = $arraything[1];
-                    }
-                    var_dump($objecttype, $type, $id);
-                    if($objecttype === true){
-                        if($type === "answer"){
-                            echo "That was an answer";
-                            $answer = new AnswerModel();
-                            $answer->setId($id);
-                            $answers[$id] = $answer;
-                        }
-                        else if($type === "question"){
-                            echo "That was a question";
-                            $question = new QuestionModel();
-                            $question->setId($id);
-                            $questions[$id] = $question;
-                        }
-                    }
-                }
-                var_dump($questions);
-                var_dump($answers);
-                //RedirectHandler::routeTo("?/quizes/edit/");
-                */
             } else {
                 if (isset($matches["answerid"])) {
                     /** @var QuestionModel $question */
@@ -126,7 +87,7 @@ class QuizCUDController extends Controller {
                 if ($requestMethod === "POST") {
                     if ($this->view->getTotallySure() === "true") {
                         $quiz->removeQuiz();
-                        RedirectHandler::routeTo("?/quizes/delete/");
+                        RedirectHandler::routeTo("/project/quizes/delete/");
                     }
                 } else {
                     if ($quiz !== false) {
@@ -146,7 +107,7 @@ class QuizCUDController extends Controller {
                             $answer->setAnswertext($data["answertext"]);
                             $answer->setIscorrect($data["iscorrect"] == "on" ? 1 : 0);
                             $answer->saveAnswer();
-                            RedirectHandler::routeTo("?/quizes/{$matches["method"]}/{$matches["quizid"]}/{$matches["questionid"]}");
+                            RedirectHandler::routeTo("/project/quizes/{$matches["method"]}/{$matches["quizid"]}/{$matches["questionid"]}");
                             echo "Adding an answer";
                         } //We want to add a question
                         else {
@@ -157,7 +118,7 @@ class QuizCUDController extends Controller {
                                 $question->setQuestiontext($data["questiontext"]);
                                 $question->setQuizid($matches["quizid"]);
                                 $question->addQuestion();
-                                RedirectHandler::routeTo("?/quizes/{$matches["method"]}/{$matches["quizid"]}");
+                                RedirectHandler::routeTo("/project/quizes/{$matches["method"]}/{$matches["quizid"]}");
                             } //We want to add a quiz
                             else {
                                 $data = $this->view->getAddData();
@@ -168,7 +129,7 @@ class QuizCUDController extends Controller {
                                 $quiz->setOpento($data["opento"]);
                                 $quiz->addQuiz();
                                 //$quiz->updateQuiz();
-                                RedirectHandler::routeTo("?/quizes/edit/");
+                                RedirectHandler::routeTo("/project/quizes/edit/");
                             }
                         }
                     } else {
