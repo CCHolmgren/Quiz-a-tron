@@ -1,4 +1,5 @@
 <?php
+defined("__ROOT__") or die("Noh!");
 /**
  * Created by PhpStorm.
  * User: Chrille
@@ -10,7 +11,7 @@ class LogoutView extends View{
     public function getLogoutPage(){
         $html = "<p>This is the logout page</p>
                     <form method='post'>
-                        <input type='submit' value='Logout'>
+                        <input type='submit' value='Logout' class='btn btn-primary'>
                     </form>
         ";
         return $html;

@@ -1,4 +1,6 @@
 <?php
+defined("__ROOT__") or die("Noh!");
+
 /**
  * Created by PhpStorm.
  * User: Chrille
@@ -86,11 +88,20 @@ class AnswerModel extends Model{
         $this->id = $id;
     }
 
-    public function saveAnswer($id)
+    public function updateAnswer() {
+        $conn = $this->getConnection();
+        $sth =
+            $conn->prepare("UPDATE answers SET (answertext, iscorrect, questionid) = (:answertext,:iscorrect,:questionid) WHERE id = :answerid");
+        $sth->execute(array("answertext" => $this->answertext, "iscorrect" => $this->iscorrect, "questionid" => $this->questionid, "answerid" => $this->id));
+
+        return;
+    }
+
+    public function saveAnswer()
     {
         $conn = $this->getConnection();
         $sth = $conn->prepare("INSERT INTO answers(answertext, iscorrect, questionid) VALUES(:answertext,:iscorrect,:questionid) RETURNING id");
-        $sth->execute(array("answertext" => $this->answertext, "iscorrect" => $this->iscorrect, "questionid" => $id));
+        $sth->execute(array("answertext" => $this->answertext, "iscorrect" => $this->iscorrect, "questionid" => $this->questionid));
         $result = $sth->fetch(PDO::FETCH_ASSOC);
         $this->id = $result["id"];
         return;

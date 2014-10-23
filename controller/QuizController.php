@@ -1,4 +1,5 @@
 <?php
+defined("__ROOT__") or die("Noh!");
 /**
  * Created by PhpStorm.
  * User: Chrille
@@ -12,14 +13,13 @@ require_once(__ROOT__ . "view/QuizView.php");
 class QuizController extends Controller {
     private $view;
 
-    public function __construct(){
+    public function __construct() {
         $this->view = new QuizView();
         $this->quizList = new QuizList();
         parent::__construct();
     }
 
-    protected function __getHTML($route)
-    {
+    protected function __getHTML($route) {
         if (!UserModel::getCurrentUser()->isLoggedIn()) {
             RedirectHandler::routeTo("?/");
         }
@@ -38,6 +38,7 @@ class QuizController extends Controller {
         $didCUDMatch = preg_match("/^\/(edit|add|delete)/", $route, $CUDmatches);
         if ($didCUDMatch) {
             $cudController = new QuizCUDController();
+
             return $cudController->getHTML($route, false);
         }
         //If we are in /quiz/(?P<quizid>) we should go ahead and display the page of the quiz
@@ -52,12 +53,14 @@ class QuizController extends Controller {
                 if ($result["allCorrect"] === true) {
                     echo "Oh my lordy, you guessed all correct!";
                 }
+
                 return $this->view->getResultsPage($result, $quiz);
             }
             if ($didMatchQuiz) {
                 return $this->view->getQuizPage($quiz);
             }
         }
+
         return $this->view->getQuizesPage();
     }
 }

@@ -1,4 +1,6 @@
 <?php
+defined("__ROOT__") or die("Noh!");
+
 /**
  * Created by PhpStorm.
  * User: Chrille

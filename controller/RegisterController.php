@@ -1,4 +1,5 @@
 <?php
+defined("__ROOT__") or die("Noh!");
 /**
  * Created by PhpStorm.
  * User: Chrille
@@ -7,25 +8,24 @@
  */
 require_once(__ROOT__ . "view/RedirectHandler.php");
 require_once("Controller.php");
-require_once(__ROOT__."view/RegisterView.php");
-require_once(__ROOT__."model/UserModel.php");
+require_once(__ROOT__ . "view/RegisterView.php");
+require_once(__ROOT__ . "model/UserModel.php");
 
 class RegisterController extends Controller {
     private $registerView;
 
-    public function __construct($view = null, $model = null){
+    public function __construct($view = null, $model = null) {
         $this->registerView = $view === null ? new RegisterView() : $view;
         parent::__construct();
     }
 
-    protected function __getHTML($route)
-    {
+    protected function __getHTML($route) {
         $message = "";
         $errors = "";
-        if($this->model->isLoggedIn()){
+        if ($this->model->isLoggedIn()) {
             RedirectHandler::routeTo("?/");
         } else {
-            if($this->registerView->getRequestMethod() === "POST"){
+            if ($this->registerView->getRequestMethod() === "POST") {
                 $errors = $this->model->validateInput($this->registerView->getRegisterData());
 
                 if ($errors === true) {
@@ -34,17 +34,17 @@ class RegisterController extends Controller {
                     $password = $this->registerView->getPassword();
                     $email = $this->registerView->getEmail();
 
-                    try{
+                    try {
                         //We get another user out of the registerUser function
                         //Might as well capture it.
                         $tempUser = $tempUser->registerUser($username, $password, $email);
                         RedirectHandler::routeTo("?/login");
-                    }
-                    catch(Exception $e){
+                    } catch (Exception $e) {
                         $message = $e->getMessage();
                     }
                 }
             }
+
             return $this->registerView->getRegisterPage($message, $errors);
         }
     }

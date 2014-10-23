@@ -1,4 +1,6 @@
 <?php
+defined("__ROOT__") or die("Noh!");
+
 /**
  * Created by PhpStorm.
  * User: Chrille
@@ -55,16 +57,18 @@ class QuestionModel extends Model{
 
     /**
      * @param $id
-     * @return AnswerModel
+     * @return null|AnswerModel
      */
     public function getAnswerById($id)
     {
         /** @var AnswerModel $answer */
         foreach ($this->answers as $answer) {
-            if ($answer->getId() === $id) {
+            if ($answer->getId() == $id) {
                 return $answer;
             }
         }
+
+        return null;
     }
 
     /**
@@ -153,6 +157,13 @@ class QuestionModel extends Model{
         return count($this->wrongAnswers);
     }
 
+    public function addQuestion() {
+        $conn = $this->getConnection();
+        $sth = $conn->prepare("INSERT INTO questions (questiontext, quizid) VALUES(?,?) RETURNING id");
+        $sth->execute(array($this->questiontext, $this->quizid));
+        $result = $sth->fetch(PDO::FETCH_ASSOC);
+        $this->id = $result["id"];
+    }
     public function saveQuestion($quizId)
     {
         $conn = $this->getConnection();
@@ -167,6 +178,15 @@ class QuestionModel extends Model{
             $answer->saveAnswer($this->id);
         }
         return;
+    }
+
+    public function updateQuestion() {
+        $conn = $this->getConnection();
+        $sth = $conn->prepare("UPDATE questions SET questiontext = ? WHERE id = ?");
+        var_dump($this);
+        var_dump($this->questiontext);
+        $sth->execute(array($this->questiontext, $this->id));
+        var_dump("Now we've been in the updateQuestion function");
     }
 
     public function getCountAnswers()
@@ -217,9 +237,9 @@ class QuestionModel extends Model{
     /**
      * @param mixed $questionText
      */
-    public function setQuestionText($questionText)
+    public function setQuestiontext($questiontext)
     {
-        $this->questionText = $questionText;
+        $this->questiontext = $questiontext;
     }
 
     /**
@@ -257,7 +277,7 @@ class QuestionModel extends Model{
     /**
      * @return mixed
      */
-    public function getQuizId()
+    public function getQuizid()
     {
         return $this->quizid;
     }
@@ -265,8 +285,8 @@ class QuestionModel extends Model{
     /**
      * @param mixed $quizId
      */
-    public function setQuizId($quizId)
+    public function setQuizid($quizid)
     {
-        $this->quizId = $quizId;
+        $this->quizid = $quizid;
     }
 }

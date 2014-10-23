@@ -1,4 +1,6 @@
 <?php
+defined("__ROOT__") or die("Noh!");
+
 /**
  * Created by PhpStorm.
  * User: Chrille
@@ -10,13 +12,18 @@ class View{
 
     }
 
-    public function getHead()
+    public static function getRequestMethod() {
+        return $_SERVER["REQUEST_METHOD"];
+    }
+
+    public static function getQueryString()
     {
+        return $_SERVER["QUERY_STRING"];
+    }
+
+    public function getHead() {
         $head = "<title>Default title</title>";
         return $head;
-    }
-    public function getRequestMethod(){
-        return $_SERVER["REQUEST_METHOD"];
     }
     /*
      * This function should return the userdata that is needed to handle a registration
@@ -28,6 +35,7 @@ class View{
      *
      * @todo: Do basic validation of data here, maybe even escape the data if needed
      */
+
     public function getRegisterData()
     {
         return array("username" => $_POST["username"], "password" => $_POST["password"], "repeatedpassword" => $_POST["repeatedpassword"], "email" => $_POST["email"]);

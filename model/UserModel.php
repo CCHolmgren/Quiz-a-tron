@@ -1,4 +1,5 @@
 <?php
+defined("__ROOT__") or die("Noh!");
 /**
  * Created by PhpStorm.
  * User: Chrille
@@ -75,59 +76,30 @@ class UserModel extends Model {
         //throw new NotImplementedException("registerUser is not implemented yet and as such will not have done anything");
     }
 
-    public function usernameExists($username)
-    {
-        $conn = $this->getConnection();
-
-        $sth = $conn->prepare("SELECT 1 FROM users WHERE username = ?");
-        $sth->execute(array($username));
-
-        if ($sth->fetch()) {
-            return true;
-        }
-        return false;
-    }
-
-    public function emailExists($email)
-    {
-        $conn = $this->getConnection();
-
-        $sth = $conn->prepare("SELECT 1 FROM users WHERE email = ?");
-        $sth->execute(array($email));
-
-        if ($sth->fetch()) {
-            return true;
-        }
-        return false;
-    }
-    /*
-     * @todo: Implement this function properly
-     */
-
-    public function isLoggedIn(){
+    public function isLoggedIn() {
         return isset($_SESSION["loggedin"]);
     }
-    /*
-     * @todo: Implement this function properly
-     */
+
     public function validateInput(array $data)
     {
         $username = $data["username"];
         $password = $data["password"];
         $repeatedpassword = $data["repeatedpassword"];
         $email = $data["email"];
-        return true;
         $errors = array();
-        if ($username !== filter_input(FILTER_SANITIZE_FULL_SPECIAL_CHARS, $username)) {
-            $errors[] = "The username can't contain other symbols than a-z, A-Z, 0-9";
+        if (mb_strlen($username) < 6) {
+            $errors[] = "The username can't be less than 6 letters long";
         }
+        /*if ($username !== filter_input(FILTER_SANITIZE_FULL_SPECIAL_CHARS, $username)) {
+            $errors[] = "The username can't contain other symbols than a-z, A-Z, 0-9";
+        }*/
         if ($this->usernameExists($username)) {
             $errors[] = "The username already exists.";
         }
-        if ($email !== filter_input(FILTER_VALIDATE_EMAIL, $email)) {
+        /*if ($email !== filter_input(FILTER_VALIDATE_EMAIL, $email)) {
             $errors[] = "The email isn't really an email";
-        }
-        if ($this->emailAlreadyExists($email)) {
+        }*/
+        if ($this->emailExists($email)) {
             $errors[] = "The email already exists.";
         }
         if ($password !== $repeatedpassword) {
@@ -142,6 +114,41 @@ class UserModel extends Model {
     /*
      * @todo: Implement this function properly
      */
+
+    public function usernameExists($username) {
+        $conn = $this->getConnection();
+
+        $sth = $conn->prepare("SELECT 1 FROM users WHERE username = ?");
+        $sth->execute(array($username));
+
+        if ($sth->fetch()) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /*
+     *
+     */
+
+    public function emailExists($email) {
+        $conn = $this->getConnection();
+
+        $sth = $conn->prepare("SELECT 1 FROM users WHERE email = ?");
+        $sth->execute(array($email));
+
+        if ($sth->fetch()) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /*
+     *
+     */
+
     public function validateLogin(array $data)
     {
         if ($this->userExists($data["username"], $data["password"])) {
@@ -161,14 +168,18 @@ class UserModel extends Model {
         $sth = $conn->prepare("SELECT * FROM users WHERE username = ?");
         $sth->execute(array($username));
         $user = $sth->fetchObject("UserModel");
-        $this->id = $user->getId();
-        $this->username = $user->getUsername();
-        $this->email = $user->email;
+        var_dump($user);
+        if ($user !== false) {
+            $this->id = $user->getId();
+            $this->username = $user->getUsername();
+            $this->email = $user->email;
+            var_dump(password_verify($password, $user->getPassword()));
+            if (password_verify($password, $user->getPassword())) {
+                return true;
+            }
 
-        if (password_verify($password, $user->getPassword())) {
-            return true;
+            return false;
         }
-        return false;
     }
 
     public function logout(){

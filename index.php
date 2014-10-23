@@ -8,8 +8,7 @@
 /*
  * Define the __ROOT__ global so that it won't be a real pain to move this to a webserver later
  */
-define("__ROOT__", "C:/Users/Chrille/Desktop/PHP-projekt/");
-
+define("__ROOT__", realpath("") . "/");//"C:/Users/Chrille/Desktop/PHP-projekt/");
 /*
  * All requires that are needed by this page
  * We must do the requires first since we are storing the user in the session and as such it will get unserialized
@@ -52,7 +51,7 @@ $matches = $values["matches"];
  */
 $x = new $rd->controllername();
 $fn = $rd->functionname;
-echo $x->$fn(preg_replace($rd->regex, "", $_SERVER["QUERY_STRING"]));
+echo $x->$fn(preg_replace($rd->regex, "", View::getQueryString()));
 
 /*
 switch($rd->name){

@@ -1,4 +1,5 @@
 <?php
+defined("__ROOT__") or die("Noh!");
 /**
  * Created by PhpStorm.
  * User: Chrille
@@ -51,6 +52,38 @@ class RegisterView extends View {
                         <input type="submit" value="Register">
                     </form>
         ';
+        $html = "<p class='bg-info'>$message</p> <p class='bg-danger'>$errorResult</p>
+                <form method='post' role='form' class='form-horizontal'>
+                        <div class='form-group'>
+                            <label for='username' class='col-sm-2 control-label'>Username</label>
+                            <div class='col-sm-9'>
+                                <input type='text' name='username' placeholder='Write a username' class='form-control'>
+                            </div>
+                        </div>
+                        <div class='form-group'>
+                            <label for='password' class='col-sm-2 control-label'>Password</label>
+                            <div class='col-sm-9'>
+                                <input type='password' name='password' placeholder='Write a password' class='form-control'>
+                            </div>
+                        </div>
+                        <div class='form-group'>
+                            <label for='username' class='col-sm-2 control-label'>Repeat password</label>
+                            <div class='col-sm-9'>
+                                <input type='password' name='repeatedpassword' placeholder='Repeat password' class='form-control'>
+                            </div>
+                        </div>
+                        <div class='form-group'>
+                            <label for='username' class='col-sm-2 control-label'>Email</label>
+                            <div class='col-sm-9'>
+                                <input type='email' name='email' placeholder='Your email' class='form-control'>
+                            </div>
+                        </div>
+                        <div class='form-group'>
+                            <div class='col-sm-offset-2 col-sm-10'>
+                                <input type='submit' class='btn btn-primary' value='Register'>
+                            </div>
+                        </div>
+                    </form>";
         return $html;
     }
 

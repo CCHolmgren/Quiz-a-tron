@@ -1,4 +1,5 @@
 <?php
+defined("__ROOT__") or die("Noh!");
 /**
  * Created by PhpStorm.
  * User: Chrille
@@ -44,7 +45,7 @@ class QuizModel extends Model{
     static public function getAllQuizes()
     {
         $conn = self::getConnection();
-        $sth = $conn->prepare("SELECT * FROM quiz");
+        $sth = $conn->prepare("SELECT * FROM quiz WHERE visible = 1");
         $sth->execute();
         $quizes = array();
         while ($object = $sth->fetchObject("QuizModel")) {
@@ -63,23 +64,22 @@ class QuizModel extends Model{
     }
 
     /**
-     * @return mixed
+     * @param $id
+     * @return null|QuestionModel
      */
-    public function getId()
-    {
-        return $this->id;
+    public function getQuestionById($id) {
+        /** @var QuestionModel $question */
+        foreach ($this->getQuestions() as $question) {
+            if ($question->getId() == $id) {
+                return $question;
+            }
+        }
+
+        return null;
     }
 
     /**
-     * @param mixed $id
-     */
-    public function setId($id)
-    {
-        $this->id = $id;
-    }
-
-    /**
-     * @return array
+     * @return array QuestionModel
      */
     public function getQuestions()
     {
@@ -103,7 +103,7 @@ class QuizModel extends Model{
             }
         }
         //foreach ($data as $key => $dataGroup) {
-            /** @var QuestionModel $question */
+        /** @var QuestionModel $question */
         //    $question = $this->questions[$key - 1];
         //    $result[] = $question->validateAnswers($dataGroup);
         //}
@@ -119,15 +119,18 @@ class QuizModel extends Model{
         } else {
             $result["allCorrect"] = false;
         }
-        $this->saveAnswers($data);
+        $this->saveAnswers($data, $result);
+
         return $result;
     }
 
-    public function saveAnswers(array $data)
+    public function saveAnswers(array $data, array $result)
     {
         $conn = $this->getConnection();
-        $sth = $conn->prepare("INSERT INTO donequizes(quizid, userid, donewhen, answers) VALUES(?,?,?,?)");
-        $sth->execute(array($this->id, UserModel::getCurrentUser()->getId(), date("Y-m-d h:i:s", time()), json_encode($data)));
+        $sth = $conn->prepare("INSERT INTO donequizes(quizid, userid, donewhen, answers, result) VALUES(?,?,?,?, ?)");
+        $sth->execute(array($this->id, UserModel::getCurrentUser()->getId(), date("Y-m-d h:i:s",
+                                                                                  time()), json_encode($data), json_encode($result)));
+
         return true;
     }
 
@@ -144,5 +147,100 @@ class QuizModel extends Model{
             $question->saveQuestion($this->id);
         }
 
+    }
+
+    public function addQuiz() {
+        $conn = $this->getConnection();
+        $sth = $conn->prepare("INSERT INTO quiz(creator, name, opento, description) VALUES (?,?,?,?) RETURNING id");
+        $sth->execute(array($this->creator, $this->name, $this->opento, $this->description));
+        $result = $sth->fetch(PDO::FETCH_ASSOC);
+        $this->id = $result["id"];
+    }
+
+    public function editQuiz(array $editData) {
+        foreach ($editData as $key => $value) {
+            if ($this->$key !== $value) {
+                $this->$key = $value;
+            }
+        }
+        $this->updateQuiz();
+    }
+
+    public function updateQuiz() {
+        $conn = $this->getConnection();
+        $sth = $conn->prepare("UPDATE quiz SET (creator, name, opento, description) = (?,?,?,?) WHERE id = ?");
+        $sth->execute(array($this->creator, $this->name, $this->opento, $this->description, $this->getId()));
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * @param mixed $id
+     */
+    public function setId($id) {
+        $this->id = $id;
+    }
+
+    public function removeQuiz() {
+        $conn = $this->getConnection();
+        $sth = $conn->prepare("UPDATE quiz set visible = 0 WHERE id = ?");
+        $sth->execute(array($this->getId()));
+    }
+
+
+    /**
+     * @return null
+     */
+    public function getName() {
+        return $this->name;
+    }
+
+    /**
+     * @param null $name
+     */
+    public function setName($name) {
+        $this->name = $name;
+    }
+
+    public function getDescription() {
+        return $this->description;
+    }
+
+    public function setDescription($quiztext) {
+        $this->description = $quiztext;
+    }
+
+    /**
+     * @return null
+     */
+    public function getOpento() {
+        return $this->opento;
+    }
+
+    /**
+     * @param null $opento
+     */
+    public function setOpento($opento) {
+        $this->opento = $opento;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCreator() {
+        return $this->creator;
+    }
+
+    /**
+     * @param mixed $creator
+     */
+    public function setCreator($creator) {
+        $this->creator = $creator;
     }
 }

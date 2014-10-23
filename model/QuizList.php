@@ -1,4 +1,5 @@
 <?php
+defined("__ROOT__") or die("Noh!");
 /**
  * Created by PhpStorm.
  * User: Chrille
@@ -45,8 +46,12 @@ class QuizList
      */
     public function getQuizById($qid)
     {
-        if (isset($this->quizes[$qid - 1]))
-            return $this->quizes[$qid - 1];
+        /** @var QuizModel $quizes */
+        foreach ($this->quizes as $quizes) {
+            if ($quizes->getId() == $qid) {
+                return $quizes;
+            }
+        }
         return false;
     }
 }

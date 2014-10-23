@@ -1,4 +1,5 @@
 <?php
+defined("__ROOT__") or die("Noh!");
 /**
  * Created by PhpStorm.
  * User: Chrille
@@ -20,9 +21,10 @@ require_once(__ROOT__ . "helpers/HTMLHelper.php");
 require_once(__ROOT__ . "model/UserModel.php");
 require_once(__ROOT__ . "view/NavigationView.php");
 
-class Controller{
+class Controller {
     protected $model;
-    public function __construct(){
+
+    public function __construct() {
         $this->model = UserModel::getCurrentUser();
         $this->navigationView = new NavigationView();
     }
@@ -34,13 +36,14 @@ class Controller{
      * splice to false
      * @return string Either a HTML document or the body of a html document without the navigation
      */
-    final public function getHTML($route = "", $splice = true)
-    {
+    final public function getHTML($route = "", $splice = true) {
         $head = $this->__getHead();
         $body = $this->__getHTML($route);
         $navigation = $this->navigationView->getNavigation();
-        if ($splice)
-            return HTMLHelper::spliceBaseHTML($head, $navigation . $body);
+        if ($splice) {
+            return HTMLHelper::spliceBaseHTML($head, $navigation, $body);
+        }
+
         return $body;
     }
 
@@ -48,8 +51,7 @@ class Controller{
      * This is the head that should get spliced into the BaseHTML
      * Overload this function and return a string that contain the head
      */
-    protected function __getHead()
-    {
+    protected function __getHead() {
         return "<title>Whatnow</title>";
     }
 
@@ -57,8 +59,7 @@ class Controller{
      * This is the body that should get spliced into the BaseHTML
      * Overload this function and return a string that contain the body
      */
-    protected function __getHTML($route)
-    {
+    protected function __getHTML($route) {
         return "Well this is odd. This should be implemented";
     }
 }

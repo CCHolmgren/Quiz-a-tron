@@ -1,4 +1,5 @@
 <?php
+defined("__ROOT__") or die("Noh!");
 /**
  * Created by PhpStorm.
  * User: Chrille
@@ -19,23 +20,10 @@ class QuizView extends View
     }
 
     /**
-     * @return string
-     */
-    public function getQuizesPage()
-    {
-        $html = '';
-        foreach ($this->quizes as $quiz) {
-            $html .= "<p>" . $quiz->description . "<a href='?/quizes/quiz/{$quiz->getId()}'>Whatnow</a></p>";
-        }
-        return $html;
-    }
-
-    /**
      * @param $quizid Integer representing the id of the quiz that we should display
      * @return string Html that represnts the form and all that is relevant about the quiz
      */
-    public function getQuizPage($quiz)
-    {
+    public function getQuizPage($quiz) {
         /** @var QuizModel $quiz */
         $html = "";
         if ($quiz) {
@@ -61,6 +49,7 @@ class QuizView extends View
             $html .= "<input type='submit' value='Submit answers'>";
             $html .= "</form>";
         }
+
         return $html;
     }
 
@@ -90,5 +79,188 @@ class QuizView extends View
             }
         }
         return $html;
+    }
+
+    public function getEditQuizPage(QuizModel $quiz)
+    {
+        $html = "This will require just as much as the other one. Hold on for a long while until I fix this.";
+        $html .= "<form method='post'>";
+        $html .= "<input type='text' name='quiztext' value='" . $quiz->getDescription() . "'>";
+        $html .= "<input type='submit' value='Save'>";
+        $html .= "</form>";
+        $html .= "<a href='?/quizes/add/{$quiz->getId()}'>Add questions</a>";
+        /*
+        $html .= "
+                <form method='post'>";*/
+        /** @var QuestionModel $question */
+        if ($quiz->getQuestions() !== null) {
+
+            foreach ($quiz->getQuestions() as $question) {
+                $html .= $question->getQuestionText();
+                $html .= "<a href='?/quizes/edit/{$quiz->getId()}/{$question->getId()}'>Edit</a>";
+                $html .= "<a href='?/quizes/delete/{$quiz->getId()}/{$question->getId()}'>Delete</a>";
+                $html .= "<br>";
+                /*
+                $html .= "<input type='hidden' name='objecttype;question;{$question->getId()}' value='question'>";
+                $html .= "<input type='hidden' name='parentid' value='{$quiz->getId()}'>";
+                $html .= "<input type='textbox' name='questiontext;{$question->getId()}' value='" . $question->getQuestionText() . "'><br>";
+                */
+                /** @var AnswerModel $answers */
+                /*
+                foreach($question->getAnswers() as $answers){
+                    $html .= "<input type='hidden' name='objecttype;answer;{$answers->getId()}'>";
+                    $html .= "<input type='hidden' name='parentid' value='{$question->getId()}'>";
+                    //HTML is ugly when it comes to checkboxes
+                    $html .= "<input type='checkbox' name='iscorrect;{$answers->getId()}' " . ($answers->getIscorrect() === 1 ? "checked='true'" : "") ."/>";
+                    $html .= "<input type='textbox' name='answertext;{$answers->getId()}' value='" . $answers->getAnswertext() . "'>";
+                    $html .= "<br>";
+                }*/
+            }
+        }
+
+        /*$html .= "<input type='submit' value='Save this quiz'>";
+        $html .= "</form>";*/
+
+        return $html;
+    }
+
+    public function getQuestionPage(QuizModel $quiz, QuestionModel $question) {
+        $html = "";
+        $html .= "<form method='post'>";
+        $html .= "<input type='text' name='questiontext' value='" . $question->getQuestionText() . "'>";
+        $html .= "<input type='submit' value='Save'>";
+        $html .= "</form>";
+        $html .= "<a href='?/quizes/add/{$quiz->getId()}/{$question->getId()}'>Add answers</a>";
+        /** @var AnswerModel $answer */
+        foreach ($question->getAnswers() as $answer) {
+
+            $html .= $answer->getAnswertext();
+            $html .= $answer->getIscorrect();
+            $html .= "<a href='?/quizes/edit/{$quiz->getId()}/{$question->getId()}/{$answer->getId()}'>Edit</a>";
+            $html .= "<a href='?/quizes/delete/{$quiz->getId()}/{$question->getId()}/{$answer->getId()}'>Delete</a>";
+            $html .= "<br>";
+        }
+
+        return $html;
+    }
+
+    public function getEditAnswerPage(QuizModel $quiz, QuestionModel $question, AnswerModel $answer) {
+        $html = "You are now in the Answer page";
+        $html .= "<form method='post'>";
+        $html .= "<input type='text' name='answertext' value='{$answer->getAnswertext()}'>";
+        //HTML please
+        $html .= "<input type='hidden' name='iscorrect' value='off'>";
+        $html .= "<input type='checkbox' name='iscorrect' " . ($answer->getIscorrect() == 1 ? "checked" : "") . ">";
+        $html .= "<input type='submit' value='Save'>";
+        $html .= "</form>";
+
+        return $html;
+    }
+
+    public function getAddAnswerPage(QuestionModel $question) {
+        $html = "You are now in the add answer page";
+        /** @var AnswerModel $answer */
+        foreach ($question->getAnswers() as $answer) {
+            $html .= $answer->getAnswertext();
+            $html .= $answer->getIscorrect();
+            $html .= "<a href='?/quizes/edit/{$question->getQuizid()}/{$question->getId()}/{$answer->getId()}'>Edit</a>";
+            $html .= "<a href='?/quizes/delete/{$question->getId()}/{$question->getId()}/{$answer->getId()}'>Delete</a>";
+            $html .= "<br>";
+        }
+        $html .= "<form method='post'>";
+        $html .= "<input type='text' name='answertext' value=''>";
+        //HTML please
+        $html .= "<input type='hidden' name='iscorrect' value='off'>";
+        $html .= "<input type='checkbox' name='iscorrect' >";
+        $html .= "<input type='submit' value='Save'>";
+        $html .= "</form>";
+
+        return $html;
+    }
+
+    public function getAddQuestionPage(QuizModel $quiz) {
+        $html = "<h1>You are now in the add question page</h1>";
+        $html .= "<p class='lead'>The other questions in the quiz:</p>";
+        /** @var QuestionModel $question */
+        foreach ($quiz->getQuestions() as $question) {
+
+            $html .= "<div class=''>";
+            $html .= "<p class=''><a class='btn btn-default btn-xs' role='button' href='?/quizes/edit/{$quiz->getId()}/{$question->getId()}'>Edit</a>";
+            $html .= "<a class='btn btn-danger btn-xs' role='button'  href='?/quizes/delete/{$quiz->getId()}/{$question->getId()}'>Delete</a>";
+            $html .= " " . $question->getQuestionText() . "</p>";
+
+            $html .= "</div>";
+        }
+
+        $html .= "<form method='post' role='form'>";
+        $html .= "<div class='form-group'>";
+        $html .= "<label for='questiontext'>Question text</label>";
+        $html .= "<input type='text' name='questiontext' value='' class='form-control' placeholder='Enter a question text'>";
+        $html .= "</div>";
+        $html .= "<input type='submit' value='Save' class='btn btn-primary btn-lg btn-block'>";
+        $html .= "</form>";
+
+        return $html;
+    }
+
+    public function getAddQuizPage() {
+        $html = "This will require a lot of things. Hold on for a long while until I fix this.";
+        $html .= "<form method='post'>";
+        $html .= "<input type='text' name='name' value=''>";
+
+        $html .= "<input type='text' name='description' value=''>";
+        $html .= "<input type='text' name='opento' value=''>";
+        $html .= "<input type='submit' value='Save'>";
+        $html .= "</form>";
+
+        return $html;
+    }
+
+    public function getRemoveQuizPage(QuizModel $quiz) {
+        $html = "";
+        $html .= "
+                    <form method='post'>
+                        <p>Are you totally sure that you want to delete this quiz? It can't be undone and it will erase everything associated with that quiz.</p>
+                        <input type='hidden' name='totallysure' value='true'>
+                        <input type='submit' value='Delete' class='btn btn-danger'>
+                    </form>";
+
+        return $html;
+    }
+
+    public function getCUDPage() {
+        $html = "Hello this is the CUD page, what can I do for you?";
+        $html .= $this->getQuizesPage(true);
+
+        return $html;
+    }
+
+    /**
+     * @return string
+     */
+    public function getQuizesPage($editMethods = false) {
+        $html = '';
+        foreach ($this->quizes as $quiz) {
+            $html .= "<p>" . $quiz->description . "<a href='?/quizes/quiz/{$quiz->getId()}'>Go do this quiz!</a>";
+
+            if ($editMethods) {
+                $html .= " <a href='?/quizes/edit/{$quiz->getId()}'>Edit</a> | <a href='?/quizes/delete/{$quiz->getId()}'>Delete</a>";
+            }
+            $html .= "</p>";
+        }
+
+        return $html;
+    }
+
+    public function getTotallySure() {
+        return $_POST["totallysure"];
+    }
+
+    public function getAddData() {
+        return $_POST;
+    }
+
+    public function getEditData() {
+        return $_POST;
     }
 }
