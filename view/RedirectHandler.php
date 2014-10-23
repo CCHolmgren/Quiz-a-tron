@@ -9,7 +9,7 @@ defined("__ROOT__") or die("Noh!");
  */
 class RedirectHandler {
     static public function routeTo($route){
-        header("Location: ".$route);
+        header("Location: " . $route);
         exit;
     }
 }

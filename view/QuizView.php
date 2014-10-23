@@ -9,6 +9,9 @@ defined("__ROOT__") or die("Noh!");
 require_once(__ROOT__ . "model/QuizList.php");
 
 class QuizView extends View {
+    public static $editMethodName = "edit";
+    public static $addMethodName = "add";
+    public static $removeMethodName = "delete";
     private $quizmodel;
     private $quizes;
 
@@ -89,7 +92,7 @@ class QuizView extends View {
         $html .= "<input type='text' name='quiztext' value='" . $quiz->getDescription() . "'>";
         $html .= "<input type='submit' value='Save'>";
         $html .= "</form>";
-        $html .= "<a href='/project/quizes/add/{$quiz->getId()}'>Add questions</a>";
+        $html .= "<a href='" . $this->rootAndMethod(QuizView::$addMethodName) . "/{$quiz->getId()}'>Add questions</a>";
         /*
         $html .= "
                 <form method='post'>";*/
@@ -98,31 +101,19 @@ class QuizView extends View {
 
             foreach ($quiz->getQuestions() as $question) {
                 $html .= $question->getQuestionText();
-                $html .= "<a href='/project/quizes/edit/{$quiz->getId()}/{$question->getId()}'>Edit</a>";
-                $html .= "<a href='/project/quizes/delete/{$quiz->getId()}/{$question->getId()}'>Delete</a>";
+                $html .= "<a href='" . $this->rootAndMethod(QuizView::$editMethodName) . "/{$quiz->getId()}/{$question->getId()}'>Edit</a>";
+                $html .= "<a href='" . $this->rootAndMethod(QuizView::$removeMethodName) . "/{$quiz->getId()}/{$question->getId()}'>Delete</a>";
                 $html .= "<br>";
-                /*
-                $html .= "<input type='hidden' name='objecttype;question;{$question->getId()}' value='question'>";
-                $html .= "<input type='hidden' name='parentid' value='{$quiz->getId()}'>";
-                $html .= "<input type='textbox' name='questiontext;{$question->getId()}' value='" . $question->getQuestionText() . "'><br>";
-                */
-                /** @var AnswerModel $answers */
-                /*
-                foreach($question->getAnswers() as $answers){
-                    $html .= "<input type='hidden' name='objecttype;answer;{$answers->getId()}'>";
-                    $html .= "<input type='hidden' name='parentid' value='{$question->getId()}'>";
-                    //HTML is ugly when it comes to checkboxes
-                    $html .= "<input type='checkbox' name='iscorrect;{$answers->getId()}' " . ($answers->getIscorrect() === 1 ? "checked='true'" : "") ."/>";
-                    $html .= "<input type='textbox' name='answertext;{$answers->getId()}' value='" . $answers->getAnswertext() . "'>";
-                    $html .= "<br>";
-                }*/
             }
         }
 
-        /*$html .= "<input type='submit' value='Save this quiz'>";
-        $html .= "</form>";*/
-
         return $html;
+    }
+
+    public function rootAndMethod($editMethod) {
+        $result = View::$rootBase . "quizes/" . $editMethod;
+
+        return $result;
     }
 
     public function getQuestionPage(QuizModel $quiz, QuestionModel $question) {
@@ -131,14 +122,14 @@ class QuizView extends View {
         $html .= "<input type='text' name='questiontext' value='" . $question->getQuestionText() . "'>";
         $html .= "<input type='submit' value='Save'>";
         $html .= "</form>";
-        $html .= "<a href='/project/quizes/add/{$quiz->getId()}/{$question->getId()}'>Add answers</a>";
+        $html .= "<a href='" . $this->rootAndMethod(QuizView::$addMethodName) . "/{$quiz->getId()}/{$question->getId()}'>Add answers</a>";
         /** @var AnswerModel $answer */
         foreach ($question->getAnswers() as $answer) {
 
             $html .= $answer->getAnswertext();
             $html .= $answer->getIscorrect();
-            $html .= "<a href='/project/quizes/edit/{$quiz->getId()}/{$question->getId()}/{$answer->getId()}'>Edit</a>";
-            $html .= "<a href='/project/quizes/delete/{$quiz->getId()}/{$question->getId()}/{$answer->getId()}'>Delete</a>";
+            $html .= "<a href='" . $this->rootAndMethod(QuizView::$editMethodName) . "/{$quiz->getId()}/{$question->getId()}/{$answer->getId()}'>Edit</a>";
+            $html .= "<a href='" . $this->rootAndMethod(QuizView::$removeMethodName) . "/{$quiz->getId()}/{$question->getId()}/{$answer->getId()}'>Delete</a>";
             $html .= "<br>";
         }
 
@@ -164,8 +155,8 @@ class QuizView extends View {
         foreach ($question->getAnswers() as $answer) {
             $html .= $answer->getAnswertext();
             $html .= $answer->getIscorrect();
-            $html .= "<a href='/project/quizes/edit/{$question->getQuizid()}/{$question->getId()}/{$answer->getId()}'>Edit</a>";
-            $html .= "<a href='/project/quizes/delete/{$question->getId()}/{$question->getId()}/{$answer->getId()}'>Delete</a>";
+            $html .= "<a href='" . $this->rootAndMethod(QuizView::$editMethodName) . "/{$question->getQuizid()}/{$question->getId()}/{$answer->getId()}'>Edit</a>";
+            $html .= "<a href='" . $this->rootAndMethod(QuizView::$removeMethodName) . "/{$question->getId()}/{$question->getId()}/{$answer->getId()}'>Delete</a>";
             $html .= "<br>";
         }
         $html .= "<form method='post'>";
@@ -180,17 +171,23 @@ class QuizView extends View {
     }
 
     public function getAddQuestionPage(QuizModel $quiz) {
-        $html = "<h1>You are now in the add question page</h1>";
-        $html .= "<p class='lead'>The other questions in the quiz:</p>";
-        /** @var QuestionModel $question */
-        foreach ($quiz->getQuestions() as $question) {
+        $html = "<h3>You are now in the add question page</h3>";
 
-            $html .= "<div class=''>";
-            $html .= "<p class=''><a class='btn btn-default btn-xs' role='button' href='/project/quizes/edit/{$quiz->getId()}/{$question->getId()}'>Edit</a>";
-            $html .= "<a class='btn btn-danger btn-xs' role='button'  href='/project/quizes/delete/{$quiz->getId()}/{$question->getId()}'>Delete</a>";
-            $html .= " " . $question->getQuestionText() . "</p>";
+        if ($quiz->getQuestionCount()) {
+            $html .= "<p class=''>The other questions in the quiz:</p>";
+            /** @var QuestionModel $question */
 
-            $html .= "</div>";
+            foreach ($quiz->getQuestions() as $question) {
+
+                $html .= "<div class=''>";
+                $html .= "<p class=''><a class='btn btn-default btn-xs' role='button' href='" . $this->rootAndMethod(QuizView::$editMethodName) . "/{$quiz->getId()}/{$question->getId()}'>Edit</a>";
+                $html .= "<a class='btn btn-danger btn-xs' role='button'  href='/" . $this->rootAndMethod(QuizView::$removeMethodName) . "/{$quiz->getId()}/{$question->getId()}'>Delete</a>";
+                $html .= " " . $question->getQuestionText() . "</p>";
+
+                $html .= "</div>";
+            }
+        } else {
+            $html .= "<p class=''>There seems to be no other questions in this quiz yet.</p>";
         }
 
         $html .= "<form method='post' role='form'>";
@@ -279,7 +276,7 @@ class QuizView extends View {
             $html .= $quizName . "</td><td>" . $descriptionText . "</td><td>" . $quiz->getQuestionCount() . "</td><td>" . $hasDone . "</td><td>" . "<a href='/project/quizes/quiz/{$quiz->getId()}'>Go do this quiz!</a></td>";
 
             if ($editMethods) {
-                $html .= "<td><a href='/project/quizes/edit/{$quiz->getId()}'>Edit</a> | <a href='/project/quizes/delete/{$quiz->getId()}'>Delete</a></td>";
+                $html .= "<td><a href='" . $this->rootAndMethod(QuizView::$editMethodName) . "/{$quiz->getId()}'>Edit</a> | <a href='" . $this->rootAndMethod(QuizView::$removeMethodName) . "/{$quiz->getId()}'>Delete</a></td>";
             }
             $html .= "</tr>";
         }

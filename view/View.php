@@ -8,6 +8,8 @@ defined("__ROOT__") or die("Noh!");
  * Time: 21:30
  */
 class View{
+    public static $rootBase = "/project/";
+
     public function __construct(){
 
     }

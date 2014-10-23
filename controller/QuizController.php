@@ -34,7 +34,10 @@ class QuizController extends Controller {
         /*
          * Hand of the controlling to the cud controller if we find out that the user wanted to edit, add or delete a quiz
          */
-        $didCUDMatch = preg_match("/^\/(edit|add|delete)/", $route, $CUDmatches);
+        $didCUDMatch =
+            preg_match("/^\/(" . QuizView::$editMethodName . "|" . QuizView::$addMethodName . "|" . QuizView::$removeMethodName . ")/",
+                       $route, $CUDmatches);
+        //If we get a match then the user wants to do editing and as such we hand of the controlling to the CUDController
         if ($didCUDMatch) {
             $cudController = new QuizCUDController();
 
@@ -45,7 +48,6 @@ class QuizController extends Controller {
         $didMatchQuiz = preg_match("/^\/quiz\/(?P<quizid>\d+)/", $route, $matches);
         if ($matches) {
             $quiz = $this->quizList->getQuizById($matches["quizid"]);
-            var_dump($quiz);
 
             if ($this->view->getRequestMethod() === "POST") {
                 $result = $quiz->validateAnswers($_POST);

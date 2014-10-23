@@ -9,6 +9,7 @@ defined("__ROOT__") or die("Noh!");
 require_once("Controller.php");
 
 class QuizCUDController extends Controller {
+    public static $quizid = "quizid";
     private $view;
 
     public function __construct() {
@@ -23,17 +24,23 @@ class QuizCUDController extends Controller {
      */
     protected function __getHTML($route) {
         $didMatch =
-            preg_match("/^\/(?P<method>edit|add|delete)\/?(?P<quizid>\d+)?\/?(?P<questionid>\d+)?\/?(?P<answerid>\d+)?/",
+            preg_match("/^\/(?P<method>" .
+                       QuizView::$editMethodName . "|" .
+                       QuizView::$addMethodName . "|" .
+                       QuizView::$removeMethodName .
+                       ")\/?(?P<" .
+                       self::$quizid .
+                       ">\d+)?\/?(?P<questionid>\d+)?\/?(?P<answerid>\d+)?/",
                        $route, $matches);
 
         /** @var String $requestMethod */
         $requestMethod = $this->view->getRequestMethod();
         /** @var QuizModel $quiz */
         $quiz = false;
-        if (isset($matches["quizid"])) {
-            $quiz = $this->quizList->getQuizById($matches["quizid"]);
+        if (isset($matches[self::$quizid])) {
+            $quiz = $this->quizList->getQuizById($matches[self::$quizid]);
         }
-        if ($matches["method"] === "edit") {
+        if ($matches["method"] === QuizView::$editMethodName) {
             if ($requestMethod === "POST") {
                 if (isset($matches["answerid"])) {
                     $data = $this->view->getEditData();
@@ -41,7 +48,7 @@ class QuizCUDController extends Controller {
                     $answer->setAnswertext($data["answertext"]);
                     $answer->setIscorrect($data["iscorrect"] == "on" ? 1 : 0);
                     $answer->updateAnswer();
-                    RedirectHandler::routeTo("/project/quizes/{$matches["method"]}/{$matches["quizid"]}/{$matches["questionid"]}");
+                    RedirectHandler::routeTo($this->view->rootAndMethod($matches["method"]) . "/{$matches[self::$quizid]}/{$matches["questionid"]}");
                     echo "Editing an answer";
                 } else {
                     if (isset($matches["questionid"])) {
@@ -50,13 +57,13 @@ class QuizCUDController extends Controller {
                         $question = $quiz->getQuestionById($matches["questionid"]);
                         $question->setQuestiontext($data["questiontext"]);
                         $question->updateQuestion();
-                        RedirectHandler::routeTo("/project/quizes/{$matches["method"]}/{$matches["quizid"]}");
+                        RedirectHandler::routeTo($this->view->rootAndMethod($matches["method"]) . "/{$matches["quizid"]}");
                     } else {
                         if (isset($matches["quizid"])) {
                             $data = $this->view->getEditData();
                             $quiz->description = $data["quiztext"];
                             $quiz->updateQuiz();
-                            RedirectHandler::routeTo("/project/quizes/{$matches["method"]}/");
+                            RedirectHandler::routeTo($this->view->rootAndMethod($matches["method"]) . "/");
                             echo "Editing a quiz";
                         }
                     }
@@ -83,11 +90,11 @@ class QuizCUDController extends Controller {
                 return $this->view->getQuizesPage(true);
             }
         } else {
-            if ($matches["method"] === "delete" && !isset($matches["questionid"])) {
+            if ($matches["method"] === QuizView::$removeMethodName && !isset($matches["questionid"])) {
                 if ($requestMethod === "POST") {
                     if ($this->view->getTotallySure() === "true") {
                         $quiz->removeQuiz();
-                        RedirectHandler::routeTo("/project/quizes/delete/");
+                        RedirectHandler::routeTo($this->view->rootAndMethod(QuizView::$removeMethodName) . "/");
                     }
                 } else {
                     if ($quiz !== false) {
@@ -97,7 +104,7 @@ class QuizCUDController extends Controller {
                     return $this->view->getQuizesPage(true);
                 }
             } else {
-                if ($matches["method"] === "add") {
+                if ($matches["method"] === QuizView::$addMethodName) {
                     if ($requestMethod === "POST") {
                         //We want to add an answer
                         if (isset($matches["questionid"])) {
@@ -107,7 +114,7 @@ class QuizCUDController extends Controller {
                             $answer->setAnswertext($data["answertext"]);
                             $answer->setIscorrect($data["iscorrect"] == "on" ? 1 : 0);
                             $answer->saveAnswer();
-                            RedirectHandler::routeTo("/project/quizes/{$matches["method"]}/{$matches["quizid"]}/{$matches["questionid"]}");
+                            RedirectHandler::routeTo($this->view->rootAndMethod($matches["method"]) . "/{$matches["quizid"]}/{$matches["questionid"]}");
                             echo "Adding an answer";
                         } //We want to add a question
                         else {
@@ -118,7 +125,7 @@ class QuizCUDController extends Controller {
                                 $question->setQuestiontext($data["questiontext"]);
                                 $question->setQuizid($matches["quizid"]);
                                 $question->addQuestion();
-                                RedirectHandler::routeTo("/project/quizes/{$matches["method"]}/{$matches["quizid"]}");
+                                RedirectHandler::routeTo($this->view->rootAndMethod($matches["method"]) . "/{$matches["quizid"]}");
                             } //We want to add a quiz
                             else {
                                 $data = $this->view->getAddData();
@@ -129,7 +136,7 @@ class QuizCUDController extends Controller {
                                 $quiz->setOpento($data["opento"]);
                                 $quiz->addQuiz();
                                 //$quiz->updateQuiz();
-                                RedirectHandler::routeTo("/project/quizes/edit/");
+                                RedirectHandler::routeTo($this->view->rootAndMethod(QuizView::$editMethodName) . "/");
                             }
                         }
                     } else {
@@ -150,21 +157,6 @@ class QuizCUDController extends Controller {
                 }
             }
         }
-        //This means that we want to add, edit or delete a quiz
-        /*
-         * Implement this here:
-         */
-
-        /*
-         * if($this->view->getRequestMethod() === "POST"){
-         *
-         * if($edit)
-         * $quiz = QuizList();
-         * $quiz->editQuiz($data);
-         * }
-         *
-         */
-
         return $this->view->getCUDPage();
 
     }
