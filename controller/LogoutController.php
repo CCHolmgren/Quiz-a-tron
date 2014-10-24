@@ -21,7 +21,7 @@ class LogoutController extends Controller {
         if ($this->user->isLoggedIn()) {
             if ($this->view->getRequestMethod() === "POST") {
                 $this->user->logout();
-                RedirectHandler::routeTo("/");
+                RedirectHandler::routeTo(View::$rootBase."/");
             }
 
             return $this->view->getLogoutPage();

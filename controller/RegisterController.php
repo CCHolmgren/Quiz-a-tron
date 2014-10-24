@@ -38,7 +38,7 @@ class RegisterController extends Controller {
                         //We get another user out of the registerUser function
                         //Might as well capture it.
                         $tempUser = $tempUser->registerUser($username, $password, $email);
-                        RedirectHandler::routeTo("/login");
+                        RedirectHandler::routeTo(View::$rootBase."/login/");
                     } catch (Exception $e) {
                         $message = $e->getMessage();
                     }
