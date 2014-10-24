@@ -32,7 +32,7 @@ class NotImplementedException extends Exception{}
 $routes = array(new RoutingDirective("/register/", "RegisterController", "getHTML", "register"),
                 new RoutingDirective("/login/", "LoginController", "getHTML", "login"),
                 new RoutingDirective("/logout/", "LogoutController", "getHTML", "logout"),
-                new RoutingDirective("/project\/quizes\/?/", "QuizController", "getHTML", "quizes"),
+                new RoutingDirective("/PHP-project\/quizes\/?/", "QuizController", "getHTML", "quizes"),
                 new RoutingDirective("//", "DefaultController", "getHTML", "default"));
 
 // The Route is a class that handles routes, at this moment it only does handleRoute, but maybe more in the future
