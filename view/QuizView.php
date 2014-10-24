@@ -408,7 +408,7 @@ class QuizView extends View {
                 "<td>" . $quiz->getQuestionCount() . "</td>" .
                 "<td>" . $hasDone . " " . ($result === true ? $this->getResultLink("Result",
                                                                                    "/" . $quiz->getId()) : "") . "</td>" .
-                "<td>" . "<a href='/project/quizes/quiz/{$quiz->getId()}'>Go do this quiz!</a></td>";
+                "<td>" . "<a href='/PHP-project/quizes/quiz/{$quiz->getId()}'>Go do this quiz!</a></td>";
 
             if ($editMethods) {
                 $html .= "<td>" . $this->getEditButton('Edit', '/' . $quiz->getId() . '/',

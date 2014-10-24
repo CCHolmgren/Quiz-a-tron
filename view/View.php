@@ -9,7 +9,7 @@ defined("__ROOT__") or die("Noh!");
  */
 require_once(__ROOT__ . "vendors/Parsedown.php");
 class View{
-    public static $rootBase = "/project/";
+    public static $rootBase = "/PHP-project/";
 
     public function __construct(){
     }

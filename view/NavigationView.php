@@ -23,26 +23,26 @@ class NavigationView extends View
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="/project/">QUIZ-A-TRON</a>
+            <a class="navbar-brand" href="/PHP-project/">QUIZ-A-TRON</a>
         </div>
 
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav">
                 <!--<li>
-                    <a href="/project/">Home</a>
+                    <a href="/PHP-project/">Home</a>
                 </li>-->
                 <li>
 
                     <div class="btn-group">
-                    <a href="/project/quizes" class="btn btn-default navbar-btn">Quizes</a>
+                    <a href="/PHP-project/quizes" class="btn btn-default navbar-btn">Quizes</a>
                         <button type="button" class="btn btn-default dropdown-toggle navbar-btn" data-toggle="dropdown">
                             <span class="caret"></span>
                             <span class="sr-only">Toggle Dropdown</span>
                         </button>
                         <ul class="dropdown-menu" role="menu">
-                            <li><a href="/project/quizes/add/">Add a quiz</a></li>
-                            <li><a href="/project/quizes/edit/">Edit quizes</a></li>
+                            <li><a href="/PHP-project/quizes/add/">Add a quiz</a></li>
+                            <li><a href="/PHP-project/quizes/edit/">Edit quizes</a></li>
                         </ul>
                     </div>
                 </li>
@@ -52,18 +52,18 @@ class NavigationView extends View
         if (!UserModel::isLoggedIn()) {
             $html .= '
                 <li>
-                    <a href="/project/login">Login</a>
+                    <a href="/PHP-project/login">Login</a>
                 </li>';
             $html .= '
                 <li>
-                    <a href="/project/register">Register</a>
+                    <a href="/PHP-project/register">Register</a>
                 </li>';
         } else {
             $username = UserModel::getCurrentUser()->getUsername();
             $userid = UserModel::getCurrentUser()->getId();
             $html .= '
             <li>
-                <a href="/project/user/' . $username . '"> ' . $username . '</a>
+                <a href="/PHP-project/user/' . $username . '"> ' . $username . '</a>
             </li>
             <li>
                 <a>User id: ' . $userid . '</a>
@@ -71,7 +71,7 @@ class NavigationView extends View
             ';
             $html .= '
                 <li>
-                    <a href="/project/logout">Logout</a>
+                    <a href="/PHP-project/logout">Logout</a>
                 </li>';
         }
         $html .= '
