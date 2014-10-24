@@ -49,11 +49,8 @@ class QuizController extends Controller {
 
             if ($this->view->getRequestMethod() === "POST") {
                 $result = $quiz->validateAnswers($_POST);
-                if ($result["allCorrect"] === true) {
-                    //echo "Oh my lordy, you guessed all correct!";
-                }
-
-                return $this->view->getResultsPage($result, $quiz);
+                RedirectHandler::routeTo(View::$rootBase . "quizes/" . QuizView::$resultMethodName . "/" . $quiz->getId());
+                //return $this->view->getResultsPage($result, $quiz);
             }
             if ($didMatchQuiz) {
                 return $this->view->getQuizPage($quiz);

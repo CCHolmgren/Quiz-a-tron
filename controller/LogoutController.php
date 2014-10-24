@@ -18,9 +18,9 @@ class LogoutController extends Controller {
     }
 
     protected function __getHTML($route) {
-        if ($this->model->isLoggedIn()) {
+        if ($this->user->isLoggedIn()) {
             if ($this->view->getRequestMethod() === "POST") {
-                $this->model->logout();
+                $this->user->logout();
                 RedirectHandler::routeTo("/");
             }
 

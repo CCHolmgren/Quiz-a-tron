@@ -7,11 +7,11 @@ defined("__ROOT__") or die("Noh!");
  * Date: 2014-10-06
  * Time: 21:30
  */
+require_once(__ROOT__ . "vendors/Parsedown.php");
 class View{
     public static $rootBase = "/project/";
 
     public function __construct(){
-
     }
 
     public static function getRequestMethod() {

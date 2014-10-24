@@ -117,11 +117,11 @@ class QuizCUDController extends Controller {
     }
 
     public
-    function editQuiz($quiz) {
+    function editQuiz(QuizModel $quiz) {
         $data = $this->view->getEditData();
-        $quiz->name = $data["quizname"];
-        $quiz->opento = $data["opento"];
-        $quiz->description = $data["quiztext"];
+        $quiz->setName($data["name"]);
+        $quiz->setOpento($data["opento"]);
+        $quiz->setDescription($data["description"]);
         $quiz->updateQuiz();
     }
 
@@ -137,12 +137,13 @@ class QuizCUDController extends Controller {
         //Request method was POST
         if ($requestMethod === "POST") {
             if ($this->view->getTotallySure() === "true") {
-                if ($matches["questionid"]) {
+                if (isset($matches["questionid"])) {
                     /** @var QuizModel $quiz */
                     $question = $quiz->getQuestionById($matches["questionid"]);
-                } else if ($matches["answerid"]) {
+                } else if (isset($matches["answerid"])) {
 
-                } else if ($matches["quizid"]) {
+                } else if (isset($matches["quizid"])) {
+                    $quiz = $this->quizList->getQuizById($matches["quizid"]);
                     $quiz->removeQuiz();
                     RedirectHandler::routeTo($this->view->rootAndMethod(QuizView::$removeMethodName) . "/");
                 }

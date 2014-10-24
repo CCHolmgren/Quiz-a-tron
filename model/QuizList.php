@@ -30,6 +30,10 @@ class QuizList {
         return QuizModel::getAllQuizes();
     }
 
+    static public function getPopular() {
+        return QuizModel::getMostPopularQuizes();
+    }
+
     public function getAllQuizes() {
         return $this->quizes;
     }

@@ -13,6 +13,7 @@ class QuizModel extends Model {
     private $id;
     private $name;
     private $creator;
+    private $created;
     private $questions;
     private $opento;
     private $userWhoCreated;
@@ -64,6 +65,22 @@ class QuizModel extends Model {
         return $result;
     }
 
+    static public function getMostPopularQuizes($amount = 5) {
+        $conn = self::getConnection();
+        $sth = $conn->prepare("SELECT quiz.*, count(donequizes.*) AS cnt
+                                  FROM quiz, donequizes
+                                    WHERE quiz.id = donequizes.quizid
+                                  GROUP BY quiz.id
+                                  ORDER BY cnt DESC
+                                  LIMIT ?");
+        $sth->execute(array($amount));
+        $result = [];
+        while ($row = $sth->fetchObject("QuizModel")) {
+            $result[] = $row;
+        }
+
+        return $result;
+    }
     /**
      * @todo: Implement this function properly
      * @param array $data
@@ -83,10 +100,6 @@ class QuizModel extends Model {
         }
         /** @var QuestionModel $question */
         foreach ($this->questions as $key => $question) {
-            echo "Key";
-            var_dump($key);
-            echo "QUestion";
-            var_dump($question);
             if (isset($data[$question->getId()])) {
                 $result[] = $question->validateAnswers($data[$question->getId()]);
             } else {
@@ -139,7 +152,7 @@ class QuizModel extends Model {
 
     public function saveAnswers(array $data, array $result) {
         $conn = $this->getConnection();
-        $sth = $conn->prepare("INSERT INTO donequizes(quizid, userid, donewhen, answers, result) VALUES(?,?,?,?, ?)");
+        $sth = $conn->prepare("INSERT INTO donequizes(quizid, userid, donewhen, answers, result) VALUES(?,?,?,?,?)");
         $sth->execute(array($this->id, UserModel::getCurrentUser()->getId(), date("Y-m-d h:i:s",
                                                                                   time()), json_encode($data), json_encode($result)));
 
@@ -148,8 +161,10 @@ class QuizModel extends Model {
 
     public function saveQuiz(array $questions) {
         $conn = $this->getConnection();
-        $sth = $conn->prepare("INSERT INTO quiz(creator, name, opento, description) VALUES (?,?,?,?) RETURNING id");
-        $sth->execute(array(UserModel::getCurrentUser()->getId(), $this->name, "all", $this->description));
+        $sth =
+            $conn->prepare("INSERT INTO quiz(creator, created, name, opento, description) VALUES (?,?,?,?,?) RETURNING id");
+        $sth->execute(array(UserModel::getCurrentUser()
+                                     ->getId(), date('Y-m-d G:i:s'), $this->name, "all", $this->description));
         $result = $sth->fetch(PDO::FETCH_ASSOC);
         $this->id = $result["id"];
 
@@ -162,8 +177,9 @@ class QuizModel extends Model {
 
     public function addQuiz() {
         $conn = $this->getConnection();
-        $sth = $conn->prepare("INSERT INTO quiz(creator, name, opento, description) VALUES (?,?,?,?) RETURNING id");
-        $sth->execute(array($this->creator, $this->name, $this->opento, $this->description));
+        $sth =
+            $conn->prepare("INSERT INTO quiz(creator, created, name, opento, description) VALUES (?,?,?,?,?) RETURNING id");
+        $sth->execute(array($this->creator, date('Y-m-d G:i:s'), $this->name, $this->opento, $this->description));
         $result = $sth->fetch(PDO::FETCH_ASSOC);
         $this->id = $result["id"];
     }
@@ -256,5 +272,19 @@ class QuizModel extends Model {
 
     public function getQuestionCount() {
         return count($this->questions);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCreated() {
+        return $this->created;
+    }
+
+    /**
+     * @param mixed $created
+     */
+    public function setCreated($created) {
+        $this->created = $created;
     }
 }

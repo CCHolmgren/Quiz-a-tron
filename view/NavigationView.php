@@ -23,17 +23,28 @@ class NavigationView extends View
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="#">QUIZ-A-TRON</a>
+            <a class="navbar-brand" href="/project/">QUIZ-A-TRON</a>
         </div>
 
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav">
-                <li>
+                <!--<li>
                     <a href="/project/">Home</a>
-                </li>
+                </li>-->
                 <li>
-                    <a href="/project/quizes">Quizes</a>
+
+                    <div class="btn-group">
+                    <a href="/project/quizes" class="btn btn-default navbar-btn">Quizes</a>
+                        <button type="button" class="btn btn-default dropdown-toggle navbar-btn" data-toggle="dropdown">
+                            <span class="caret"></span>
+                            <span class="sr-only">Toggle Dropdown</span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a href="/project/quizes/add/">Add a quiz</a></li>
+                            <li><a href="/project/quizes/edit/">Edit quizes</a></li>
+                        </ul>
+                    </div>
                 </li>
 
             </ul>

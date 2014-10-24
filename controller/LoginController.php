@@ -23,11 +23,11 @@ class LoginController extends Controller {
 
     protected function __getHTML($route) {
         $message = "";
-        if ($this->model->isLoggedIn()) {
+        if ($this->user->isLoggedIn()) {
             RedirectHandler::routeTo("?/");
         } else {
             if ($this->view->getRequestMethod() === "POST") {
-                if ($this->model->validateLogin($this->view->getLoginData())) {
+                if ($this->user->validateLogin($this->view->getLoginData())) {
                     RedirectHandler::routeTo("/");
                 }
                 $message = "You tried to login and it failed";

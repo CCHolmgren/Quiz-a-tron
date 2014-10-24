@@ -22,11 +22,11 @@ class RegisterController extends Controller {
     protected function __getHTML($route) {
         $message = "";
         $errors = "";
-        if ($this->model->isLoggedIn()) {
+        if ($this->user->isLoggedIn()) {
             RedirectHandler::routeTo("?/");
         } else {
             if ($this->registerView->getRequestMethod() === "POST") {
-                $errors = $this->model->validateInput($this->registerView->getRegisterData());
+                $errors = $this->user->validateInput($this->registerView->getRegisterData());
 
                 if ($errors === true) {
                     $tempUser = new UserModel();

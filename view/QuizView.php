@@ -7,25 +7,20 @@ defined("__ROOT__") or die("Noh!");
  * Time: 15:46
  */
 require_once(__ROOT__ . "model/QuizList.php");
+require_once(__ROOT__ . "helpers/StringHelper.php");
 
 class QuizView extends View {
     public static $editMethodName = "edit";
     public static $addMethodName = "add";
     public static $removeMethodName = "delete";
     public static $resultMethodName = "result";
-    private $quizmodel;
     private $quizes;
+    private $pd;
 
     public function __construct() {
+        $this->pd = new Parsedown();
         $this->quizList = new QuizList();
         $this->quizes = $this->quizList->getAllQuizes();
-    }
-
-    public function getQuizMissingPage() {
-        $html = "";
-        $html .= "This quiz is not available.";
-
-        return $html;
     }
 
     /**
@@ -61,18 +56,32 @@ class QuizView extends View {
             }
             $html .= "<input type='submit' value='Submit answers'>";
             $html .= "</form>";
+        } else {
+            return $this->getQuizMissingPage();
         }
 
         return $html;
     }
 
+    public function getQuizMissingPage() {
+        $html = "";
+        $html .= "This quiz is not available.";
+
+        return $html;
+    }
+
+    public function removeDisallowedTags($string, $allowedTags = "<b><p><strong><i><code>") {
+        return strip_tags($this->stripAttributes($string), $allowedTags);
+    }
+
+    public function stripAttributes($string) {
+        return preg_replace("/<([a-z][a-z0-9]*)[^>]*?(\/?)>/i", '<$1$2>', $string);
+    }
+
     public function getEditQuizPage(QuizModel $quiz) {
         $html = "This will require just as much as the other one. Hold on for a long while until I fix this.";
         $html .= $this->getAddButton("Add questions", "/{$quiz->getId()}", "btn-default");
-        //$html .= "<a class='btn btn-default' href='" . $this->rootAndMethod(QuizView::$addMethodName) . '>Add questions</a>";
-        /*
-        $html .= "
-                <form method='post'>";*/
+
         /** @var QuestionModel $question */
         if ($quiz->getQuestionCount()) {
             $html .= "<p class=''>The other questions in the quiz:</p>";
@@ -81,7 +90,7 @@ class QuizView extends View {
                         <table class='table'>
                             <thead>
                                 <tr>
-                                    <th>Question name</th>
+                                    <th>Question text</th>
                                     <th>Amount of answers</th>
                                     <th>Methods</th>
                                 </tr>
@@ -90,7 +99,7 @@ class QuizView extends View {
             foreach ($quiz->getQuestions() as $question) {
 
                 $html .= "<tr>";
-                $html .= "<td>" . $question->getQuestionText() . "</td>";
+                $html .= "<td>" . $this->text($question->getQuestionText()) . "</td>";
                 $html .= "<td>" . $question->getCountAnswers() . "</td>";
                 $html .= "<td class=''>" . $this->getEditButton('Edit', '/' .
                         $quiz->getId() . '/' .
@@ -109,22 +118,15 @@ class QuizView extends View {
         }
         $html .= $this->getQuizForm($quiz);
 
-        /*
-        if ($quiz->getQuestions() !== null) {
-
-            foreach ($quiz->getQuestions() as $question) {
-                $html .= $question->getQuestionText();
-                $html .= "<a href='" . $this->rootAndMethod(QuizView::$editMethodName) . "/{$quiz->getId()}/{$question->getId()}'>Edit</a>";
-                $html .= "<a href='" . $this->rootAndMethod(QuizView::$removeMethodName) . "/{$quiz->getId()}/{$question->getId()}'>Delete</a>";
-                $html .= "<br>";
-            }
-        }*/
-
         return $html;
     }
 
     public function getAddButton($text = "Add quiz", $extra = "", $class = "btn-default") {
-        return "<a href='{$this->rootAndMethod(QuizView::$addMethodName)}{$extra}' class='btn $class'>$text</a>";
+        return $this->getButton($this->rootAndMethod(QuizView::$addMethodName) . $extra, $class, $text);
+    }
+
+    private function getButton($href, $class, $text) {
+        return "<a href='$href' class='btn $class'>$text</a>";
     }
 
     public function rootAndMethod($editMethod) {
@@ -133,24 +135,28 @@ class QuizView extends View {
         return $result;
     }
 
+    public function text($string) {
+        return $this->pd->text(strip_tags($string));
+    }
+
     public function getEditButton($text = "Edit quiz", $extra = "", $class = "btn-default") {
-        return "<a href='{$this->rootAndMethod(QuizView::$editMethodName)}{$extra}' class='btn $class'>$text</a>";
+        return $this->getButton($this->rootAndMethod(QuizView::$editMethodName) . $extra, $class, $text);
     }
 
     public function getRemoveButton($text = "Remove quiz", $extra = "", $class = "btn-danger") {
-        return "<a href='{$this->rootAndMethod(QuizView::$removeMethodName)}{$extra}' class='btn $class'>$text</a>";
+        return $this->getButton($this->rootAndMethod(QuizView::$removeMethodName) . $extra, $class, $text);
     }
 
     public function getQuizForm($quiz) {
         $html = "
                     <form method='post'>
                         <div class='form-group'>
-                            <label for='quizname'>Quiz name</label>
-                            <input type='text' name='quiztext' class='form-control' value='" . $quiz->getName() . "'>
+                            <label for='name'>Quiz name</label>
+                            <input type='text' name='name' class='form-control' value='" . $quiz->getName() . "'>
                         </div>
                         <div class='form-group'>
-                            <label for='quiztext'>Quiz description</label>
-                            <textarea name='quiztext' class='form-control'>" . $quiz->getDescription() . "</textarea>
+                            <label for='description'>Quiz description</label>
+                            <textarea name='description' class='form-control'>" . $quiz->getDescription() . "</textarea>
                         </div>
                         <div class='form-group'>
                             <label for='opento'>Open to (only one currently)</label>
@@ -160,33 +166,13 @@ class QuizView extends View {
                         </div>
                         <input type='submit' value='Save' class='btn btn-primary form-control'>
                     </form>";
+
         return $html;
     }
 
     public function getAddQuizPage() {
         $html = "This will require a lot of things. Hold on for a long while until I fix this.";
         $html .= $this->getQuizForm(new QuizModel);
-
-        return $html;
-
-        $html .= "
-            <form method='post' role='form'>
-                <div class='form-group'>
-                    <label for='name'>Quiz name</label>
-                    <input type='text' name='name' value='' class='form-control'>
-                </div>
-                <div class='form-group'>
-                    <label for='description'>Description</label>
-                    <textarea name='description' class='form-control' placeholder='Enter a description'></textarea>
-                </div>
-                <div class='form-group'>
-                <label for='opento'>Open to (only one choice available for now.</label>
-                    <select class='form-control' name='opento'>
-                        <option value='all'>All</option>
-                    </select>
-                </div>
-                <input type='submit' value='Save' class='btn btn-primary'>
-            </form>";
 
         return $html;
     }
@@ -221,7 +207,7 @@ class QuizView extends View {
             foreach ($quiz->getQuestions() as $question) {
 
                 $html .= "<tr>";
-                $html .= "<td>" . $question->getQuestionText() . "</td>";
+                $html .= "<td>" . $this->text($question->getQuestionText()) . "</td>";
                 $html .= "<td class=''>" . $this->getEditButton('Edit', '/' . $quiz->getId() . '/' . $question->getId(),
                                                                 'btn-default btn-xs');
                 $html .= $this->getRemoveButton("Delete", "/" . $quiz->getId() . "/" . $question->getId(),
@@ -229,6 +215,7 @@ class QuizView extends View {
 
                 $html .= "</tr>";
             }
+
             $html .= "</tbody></table>";
         } else {
             $html .= "<p class=''>There seems to be no other questions in this quiz yet.</p>";
@@ -255,7 +242,6 @@ class QuizView extends View {
     public function getEditQuestionPage(QuizModel $quiz, QuestionModel $question) {
         $html = "";
         $html .= $this->getAddButton("Add answers", "/{$quiz->getId()}/{$question->getId()}", "btn-default");
-        //$html .= "<a href='" . $this->rootAndMethod(QuizView::$addMethodName) . "/{$quiz->getId()}/{$question->getId()}' class='btn btn-default'>Add answers</a>";
         /** @var AnswerModel $answer */
         if ($question->getAnswers()) {
             $html .= "
@@ -271,22 +257,8 @@ class QuizView extends View {
 
 
             ";
-            foreach ($question->getAnswers() as $answer) {
-                if ($answer->getIscorrect()) {
-                    $iscorrect = "Yes";
-                } else {
-                    $iscorrect = "No";
-                }
-                $html .= "<tr><td>" . $answer->getAnswertext() . "</td>";
-                $html .= "<td>" . $iscorrect . "</td>";
-                $html .= "<td>" . $this->getEditButton('Edit',
-                                                       "/" . $quiz->getId() . '/' . $question->getId() . "/" . $answer->getId(),
-                                                       'btn-default btn-xs');
-                $html .= $this->getRemoveButton('Remove',
-                                                "/" . $quiz->getId() . '/' . $question->getId() . "/" . $answer->getId(),
-                                                'btn-danger btn-xs') . "</td>";
-                $html .= "</tr>";
-            }
+            $html .= $this->loopThroughAnswers($question->getAnswers(), $quiz->getId(), $question->getId());
+
             $html .= "</tbody>
                 </table>";
         }
@@ -296,41 +268,34 @@ class QuizView extends View {
         return $html;
     }
 
+    private function loopThroughAnswers($answers, $quizid, $questionid) {
+        $html = "";
+        foreach ($answers as $answer) {
+            if ($answer->getIscorrect()) {
+                $iscorrect = "Yes";
+            } else {
+                $iscorrect = "No";
+            }
+            $html .= "<tr><td>" . $this->text($answer->getAnswertext()) . "</td>";
+            $html .= "<td>" . $iscorrect . "</td>";
+            $html .= "<td>" . $this->getEditButton('Edit',
+                                                   "/" . $quizid . '/' .
+                                                   $questionid . "/" .
+                                                   $answer->getId(),
+                                                   'btn-default btn-xs');
+            $html .= $this->getRemoveButton('Remove',
+                                            "/" . $quizid . '/' .
+                                            $questionid . "/" .
+                                            $answer->getId(),
+                                            'btn-danger btn-xs') . "</td>";
+            $html .= "</tr>";
+        }
+        return $html;
+    }
+
     public function getAddAnswerPage(QuizModel $quiz, QuestionModel $question) {
         $html = "You are now in the add answer page";
         $html .= $this->getEditAnswerPage($quiz, $question, new AnswerModel());
-
-        return $html;
-        /** @var AnswerModel $answer */
-        $html .= "
-                    <form method='post'>
-                        <div class='form-group'>
-                            <label for='answertext'>Answer text</label>
-                            <textarea name='answertext' class='form-control'></textarea>
-                        </div>
-
-                        <div class='form-group'>
-                            <!-- HTML please -->
-                            <input type='hidden' name='iscorrect' value='off'>
-                            <label for='iscorrect'>
-                                <input type='checkbox' name='iscorrect' class='checkbox'>Is this answer correct?
-                            </label>
-                        </div>
-                        <input type='submit' value='Save' class='btn btn-primary'>
-                    </form>";
-
-        foreach ($question->getAnswers() as $answer) {
-            $html .= $answer->getAnswertext();
-            $html .= $answer->getIscorrect();
-            $html .= $this->getEditButton('Edit',
-                                          "/" . $quiz->getId() . '/' . $question->getId() . "/" . $answer->getId(),
-                                          'btn-default btn-xs');
-            $html .= $this->getRemoveButton('Remove',
-                                            "/" . $quiz->getId() . '/' . $question->getId() . "/" . $answer->getId(),
-                                            'btn-danger btn-xs');
-            $html .= "<br>";
-        }
-
 
         return $html;
     }
@@ -350,16 +315,7 @@ class QuizView extends View {
                 </thead>
                 <tbody>
                 ";
-        foreach ($question->getAnswers() as $answer) {
-            $html .= "<tr><td>" . $answer->getAnswertext() . "</td>";
-            $html .= "<td>" . $answer->getIscorrect() . "</td>";
-            $html .= "<td>" . $this->getEditButton('Edit',
-                                                   "/" . $quiz->getId() . '/' . $question->getId() . "/" . $answer->getId(),
-                                                   'btn-default btn-xs');
-            $html .= $this->getRemoveButton('Remove',
-                                            "/" . $quiz->getId() . '/' . $question->getId() . "/" . $answer->getId(),
-                                            'btn-danger btn-xs') . "</td>";
-        }
+        $html .= $this->loopThroughAnswers($question->getAnswers(), $quiz->getId(), $question->getId());
         $html .= "
                 </tbody>
                 </table>";
@@ -384,6 +340,7 @@ class QuizView extends View {
                 </div>
                 <input type='submit' value='Save' class='btn btn-primary'>
             </form>";
+
         return $html;
     }
 
@@ -394,8 +351,15 @@ class QuizView extends View {
         return $html;
     }
 
-    public function getQuizesPage($editMethods = false) {
-        $html = '<h3>Hello there. This is the quiz page. These are all the quizes available for you:</h3>';
+    public function getQuizesPage($editMethods = false, $quizes = null, $message = true) {
+        if ($quizes === null) {
+            $quizes = $this->quizes;
+        }
+        if ($message) {
+            $html = '<h3>Hello there. This is the quiz page. These are all the quizes available for you:</h3>';
+        } else {
+            $html = "";
+        }
         if ($editMethods) {
             $html .= $this->getAddButton();
         }
@@ -404,7 +368,8 @@ class QuizView extends View {
                         <tr>
                             <th>Quiz name</th>
                             <th>Description</th>
-                            <th>Questions</th>
+                            <th>Created</th>
+                            <th>No. of Questions</th>
                             <th>Done?</th>
                             <th>Link</th>";
         if ($editMethods) {
@@ -415,18 +380,19 @@ class QuizView extends View {
                     </thead>
                     <tbody>";
         /** @var QuizModel $quiz */
-        sort($this->quizes);
-        foreach ($this->quizes as $quiz) {
-            if (mb_strlen($quiz->getDescription()) - 3 > 31) {
+        foreach ($quizes as $quiz) {
+            $descriptionText = StringHelper::shortenString($quiz->getDescription(), 30);
+            /*if (mb_strlen($quiz->getDescription()) - 3 > 31) {
                 $descriptionText = mb_substr($quiz->getDescription(), 0, 30) . "...";
             } else {
                 $descriptionText = $quiz->getDescription();
-            }
-            if (mb_strlen($quiz->getName()) - 3 > 26) {
+            }*/
+            $quizName = StringHelper::shortenString($quiz->getName(), 25);
+            /*if (mb_strlen($quiz->getName()) - 3 > 26) {
                 $quizName = mb_substr($quiz->getName(), 0, 25) . "...";
             } else {
                 $quizName = $quiz->getName();
-            }
+            }*/
             if (UserModel::getCurrentUser()->hasDoneQuiz($quiz->getId())) {
                 $result = true;
                 $hasDone = "Yes";
@@ -436,10 +402,12 @@ class QuizView extends View {
             }
 
             $html .= "<tr>";
-            $html .= "<td>" . $quizName . "</td>" .
-                "<td>" . $descriptionText . "</td>" .
+            $html .= "<td>" . $this->text($quizName) . "</td>" .
+                "<td>" . $this->text($descriptionText) . "</td>" .
+                "<td>" . $quiz->getCreated() . "</td>" .
                 "<td>" . $quiz->getQuestionCount() . "</td>" .
-                "<td>" . $hasDone . " " . ($result === true ? "<a href='" . $this->rootAndMethod(QuizView::$resultMethodName) . "/" . $quiz->getId() . "'>Result</a>" : "") . "</td>" .
+                "<td>" . $hasDone . " " . ($result === true ? $this->getResultLink("Result",
+                                                                                   "/" . $quiz->getId()) : "") . "</td>" .
                 "<td>" . "<a href='/project/quizes/quiz/{$quiz->getId()}'>Go do this quiz!</a></td>";
 
             if ($editMethods) {
@@ -453,6 +421,14 @@ class QuizView extends View {
         $html .= "</tbody></table>";
 
         return $html;
+    }
+
+    public function getResultLink($text = "Remove quiz", $extra = "", $class = "") {
+        return $this->getAnchor($this->rootAndMethod(QuizView::$resultMethodName) . $extra, $class, $text);
+    }
+
+    private function getAnchor($href, $class, $text) {
+        return "<a href='$href' class='$class'>$text</a>";
     }
 
     public function getTotallySure() {
@@ -471,10 +447,8 @@ class QuizView extends View {
         $html = "";
         if ($quiz) {
             $results = $getCurrentUser->getResults($quiz->getId());
-            var_dump($results);
             foreach ($results as $key => $result) {
                 $resultarray = json_decode($result["result"], true);
-                var_dump($resultarray);
                 $html .= "<h4>Round #" . ($key + 1) . "</h4>";
                 foreach ($resultarray as $key => $ra) {
                     if (gettype($key) === "string") {
@@ -484,7 +458,10 @@ class QuizView extends View {
                         $html .= "<p>You answered all questions correctly.</p>";
                     } else {
                         $html .= "<p>";
-                        $html .= $ra["countRightAnswers"] . " right answers and " . $ra["countWrongAnswers"] . " wrong answers out of " . $ra["rightAnswerCount"] . " right answers and " . $ra["wrongAnswerCount"] . " wrong answers.";
+                        $html .= $ra["countRightAnswers"] . " right answers and " .
+                            $ra["countWrongAnswers"] . " wrong answers out of " .
+                            $ra["rightAnswerCount"] . " right answers and " .
+                            $ra["wrongAnswerCount"] . " wrong answers.";
                         $html .= "</p>";
                     }
                 }
@@ -498,8 +475,6 @@ class QuizView extends View {
         $html = "";
         $html .= "<h3>Result</h3>";
         echo "Current user";
-        var_dump(UserModel::getCurrentUser());
-        var_dump($quiz);
         foreach ($result as $key => $resultRow) {
             //Typesafety in PHP is, well, really bad, but I do not want the string keys, just the resultrows that contain the good info
 
@@ -513,7 +488,6 @@ class QuizView extends View {
                 } else {
                     $html .= "!";
                 }
-
             }
             if ($key === "allCorrect" && $resultRow["allCorrect"] === true) {
                 $html .= "<p>Wow you got all the questions correct!</p>";

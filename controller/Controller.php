@@ -22,10 +22,10 @@ require_once(__ROOT__ . "model/UserModel.php");
 require_once(__ROOT__ . "view/NavigationView.php");
 
 class Controller {
-    protected $model;
+    protected $user;
 
     public function __construct() {
-        $this->model = UserModel::getCurrentUser();
+        $this->user = UserModel::getCurrentUser();
         $this->navigationView = new NavigationView();
     }
 
