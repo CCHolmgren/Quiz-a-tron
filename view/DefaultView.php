@@ -18,6 +18,7 @@ class DefaultView extends View {
         }
             $html .= '
                 <p>Hello there from default view</p>';
+        $html .= "You might want to go do some quizes, since that's what this page is for?";
         return $html;
     }
 }

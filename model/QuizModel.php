@@ -65,38 +65,30 @@ class QuizModel extends Model {
     }
 
     /**
-     * @param $id
-     * @return null|QuestionModel
-     */
-    public function getQuestionById($id) {
-        /** @var QuestionModel $question */
-        foreach ($this->getQuestions() as $question) {
-            if ($question->getId() == $id) {
-                return $question;
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * @return array QuestionModel
-     */
-    public function getQuestions() {
-        return $this->questions;
-    }
-
-    /**
      * @todo: Implement this function properly
      * @param array $data
      * @return array
      */
     public function validateAnswers(array $data) {
         $result = array();
+        foreach ($data as $key => $dataRow) {
+
+            $question = $this->getQuestionById($key);
+            if ($question) {
+                $result[] = $question->validateAnswers($dataRow);
+            } else {
+                $result[] = ["What the fuck"];
+            }
+
+        }
         /** @var QuestionModel $question */
         foreach ($this->questions as $key => $question) {
-            if (isset($data[$key + 1])) {
-                $result[] = $question->validateAnswers($data[$key + 1]);
+            echo "Key";
+            var_dump($key);
+            echo "QUestion";
+            var_dump($question);
+            if (isset($data[$question->getId()])) {
+                $result[] = $question->validateAnswers($data[$question->getId()]);
             } else {
                 $result[] = $question->validateAnswers(array());
             }
@@ -121,6 +113,28 @@ class QuizModel extends Model {
         $this->saveAnswers($data, $result);
 
         return $result;
+    }
+
+    /**
+     * @param $id
+     * @return null|QuestionModel
+     */
+    public function getQuestionById($id) {
+        /** @var QuestionModel $question */
+        foreach ($this->getQuestions() as $question) {
+            if ($question->getId() == $id) {
+                return $question;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @return array QuestionModel
+     */
+    public function getQuestions() {
+        return $this->questions;
     }
 
     public function saveAnswers(array $data, array $result) {

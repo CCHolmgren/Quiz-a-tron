@@ -253,6 +253,13 @@ class UserModel extends Model {
         return false;
     }
 
+    public function getResults($quizid) {
+        $conn = $this->getConnection();
+        $sth = $conn->prepare("SELECT * FROM donequizes WHERE userid = ? AND quizid = ?");
+        $sth->execute(array($this->getId(), $quizid));
+
+        return $sth->fetchAll(PDO::FETCH_ASSOC);
+    }
     public function logout() {
         session_destroy();
         session_regenerate_id(true);
