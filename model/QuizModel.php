@@ -78,8 +78,21 @@ class QuizModel extends Model {
         while ($row = $sth->fetchObject("QuizModel")) {
             $result[] = $row;
         }
-
         return $result;
+    }
+
+    static public function getMostDoneQuizes($amount = 5) {
+        $conn = self::getConnection();
+        $sth = $conn->prepare("SELECT users.username, count(donequizes.userid) as cnt
+                                  FROM users, donequizes
+                                    WHERE users.id = donequizes.userid
+                                  GROUP BY users.id
+                                  ORDER BY cnt DESC
+                                  LIMIT ?");
+        $sth->execute(array($amount));
+
+        return $sth->fetchAll();
+
     }
     /**
      * @todo: Implement this function properly

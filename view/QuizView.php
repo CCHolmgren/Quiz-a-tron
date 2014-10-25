@@ -82,7 +82,52 @@ class QuizView extends View {
         $html = "This will require just as much as the other one. Hold on for a long while until I fix this.";
         $html .= $this->getAddButton("Add questions", "/{$quiz->getId()}", "btn-default");
 
+        $html .= $this->getQuizForm($quiz);
         /** @var QuestionModel $question */
+        $html .= $this->loopThroughQuestions($quiz);
+
+        return $html;
+    }
+
+    public function getAddButton($text = "Add quiz", $extra = "", $class = "btn-default") {
+        return $this->getButton($this->rootAndMethod(QuizView::$addMethodName) . $extra, $class, $text);
+    }
+
+    private function getButton($href, $class, $text) {
+        return "<a href='$href' class='btn $class'>$text</a>";
+    }
+
+    public function rootAndMethod($editMethod) {
+        $result = View::$rootBase . "quizes/" . $editMethod;
+
+        return $result;
+    }
+
+    public function getQuizForm($quiz) {
+        $html = "
+                    <form method='post'>
+                        <div class='form-group'>
+                            <label for='name'>Quiz name</label>
+                            <input type='text' name='name' class='form-control' value='" . $quiz->getName() . "' required>
+                        </div>
+                        <div class='form-group'>
+                            <label for='description'>Quiz description</label>
+                            <textarea name='description' class='form-control' required>" . $quiz->getDescription() . "</textarea>
+                        </div>
+                        <div class='form-group'>
+                            <label for='opento'>Open to (only one currently)</label>
+                            <select name='opento' class='form-control'>
+                                <option value='all'>All</option>
+                            </select>
+                        </div>
+                        <input type='submit' value='Save' class='btn btn-primary form-control'>
+                    </form>";
+
+        return $html;
+    }
+
+    public function loopThroughQuestions($quiz) {
+        $html = "";
         if ($quiz->getQuestionCount()) {
             $html .= "<p class=''>The other questions in the quiz:</p>";
             /** @var QuestionModel $question */
@@ -108,7 +153,10 @@ class QuizView extends View {
                 $html .= $this->getRemoveButton("Delete", "/" .
                         $quiz->getId() . "/" .
                         $question->getId(),
-                                                "btn-danger btn-xs") . "</td>";
+                                                "btn-danger btn-xs") . $this->getAddButton("Add answers", "/" .
+                        $quiz->getId() . "/" .
+                        $question->getId(),
+                                                                                           "btn-success btn-xs") . "</td>";
 
                 $html .= "</tr>";
             }
@@ -116,23 +164,8 @@ class QuizView extends View {
         } else {
             $html .= "<p class=''>There seems to be no other questions in this quiz yet.</p>";
         }
-        $html .= $this->getQuizForm($quiz);
 
         return $html;
-    }
-
-    public function getAddButton($text = "Add quiz", $extra = "", $class = "btn-default") {
-        return $this->getButton($this->rootAndMethod(QuizView::$addMethodName) . $extra, $class, $text);
-    }
-
-    private function getButton($href, $class, $text) {
-        return "<a href='$href' class='btn $class'>$text</a>";
-    }
-
-    public function rootAndMethod($editMethod) {
-        $result = View::$rootBase . "quizes/" . $editMethod;
-
-        return $result;
     }
 
     public function text($string) {
@@ -145,29 +178,6 @@ class QuizView extends View {
 
     public function getRemoveButton($text = "Remove quiz", $extra = "", $class = "btn-danger") {
         return $this->getButton($this->rootAndMethod(QuizView::$removeMethodName) . $extra, $class, $text);
-    }
-
-    public function getQuizForm($quiz) {
-        $html = "
-                    <form method='post'>
-                        <div class='form-group'>
-                            <label for='name'>Quiz name</label>
-                            <input type='text' name='name' class='form-control' value='" . $quiz->getName() . "'>
-                        </div>
-                        <div class='form-group'>
-                            <label for='description'>Quiz description</label>
-                            <textarea name='description' class='form-control'>" . $quiz->getDescription() . "</textarea>
-                        </div>
-                        <div class='form-group'>
-                            <label for='opento'>Open to (only one currently)</label>
-                            <select name='opento' class='form-control'>
-                                <option value='all'>All</option>
-                            </select>
-                        </div>
-                        <input type='submit' value='Save' class='btn btn-primary form-control'>
-                    </form>";
-
-        return $html;
     }
 
     public function getAddQuizPage() {
@@ -191,37 +201,11 @@ class QuizView extends View {
 
     public function getAddQuestionPage(QuizModel $quiz) {
         $html = "<h3>You are now in the add question page</h3>";
+        //$html .= $this->getAddButton("Add answers", "/{$quiz->getId()}/{$question->getId()}", "btn-default");
+        $html .= $this->getQuestionForm(new QuestionModel());
 
-        if ($quiz->getQuestionCount()) {
-            $html .= "<p class=''>The other questions in the quiz:</p>";
-            /** @var QuestionModel $question */
-            $html .= "
-                        <table class='table'>
-                            <thead>
-                                <tr>
-                                    <th>Methods</th>
-                                    <th>Question name</th>
-                                </tr>
-                            </thead>
-                            <tbody>";
-            foreach ($quiz->getQuestions() as $question) {
+        $html .= $this->loopThroughQuestions($quiz);
 
-                $html .= "<tr>";
-                $html .= "<td>" . $this->text($question->getQuestionText()) . "</td>";
-                $html .= "<td class=''>" . $this->getEditButton('Edit', '/' . $quiz->getId() . '/' . $question->getId(),
-                                                                'btn-default btn-xs');
-                $html .= $this->getRemoveButton("Delete", "/" . $quiz->getId() . "/" . $question->getId(),
-                                                "btn-danger btn-xs") . "</td>";
-
-                $html .= "</tr>";
-            }
-
-            $html .= "</tbody></table>";
-        } else {
-            $html .= "<p class=''>There seems to be no other questions in this quiz yet.</p>";
-        }
-
-        $html .= $this->getQuestionForm(new QUestionModel);
 
         return $html;
     }
@@ -231,9 +215,9 @@ class QuizView extends View {
                 <form method='post'>
                     <div class='form-group'>
                         <label for='questiontext'>Question text</label>
-                        <textarea name='questiontext' class='form-control'>" . $question->getQuestionText() . "</textarea>
+                        <textarea name='questiontext' class='form-control' required>" . $question->getQuestionText() . "</textarea>
                     </div>
-                    <input type='submit' value='Save' class='btn btn-primary'>
+                    <input type='submit' value='Save' class='btn btn-primary form-control'>
                 </form>";
 
         return $html;
@@ -242,9 +226,21 @@ class QuizView extends View {
     public function getEditQuestionPage(QuizModel $quiz, QuestionModel $question) {
         $html = "";
         $html .= $this->getAddButton("Add answers", "/{$quiz->getId()}/{$question->getId()}", "btn-default");
+
+        $html .= $this->getQuestionForm($question);
         /** @var AnswerModel $answer */
-        if ($question->getAnswers()) {
-            $html .= "
+
+        $html .= $this->loopThroughAnswers($question->getAnswers(), $quiz->getId(), $question->getId());
+
+
+
+
+        return $html;
+    }
+
+    private function loopThroughAnswers($answers, $quizid, $questionid) {
+        $html = "";
+        $html .= "
                 <table class='table'>
                 <thead>
                     <tr>
@@ -257,19 +253,7 @@ class QuizView extends View {
 
 
             ";
-            $html .= $this->loopThroughAnswers($question->getAnswers(), $quiz->getId(), $question->getId());
 
-            $html .= "</tbody>
-                </table>";
-        }
-        $html .= $this->getQuestionForm($question);
-
-
-        return $html;
-    }
-
-    private function loopThroughAnswers($answers, $quizid, $questionid) {
-        $html = "";
         foreach ($answers as $answer) {
             if ($answer->getIscorrect()) {
                 $iscorrect = "Yes";
@@ -289,7 +273,10 @@ class QuizView extends View {
                                             $answer->getId(),
                                             'btn-danger btn-xs') . "</td>";
             $html .= "</tr>";
-        }
+            }
+        $html .= "</tbody>
+                </table>";
+
         return $html;
     }
 
@@ -328,7 +315,7 @@ class QuizView extends View {
             <form method='post'>
                 <div class='form-group'>
                     <label for='answertext'>Answer text</label>
-                    <textarea name='answertext' class='form-control'>{$answer->getAnswertext()}</textarea>
+                    <textarea name='answertext' class='form-control' required>{$answer->getAnswertext()}</textarea>
                 </div>
 
                 <div class='form-group'>
@@ -338,7 +325,7 @@ class QuizView extends View {
                         <input type='checkbox' name='iscorrect' " . ($answer->getIscorrect() == 1 ? "checked" : "") . " class='checkbox'>Is this answer correct?
                     </label>
                 </div>
-                <input type='submit' value='Save' class='btn btn-primary'>
+                <input type='submit' value='Save' class='btn btn-primary form-control'>
             </form>";
 
         return $html;
@@ -351,7 +338,7 @@ class QuizView extends View {
         return $html;
     }
 
-    public function getQuizesPage($editMethods = false, $quizes = null, $message = true) {
+    public function getQuizesPage($editMethods = false, $quizes = null, $message = true, $mostPopular = false) {
         if ($quizes === null) {
             $quizes = $this->quizes;
         }
@@ -374,6 +361,9 @@ class QuizView extends View {
                             <th>Link</th>";
         if ($editMethods) {
             $html .= "<th>Methods</th>";
+        }
+        if ($mostPopular) {
+            $html .= "<th>Done times</th>";
         }
         $html .= "
                         </tr>
@@ -414,7 +404,12 @@ class QuizView extends View {
                 $html .= "<td>" . $this->getEditButton('Edit', '/' . $quiz->getId() . '/',
                                                        'btn-default btn-xs') . $this->getRemoveButton("Delete",
                                                                                                       "/" . $quiz->getId() . "/",
-                                                                                                      "btn-danger btn-xs") . "</td>";
+                                                                                                      "btn-danger btn-xs") . $this->getAddButton("Add questions",
+                                                                                                                                                 "/" . $quiz->getId() . "/",
+                                                                                                                                                 "btn-success btn-xs") . "</td>";
+            }
+            if ($mostPopular) {
+                $html .= "<td>" . $quiz->cnt . "</td>";
             }
             $html .= "</tr>";
         }
@@ -493,6 +488,27 @@ class QuizView extends View {
                 $html .= "<p>Wow you got all the questions correct!</p>";
             }
         }
+
+        return $html;
+    }
+
+    public function getMostDone($getMostDone) {
+        $html = "";
+        $html .= "
+            <table class='table'>
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Done quizes</th>
+                    </tr>
+                </thead>
+                <tbody>";
+        foreach ($getMostDone as $gmd) {
+            $html .= "<tr>" . "<td>" . $this->getAnchor(View::$rootBase . "user/" . $gmd["username"], "",
+                                                        $gmd["username"]) . "</td>";
+            $html .= "<td>" . $gmd["cnt"] . "</td>" . "</tr>";
+        }
+        $html .= "</tbody></table>";
 
         return $html;
     }

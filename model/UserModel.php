@@ -237,12 +237,12 @@ class UserModel extends Model {
         } catch (Exception $e) {
             throw new Exception("The getting of the user with username " . $username . " failed in " . __FILE__);
         }
-        var_dump($user);
+
         if ($user !== false) {
             $this->id = $user->getId();
             $this->username = $user->getUsername();
             $this->email = $user->email;
-            var_dump(password_verify($password, $user->getPassword()));
+
             if (password_verify($password, $user->getPassword())) {
                 return true;
             }

@@ -23,7 +23,7 @@ class RegisterController extends Controller {
         $message = "";
         $errors = "";
         if ($this->user->isLoggedIn()) {
-            RedirectHandler::routeTo("?/");
+            RedirectHandler::routeTo("");
         } else {
             if ($this->registerView->getRequestMethod() === "POST") {
                 $errors = $this->user->validateInput($this->registerView->getRegisterData());
@@ -38,7 +38,7 @@ class RegisterController extends Controller {
                         //We get another user out of the registerUser function
                         //Might as well capture it.
                         $tempUser = $tempUser->registerUser($username, $password, $email);
-                        RedirectHandler::routeTo(View::$rootBase."/login/");
+                        RedirectHandler::routeTo("/login/");
                     } catch (Exception $e) {
                         $message = $e->getMessage();
                     }

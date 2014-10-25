@@ -9,7 +9,11 @@ defined("__ROOT__") or die("Noh!");
  */
 class RedirectHandler {
     static public function routeTo($route){
-        header("Location: " . $route);
+        if (strpos($route, View::$rootBase) !== 0) {
+            header("Location: " . View::$rootBase . $route);
+        } else {
+            header("Location: " . $route);
+        }
         exit;
     }
 }

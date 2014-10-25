@@ -34,6 +34,9 @@ class QuizList {
         return QuizModel::getMostPopularQuizes();
     }
 
+    static public function getMostDone() {
+        return QuizModel::getMostDoneQuizes();
+    }
     public function getAllQuizes() {
         return $this->quizes;
     }

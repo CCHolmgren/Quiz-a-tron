@@ -21,7 +21,7 @@ class QuizController extends Controller {
 
     protected function __getHTML($route) {
         if (!UserModel::getCurrentUser()->isLoggedIn()) {
-            RedirectHandler::routeTo("/");
+            RedirectHandler::routeTo("");
         }
         /** @var QuizModel $quiz */
 
@@ -49,7 +49,7 @@ class QuizController extends Controller {
 
             if ($this->view->getRequestMethod() === "POST") {
                 $result = $quiz->validateAnswers($_POST);
-                RedirectHandler::routeTo(View::$rootBase . "quizes/" . QuizView::$resultMethodName . "/" . $quiz->getId());
+                RedirectHandler::routeTo("quizes/" . QuizView::$resultMethodName . "/" . $quiz->getId());
                 //return $this->view->getResultsPage($result, $quiz);
             }
             if ($didMatchQuiz) {

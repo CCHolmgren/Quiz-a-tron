@@ -186,10 +186,9 @@ class QuestionModel extends Model {
     public function updateQuestion() {
         $conn = $this->getConnection();
         $sth = $conn->prepare("UPDATE questions SET questiontext = ? WHERE id = ?");
-        var_dump($this);
-        var_dump($this->questiontext);
+
         $sth->execute(array($this->questiontext, $this->id));
-        var_dump("Now we've been in the updateQuestion function");
+
     }
 
     public function getCountAnswers() {
