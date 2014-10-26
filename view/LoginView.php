@@ -15,7 +15,13 @@ class LoginView extends View{
     }
 
     public function getLoginPage($message) {
-        $html = "
+        $html = "";
+        if ($messages = $this->messages->getMessages()) {
+            foreach ($messages as $message) {
+                $html .= $message;
+            }
+        }
+        $html .= "
                     <form method='post' role='form' class='form-horizontal'>
                         <div class='form-group'>
                             <label for='username' class='col-sm-2 control-label'>Username</label>

@@ -21,6 +21,7 @@ class QuizView extends View {
         $this->pd = new Parsedown();
         $this->quizList = new QuizList();
         $this->quizes = $this->quizList->getAllQuizes();
+        parent::__construct();
     }
 
     /**
@@ -30,6 +31,7 @@ class QuizView extends View {
     public function getQuizPage($quiz) {
         /** @var QuizModel $quiz */
         $html = "";
+        $html .= $this->getMessages();
         if ($quiz) {
             /** @var QuestionModel $question */
             $questions = $quiz->getQuestions();
@@ -80,6 +82,7 @@ class QuizView extends View {
 
     public function getEditQuizPage(QuizModel $quiz) {
         $html = "This will require just as much as the other one. Hold on for a long while until I fix this.";
+        $html .= $this->getMessages();
         $html .= $this->getAddButton("Add questions", "/{$quiz->getId()}", "btn-default");
 
         $html .= $this->getQuizForm($quiz);
@@ -98,7 +101,7 @@ class QuizView extends View {
     }
 
     public function rootAndMethod($editMethod) {
-        $result = View::$rootBase . "quizes/" . $editMethod;
+        $result = $this->rootBase . "quizes/" . $editMethod;
 
         return $result;
     }
@@ -182,6 +185,7 @@ class QuizView extends View {
 
     public function getAddQuizPage() {
         $html = "This will require a lot of things. Hold on for a long while until I fix this.";
+        $html .= $this->getMessages();
         $html .= $this->getQuizForm(new QuizModel);
 
         return $html;
@@ -189,6 +193,7 @@ class QuizView extends View {
 
     public function getRemoveQuizPage(QuizModel $quiz) {
         $html = "";
+        $html .= $this->getMessages();
         $html .= "
                     <form method='post'>
                         <p>Are you totally sure that you want to delete this thing? It can't be undone and it will erase everything associated with that thing.</p>
@@ -200,7 +205,9 @@ class QuizView extends View {
     }
 
     public function getAddQuestionPage(QuizModel $quiz) {
-        $html = "<h3>You are now in the add question page</h3>";
+        $html = "";
+        $html .= $this->getMessages();
+        $html .= "<h3>You are now in the add question page</h3>";
         //$html .= $this->getAddButton("Add answers", "/{$quiz->getId()}/{$question->getId()}", "btn-default");
         $html .= $this->getQuestionForm(new QuestionModel());
 
@@ -240,6 +247,7 @@ class QuizView extends View {
 
     private function loopThroughAnswers($answers, $quizid, $questionid) {
         $html = "";
+        $html .= $this->getMessages();
         $html .= "
                 <table class='table'>
                 <thead>
@@ -282,6 +290,7 @@ class QuizView extends View {
 
     public function getAddAnswerPage(QuizModel $quiz, QuestionModel $question) {
         $html = "You are now in the add answer page";
+        $html .= $this->getMessages();
         $html .= $this->getEditAnswerPage($quiz, $question, new AnswerModel());
 
         return $html;
@@ -289,6 +298,7 @@ class QuizView extends View {
 
     public function getEditAnswerPage(QuizModel $quiz, QuestionModel $question, AnswerModel $answer) {
         $html = "You are now in the Answer page";
+        $html .= $this->getMessages();
         $html .= $this->getAnswerForm($answer);
 
         $html .= "
@@ -311,7 +321,8 @@ class QuizView extends View {
     }
 
     public function getAnswerForm($answer) {
-        $html = "
+        $html = "";
+        $html .= "
             <form method='post'>
                 <div class='form-group'>
                     <label for='answertext'>Answer text</label>
@@ -350,6 +361,7 @@ class QuizView extends View {
         if ($editMethods) {
             $html .= $this->getAddButton();
         }
+        $html .= $this->getMessages();
         $html .= "<table class='table table-striped table-condensed'>
                     <thead>
                         <tr>
@@ -398,7 +410,7 @@ class QuizView extends View {
                 "<td>" . $quiz->getQuestionCount() . "</td>" .
                 "<td>" . $hasDone . " " . ($result === true ? $this->getResultLink("Result",
                                                                                    "/" . $quiz->getId()) : "") . "</td>" .
-                "<td>" . "<a href='/PHP-project/quizes/quiz/{$quiz->getId()}'>Go do this quiz!</a></td>";
+                "<td>" . "<a href='" . $this->rootBase . "quizes/quiz/{$quiz->getId()}'>Go do this quiz!</a></td>";
 
             if ($editMethods) {
                 $html .= "<td>" . $this->getEditButton('Edit', '/' . $quiz->getId() . '/',
@@ -440,6 +452,7 @@ class QuizView extends View {
 
     public function getResultPage($quiz, UserModel $getCurrentUser) {
         $html = "";
+        $html .= $this->getMessages();
         if ($quiz) {
             $results = $getCurrentUser->getResults($quiz->getId());
             foreach ($results as $key => $result) {
@@ -468,6 +481,7 @@ class QuizView extends View {
 
     public function getResultsPage($result, $quiz) {
         $html = "";
+        $html .= $this->getMessages();
         $html .= "<h3>Result</h3>";
         echo "Current user";
         foreach ($result as $key => $resultRow) {
@@ -494,6 +508,7 @@ class QuizView extends View {
 
     public function getMostDone($getMostDone) {
         $html = "";
+        $html .= $this->getMessages();
         $html .= "
             <table class='table'>
                 <thead>
@@ -504,7 +519,7 @@ class QuizView extends View {
                 </thead>
                 <tbody>";
         foreach ($getMostDone as $gmd) {
-            $html .= "<tr>" . "<td>" . $this->getAnchor(View::$rootBase . "user/" . $gmd["username"], "",
+            $html .= "<tr>" . "<td>" . $this->getAnchor($this->rootBase . "user/" . $gmd["username"], "",
                                                         $gmd["username"]) . "</td>";
             $html .= "<td>" . $gmd["cnt"] . "</td>" . "</tr>";
         }

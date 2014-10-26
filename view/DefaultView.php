@@ -10,9 +10,15 @@ require_once("View.php");
 class DefaultView extends View {
     public function __construct(){
         $this->quizview = new QuizView();
+        parent::__construct();
     }
     public function getDefaultPage(){
         $html = '';
+        if ($messages = $this->messages->getMessages()) {
+            foreach ($messages as $message) {
+                $html .= $message;
+            }
+        }
         if (UserModel::isLoggedIn()) {
             $html .= '<h2>Hello there ' . UserModel::getCurrentUser()->getUsername() . '. You are logged in!</h2>';
             $html .= 'You are logged in as ' . UserModel::getCurrentUser()->getUsername();

@@ -9,8 +9,8 @@ defined("__ROOT__") or die("Noh!");
  */
 class RedirectHandler {
     static public function routeTo($route){
-        if (strpos($route, View::$rootBase) !== 0) {
-            header("Location: " . View::$rootBase . $route);
+        if (strpos($route, (new View)->rootBase) !== 0) {
+            header("Location: " . (new View)->rootBase . $route);
         } else {
             header("Location: " . $route);
         }

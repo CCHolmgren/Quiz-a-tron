@@ -21,11 +21,13 @@ class LogoutController extends Controller {
         if ($this->user->isLoggedIn()) {
             if ($this->view->getRequestMethod() === "POST") {
                 $this->user->logout();
-                RedirectHandler::routeTo(View::$rootBase."/");
+                $this->view->messages->saveMessage("You logged out!");
+                RedirectHandler::routeTo($this->view->rootBase);
             }
 
             return $this->view->getLogoutPage();
         }
+        $this->view->messages->saveMessage("You are already logged out!");
         RedirectHandler::routeTo("/");
 
         return "";

@@ -8,10 +8,14 @@ defined("__ROOT__") or die("Noh!");
  * Time: 21:30
  */
 require_once(__ROOT__ . "vendors/Parsedown.php");
+require_once(__ROOT__ . "model/Messages.php");
 class View{
-    public static $rootBase = "/PHP-project/";
+    public $rootBase;
+    public $messages;
 
     public function __construct(){
+        $this->rootBase = Settings::getSetting("rootBase");
+        $this->messages = new Messages();
     }
 
     public static function getRequestMethod() {
@@ -50,5 +54,16 @@ class View{
     public function getLoginData()
     {
         return array("username" => $_POST["username"], "password" => $_POST["password"]);
+    }
+
+    public function getMessages() {
+        $html = "";
+        if ($messages = $this->messages->getMessages()) {
+            foreach ($messages as $message) {
+                $html .= $message;
+            }
+        }
+
+        return $html;
     }
 }

@@ -14,17 +14,20 @@ define("__ROOT__", realpath("") . "/");//"C:/Users/Chrille/Desktop/PHP-projekt/"
  * We must do the requires first since we are storing the user in the session and as such it will get unserialized
  * And if it doesn't know what a UserModel is before the session is created, then it will break horribly
  */
-require_once(__ROOT__."controller/Routing.php");
-require_once(__ROOT__."controller/RegisterController.php");
-require_once(__ROOT__."controller/LoginController.php");
-require_once(__ROOT__."controller/LogoutController.php");
+require_once(__ROOT__ . "controller/Routing.php");
+require_once(__ROOT__ . "controller/RegisterController.php");
+require_once(__ROOT__ . "controller/LoginController.php");
+require_once(__ROOT__ . "controller/LogoutController.php");
 require_once(__ROOT__ . "controller/QuizController.php");
-require_once(__ROOT__."controller/DefaultController.php");
-require_once(__ROOT__."controller/RoutingDirective.php");
+require_once(__ROOT__ . "controller/DefaultController.php");
+require_once(__ROOT__ . "controller/RoutingDirective.php");
+require_once(__ROOT__ . "model/Messages.php");
+require_once("Settings.php");
 
 session_start();
 
-class NotImplementedException extends Exception{}
+class NotImplementedException extends Exception {
+}
 
 /*
  * Define the RoutingDirectives so that the routing knows to what controller to send the controls to
@@ -75,13 +78,6 @@ switch($rd->name){
         break;
 }
 */
-
-
-
-
-
-
-
 
 
 /*

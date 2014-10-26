@@ -1,0 +1,10 @@
+Options +FollowSymLinks -MultiViews -Indexes
+
+DirectoryIndex index.php index.html index.htm
+
+RewriteEngine On
+RewriteBase /PHP-project/
+RewriteRule ^(.*) index.php?$1
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^([0-9]+)/?$ /index.php?id=$1 [L]

@@ -21,6 +21,7 @@ class QuizController extends Controller {
 
     protected function __getHTML($route) {
         if (!UserModel::getCurrentUser()->isLoggedIn()) {
+            $this->view->messages->saveMessage("You can only look at that page if you are logged in!");
             RedirectHandler::routeTo("");
         }
         /** @var QuizModel $quiz */

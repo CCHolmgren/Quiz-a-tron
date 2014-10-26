@@ -1,0 +1,136 @@
+Konfigurera Apache/nginx
+----------------------
+Det följer med en .htaccess fil som gör att det går att använda scriptet för Apache. En vanlig installation av Apache är det enda som krävs.
+I .htaccess filen så finns det en RewriteBase som kan configureras till den mappen som projektet ligger i, men för allas trevnad så rekomenderar jag på det starkaste att använda nginx istället.
+
+För att stödja Nginx så måste man konfigurera en sites-available fil, "default" är normalt den enda som finns från början.    
+Under server så lägger man till ett location block som ser ut som följande.   
+`location [location]{
+try_files $uri $uri/ [rootbase]index.php?$uri
+}`
+Efter detta så sparar man filen och startar om nginx med nginx -s reload för att ladda om configurationsfilerna.   
+Detta gör att nginx kommer att routa alla requests som går till [rootbase] till index filen som är den fil som finns i projektet.    
+[rootbase] byts givetvis ut till den mappen som ni valt att lägga projektet i, och [location] är den platsen som ni väljer att projektet ska vara tillgängligt ifrån.    
+
+Installation av själva servern
+------------------------------    
+För att göra det så simpelt som möjligt så rekommenderar jag att ni använder digital ocean eller liknande vps tjänster. Kostar mer än andra tjänster men tillhandahåller mycket bättre tjänster istället.    
+På Digitalocean så finns det tillgång till förkonfigurerade tjänster vilket är att rekommendera. LEMP (Linux, (e)Nginx, MySQL (dock använder jag PostgreSQL istället för MySQL, mer om detta senare), PHP) är vad denna server använder.     
+Efter att LEMP är installerat så behövs det en installation av postgresql. Utförliga instruktioner går att finna på https://www.digitalocean.com/community/tutorials/how-to-install-and-use-postgresql-on-ubuntu-14-04    
+Dock så ska inte skapandet av databastabellerna göras, men instruktionerna kan vara vettiga att läsa igenom.     
+Efter det så är även PostgreSQL installerat.    
+Sedan måste php.ini filen ändras för att installera drivern till pdo så att pdo vet hur den ska kommunicera med postgresql.    
+Gå till php.ini och avkommentera raden som det står extension=php_pdo_pgsql.so/dll på. Om denna rad saknas måste pdo pgsql installeras. Detta göras med
+`sudo apt-get update
+sudo apt-get install php5-pgsql`
+Efter det så borde PHP kunna kommunicera med PostgreSQL.
+
+Ändring av settings.ini
+-----------------------
+settings.ini så finns det sedan tre olika saker att konfigurera för databasen.    
+`db-dns` (Data Source Name) är konfigurerat för en PostgreSQL anslutning till localhost till databasen med namn project. Databasens namn kan behöva ändras beroende på vad du konfigurerade databasen till förut. Ändra därför dbname till den databasen som innehåller tabellerna.    
+`db-username` och `db-password` är ganska självklara och är de uppgifter som kommer att användas för att ansluta till databasen. Dessa måste givetvis stämma för att det ska fungera. Användaren måste även ha tillgång till hela databasen för att det ska gå.    
+Ändra raden i settings.php som heter rootBase till där du valt att peka din [location] i nginx filen, eller RewriteBase i .htaccess filen.
+
+Ladda ner koden
+---------------
+`git clone https://github.com/ch222kv/PHP-project/ är allt som egentligen krävs.`
+
+Konfigurera databasen
+---------------------
+Detta är SQL raderna som konfigurerar databasen med de rätta tabellerna. De är inte kompatibla med MySQL eller liknande så de måste skrivas om, om de ska fungera med någon annan databas än PostgreSQL.
+I nuläget går det inte att ta bort frågor från quiz eller svar från frågorna. Så foreign key constraints måste ändras om det ska gå att implementera på ett vettigt sätt.
+users:
+`CREATE TABLE users
+(
+  id serial NOT NULL,
+  email character varying,
+  username character varying,
+  password character varying,
+  CONSTRAINT users_pkey PRIMARY KEY (id),
+  CONSTRAINT users_email_key UNIQUE (email),
+  CONSTRAINT users_username_key UNIQUE (username)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE users
+  OWNER TO php;`
+quiz:
+`CREATE TABLE quiz
+(
+  id serial NOT NULL,
+  creator integer,
+  name character varying,
+  opento character varying,
+  description character varying,
+  visible smallint DEFAULT 1,
+  created timestamp without time zone DEFAULT '2014-10-24 16:22:00'::timestamp without time zone,
+  CONSTRAINT quiz_pkey PRIMARY KEY (id),
+  CONSTRAINT quiz_creator_fkey FOREIGN KEY (creator)
+      REFERENCES users (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE quiz
+  OWNER TO php;
+`
+questions:
+`CREATE TABLE questions
+(
+  id serial NOT NULL,
+  questiontext character varying,
+  quizid integer,
+  CONSTRAINT questions_pkey PRIMARY KEY (id),
+  CONSTRAINT questions_quizid_fkey FOREIGN KEY (quizid)
+      REFERENCES quiz (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE SET NULL
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE questions
+  OWNER TO php;`
+donequizes:
+`CREATE TABLE donequizes
+(
+  id serial NOT NULL,
+  quizid integer,
+  userid integer,
+  answers json,
+  donewhen timestamp with time zone,
+  result json DEFAULT '[]'::json,
+  CONSTRAINT donequizes_pkey PRIMARY KEY (id),
+  CONSTRAINT donequizes_quizid_fkey FOREIGN KEY (quizid)
+      REFERENCES quiz (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE SET NULL,
+  CONSTRAINT donequizes_userid_fkey FOREIGN KEY (userid)
+      REFERENCES users (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE donequizes
+  OWNER TO php;`
+answers:
+`CREATE TABLE answers
+(
+  id serial NOT NULL,
+  answertext character varying,
+  iscorrect smallint,
+  questionid integer,
+  CONSTRAINT answers_pkey PRIMARY KEY (id),
+  CONSTRAINT answers_questionid_fkey FOREIGN KEY (questionid)
+      REFERENCES answers (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE SET NULL
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE answers
+  OWNER TO php;
+`
+

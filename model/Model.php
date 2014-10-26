@@ -18,7 +18,8 @@ class Model {
 
     static public function getConnection() {
         if (self::$PDO === null) {
-            self::$PDO = new PDO("pgsql:host=localhost;dbname=project;", "php", "password");
+            self::$PDO = new PDO(Settings::getSetting("db-dns"), Settings::getSetting("db-username"),
+                                 Settings::getSetting("db-password"));
         }
 
         self::$PDO->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
