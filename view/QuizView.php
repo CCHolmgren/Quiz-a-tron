@@ -41,15 +41,21 @@ class QuizView extends View {
             $html .= "<form method='post'>";
             foreach ($questions as $question) {
 
-                $html .= "<div class='question'>";
+                $html .= "<div class='question' style='border:1px solid grey'>";
 
 
                 /** @var AnswerModel $answer */
                 $html .= $question->getQuestionText() . "<br>";
                 foreach ($question->getAnswers() as $answer) {
-                    $html .= "<div class='answer' style='border:1px solid grey'>";
+                    $html .= "<div class='answer'>";
                     $html .= "<span class='answertext'>" . $answer->getAnswertext() . "</span>";
-                    $html .= "<input type='checkbox' name='{$question->getId()}[]' value={$answer->getId()}>";
+                    if ($question->getCountRightAnswers() === 1) {
+                        $html .= "<input type='radio' name='{$question->getId()}' value='{$answer->getId()}' class='radio'>";
+                    } else {
+                        $html .= "<input type='checkbox' name='{$question->getId()}[]' value='{$answer->getId()}' class='checkbox' >";
+                    }
+
+
                     $html .= "<br/>";
 
                     $html .= "</div>";
@@ -82,12 +88,27 @@ class QuizView extends View {
 
     public function getEditQuizPage(QuizModel $quiz) {
         $html = "This will require just as much as the other one. Hold on for a long while until I fix this.";
+        $html .= $this->getBreadCrumbs(array(array("link" => $this->rootBase, "name" => "Home"),
+                                             array("link" => $this->rootBase . "quizes/", "name" => "Quizes"))
+            , "Editing quiz '" . $quiz->getName() . "'");
         $html .= $this->getMessages();
         $html .= $this->getAddButton("Add questions", "/{$quiz->getId()}", "btn-default");
 
         $html .= $this->getQuizForm($quiz);
         /** @var QuestionModel $question */
         $html .= $this->loopThroughQuestions($quiz);
+
+        return $html;
+    }
+
+    public function getBreadCrumbs(array $data, $active) {
+        $html = "";
+        $html .= "<ol class='breadcrumb'>";
+        foreach ($data as $row) {
+            $html .= "<li><a href='{$row["link"]}'>{$row["name"]}</a></li>";
+        }
+        $html .= "<li class='active'>$active</li>";
+        $html .= "</ol>";
 
         return $html;
     }
@@ -107,6 +128,7 @@ class QuizView extends View {
     }
 
     public function getQuizForm($quiz) {
+        /** @var QuizModel $quiz */
         $html = "
                     <form method='post'>
                         <div class='form-group'>
@@ -131,6 +153,7 @@ class QuizView extends View {
 
     public function loopThroughQuestions($quiz) {
         $html = "";
+        /** @var QuizModel $quiz */
         if ($quiz->getQuestionCount()) {
             $html .= "<p class=''>The other questions in the quiz:</p>";
             /** @var QuestionModel $question */
@@ -193,10 +216,13 @@ class QuizView extends View {
 
     public function getRemoveQuizPage(QuizModel $quiz) {
         $html = "";
+        $html .= $this->getBreadCrumbs(array(array("link" => $this->rootBase, "name" => "Home"),
+                                             array("link" => $this->rootBase . "quizes/", "name" => "Quizes"))
+            , "Removing '" . $quiz->getName() . "'");
         $html .= $this->getMessages();
         $html .= "
                     <form method='post'>
-                        <p>Are you totally sure that you want to delete this thing? It can't be undone and it will erase everything associated with that thing.</p>
+                        <p>Are you totally sure that you want to delete this quiz? It can't be undone and it will erase everything associated with that quiz.</p>
                         <input type='hidden' name='totallysure' value='true'>
                         <input type='submit' value='Delete' class='btn btn-danger'>
                     </form>";
@@ -206,6 +232,11 @@ class QuizView extends View {
 
     public function getAddQuestionPage(QuizModel $quiz) {
         $html = "";
+        $html .= $this->getBreadCrumbs(array(array("link" => $this->rootBase, "name" => "Home"),
+                                             array("link" => $this->rootBase . "quizes/", "name" => "Quizes"),
+                                             array("link" => $this->rootAndMethod(QuizView::$addMethodName) . "/" . $quiz->getId(), "name" => StringHelper::shortenString(strip_tags($quiz->getName()),
+                                                                                                                                                                          10)))
+            , "Adding question");
         $html .= $this->getMessages();
         $html .= "<h3>You are now in the add question page</h3>";
         //$html .= $this->getAddButton("Add answers", "/{$quiz->getId()}/{$question->getId()}", "btn-default");
@@ -218,6 +249,7 @@ class QuizView extends View {
     }
 
     public function getQuestionForm($question) {
+        /** @var QuestionModel $question */
         $html = "
                 <form method='post'>
                     <div class='form-group'>
@@ -230,16 +262,37 @@ class QuizView extends View {
         return $html;
     }
 
+    /*public function getEditQuestionPage(QuizModel $quiz, QuestionModel $question) {
+        $html = "";
+        $html .= $this->getBreadCrumbs(array(array("link" => $this->rootBase, "name" => "Home"),
+                                             array("link" => $this->rootBase . "/" . "quizes/", "name" => "Quizes"),
+                                             array("link" => $this->rootAndMethod(QuizView::$editMethodName) . "/" . $quiz->getId(), "name" => StringHelper::shortenString(strip_tags($quiz->getName()),
+                                                                                                                                                                           10))),
+                                       StringHelper::shortenString(strip_tags($question->getQuestionText()), 10));
+        $html .= $this->getAddButton("Add answers", "/{$quiz->getId()}/{$question->getId()}", "btn-default");
+
+        $html .= $this->getQuestionForm($question);
+        /** @var AnswerModel $answer */
+
+    //$html .= $this->loopThroughAnswers($question->getAnswers(), $quiz->getId(), $question->getId());
+
+
+    // return $html;
+    //}
+
     public function getEditQuestionPage(QuizModel $quiz, QuestionModel $question) {
         $html = "";
+        $html .= $this->getBreadCrumbs(array(array("link" => $this->rootBase, "name" => "Home"),
+                                             array("link" => $this->rootBase . "/" . "quizes/", "name" => "Quizes"),
+                                             array("link" => $this->rootAndMethod(QuizView::$editMethodName) . "/" . $quiz->getId(), "name" => StringHelper::shortenString(strip_tags($quiz->getName()),
+                                                                                                                                                                           10))),
+                                       StringHelper::shortenString(strip_tags($question->getQuestionText()), 10));
         $html .= $this->getAddButton("Add answers", "/{$quiz->getId()}/{$question->getId()}", "btn-default");
 
         $html .= $this->getQuestionForm($question);
         /** @var AnswerModel $answer */
 
         $html .= $this->loopThroughAnswers($question->getAnswers(), $quiz->getId(), $question->getId());
-
-
 
 
         return $html;
@@ -262,6 +315,7 @@ class QuizView extends View {
 
             ";
 
+        /** @var AnswerModel $answer */
         foreach ($answers as $answer) {
             if ($answer->getIscorrect()) {
                 $iscorrect = "Yes";
@@ -281,7 +335,7 @@ class QuizView extends View {
                                             $answer->getId(),
                                             'btn-danger btn-xs') . "</td>";
             $html .= "</tr>";
-            }
+        }
         $html .= "</tbody>
                 </table>";
 
@@ -290,6 +344,13 @@ class QuizView extends View {
 
     public function getAddAnswerPage(QuizModel $quiz, QuestionModel $question) {
         $html = "You are now in the add answer page";
+        $html .= $this->getBreadCrumbs(array(array("link" => $this->rootBase, "name" => "Home"),
+                                             array("link" => $this->rootBase . "quizes/", "name" => "Quizes"),
+                                             array("link" => $this->rootAndMethod(QuizView::$editMethodName) . "/" . $quiz->getId(), "name" => StringHelper::shortenString(strip_tags($quiz->getName()),
+                                                                                                                                                                           10)),
+                                             array("link" => $this->rootAndMethod(QuizView::$editMethodName) . "/" . $quiz->getId() . "/" . $question->getId(), "name" => StringHelper::shortenString(strip_tags($question->getQuestionText()),
+                                                                                                                                                                                                      10)))
+            , "Adding answer");
         $html .= $this->getMessages();
         $html .= $this->getEditAnswerPage($quiz, $question, new AnswerModel());
 
@@ -298,6 +359,13 @@ class QuizView extends View {
 
     public function getEditAnswerPage(QuizModel $quiz, QuestionModel $question, AnswerModel $answer) {
         $html = "You are now in the Answer page";
+        $html .= $this->getBreadCrumbs(array(array("link" => $this->rootBase, "name" => "Home"),
+                                             array("link" => $this->rootBase . "quizes/", "name" => "Quizes"),
+                                             array("link" => $this->rootAndMethod(QuizView::$editMethodName) . "/" . $quiz->getId(), "name" => StringHelper::shortenString(strip_tags($quiz->getName()),
+                                                                                                                                                                           10)),
+                                             array("link" => $this->rootAndMethod(QuizView::$editMethodName) . "/" . $quiz->getId() . "/" . $question->getId(), "name" => StringHelper::shortenString(strip_tags($question->getQuestionText()),
+                                                                                                                                                                                                      10)))
+            , "Editing answer");
         $html .= $this->getMessages();
         $html .= $this->getAnswerForm($answer);
 
@@ -322,6 +390,7 @@ class QuizView extends View {
 
     public function getAnswerForm($answer) {
         $html = "";
+        /** @var AnswerModel $answer */
         $html .= "
             <form method='post'>
                 <div class='form-group'>
@@ -421,6 +490,7 @@ class QuizView extends View {
                                                                                                                                                  "btn-success btn-xs") . "</td>";
             }
             if ($mostPopular) {
+                //Breaking the quiz by introducing cnt into the model only here
                 $html .= "<td>" . $quiz->cnt . "</td>";
             }
             $html .= "</tr>";
@@ -454,21 +524,26 @@ class QuizView extends View {
         $html = "";
         $html .= $this->getMessages();
         if ($quiz) {
+            /** @var QuizModel $quiz */
             $results = $getCurrentUser->getResults($quiz->getId());
             foreach ($results as $key => $result) {
                 $resultarray = json_decode($result["result"], true);
                 $html .= "<h4>Round #" . ($key + 1) . "</h4>";
-                foreach ($resultarray as $key => $ra) {
-                    if (gettype($key) === "string") {
+                foreach ($resultarray as $key2 => $ra) {
+
+                    if (gettype($key2) === "string") {
                         continue;
                     }
                     if ($ra["onlyCorrect"]) {
                         $html .= "<p>You answered all questions correctly.</p>";
+                    }
+                    if ($ra["onlyCorrect"]) {
+                        //$html .= //"<p>You answered all questions correctly.</p>";
                     } else {
                         $html .= "<p>";
                         $html .= $ra["countRightAnswers"] . " right answers and " .
                             $ra["countWrongAnswers"] . " wrong answers out of " .
-                            $ra["rightAnswerCount"] . " right answers and " .
+                            $ra["rightAnswerCount"] . " right answers with " .
                             $ra["wrongAnswerCount"] . " wrong answers.";
                         $html .= "</p>";
                     }

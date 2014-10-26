@@ -191,6 +191,13 @@ class QuestionModel extends Model {
 
     }
 
+    public function removeQuestion() {
+        $conn = $this->getConnection();
+        $sth = $conn->prepare("DELETE FROM questions WHERE id = ?");
+
+        $sth->execute(array($this->id));
+    }
+
     public function getCountAnswers() {
         return count($this->answers);
     }

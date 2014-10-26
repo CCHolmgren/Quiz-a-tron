@@ -67,20 +67,6 @@ class AnswerModel extends Model {
         $this->questionid = $questionid;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getId() {
-        return $this->id;
-    }
-
-    /**
-     * @param mixed $id
-     */
-    public function setId($id) {
-        $this->id = $id;
-    }
-
     public function updateAnswer() {
         $conn = $this->getConnection();
         $sth =
@@ -99,6 +85,26 @@ class AnswerModel extends Model {
         $this->id = $result["id"];
 
         return;
+    }
+
+    public function removeAnswer() {
+        $conn = $this->getConnection();
+        $sth = $conn->prepare("DELETE FROM answers WHERE id = ?");
+        $sth->execute(array($this->getId()));
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getId() {
+        return $this->id;
+    }
+
+    /**
+     * @param mixed $id
+     */
+    public function setId($id) {
+        $this->id = $id;
     }
 
 }

@@ -28,7 +28,9 @@ class DefaultView extends View {
         $html .= "<p>You might want to go do some quizes, since that's what this page is for?</p>";
         $html .= "<p class='lead'>Here are the top 5 quizes of all time:</p>";
         $html .= $this->quizview->getQuizesPage(false, QuizList::getPopular(), false, true);
+        $html .= "<div style='width:50%;margin: 0 auto; min-width:200px;'>";
         $html .= $this->quizview->getMostDone(QuizList::getMostDone());
+        $html .= "</div>";
 
         //$html .= json_encode(QuizList::getMostDone());
         return $html;

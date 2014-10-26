@@ -260,6 +260,19 @@ class UserModel extends Model {
 
         return $sth->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    public function getDoneQuizes() {
+        $conn = $this->getConnection();
+        $sth =
+            $conn->prepare("SELECT quiz.* FROM quiz, donequizes WHERE quiz.id = donequizes.quizid AND donequizes.userid = ?");
+        $sth->execute(array($this->id));
+        $result = [];
+        while ($row = $sth->fetchObject("QuizModel")) {
+            $result[] = $row;
+        }
+
+        return $result;
+    }
     public function logout() {
         session_destroy();
         session_regenerate_id(true);
