@@ -43,23 +43,22 @@ class QuizView extends View {
 
                 $html .= "<div class='panel panel-default'>";
                 $html .= "<div class='panel-body'>";
-
-
                 /** @var AnswerModel $answer */
-                $html .= $question->getQuestionText() . "<br>";
+                $html .= "<h4>Question</h4>";
+                $html .= $this->text($question->getQuestionText());
+                $html .= "<hr>";
+                $html .= "<h4>Answers</h4>";
                 foreach ($question->getAnswers() as $answer) {
                     $html .= "<div class='answer'>";
-                    $html .= "<span class='answertext'>" . $answer->getAnswertext() . "</span>";
+                    $html .= $this->text($answer->getAnswertext());
                     //if ($question->getCountRightAnswers() === 1) {
                     //    $html .= "<input type='radio' name='{$question->getId()}' value='{$answer->getId()}' class='radio'>";
                     //} else {
                         $html .= "<input type='checkbox' name='{$question->getId()}[]' value='{$answer->getId()}' class='checkbox' >";
                     //}
 
-
-                    $html .= "<br/>";
-
                     $html .= "</div>";
+                    $html .= "<hr>";
                 }
                 $html .= "</div>";
                 $html .= "</div>";
@@ -71,6 +70,10 @@ class QuizView extends View {
         }
 
         return $html;
+    }
+
+    public function text($string) {
+        return $this->pd->text(strip_tags($string));
     }
 
     public function getQuizMissingPage() {
@@ -194,10 +197,6 @@ class QuizView extends View {
         }
 
         return $html;
-    }
-
-    public function text($string) {
-        return $this->pd->text(strip_tags($string));
     }
 
     public function getEditButton($text = "Edit quiz", $extra = "", $class = "btn-default") {
