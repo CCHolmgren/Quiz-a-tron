@@ -58,12 +58,13 @@ class View{
 
     public function getMessages() {
         $html = "";
+        $html .= "<div class='panel panel-default'>";
         if ($messages = $this->messages->getMessages()) {
             foreach ($messages as $message) {
                 $html .= $message;
             }
         }
-
+        $html .= "</div>";
         return $html;
     }
 }

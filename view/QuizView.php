@@ -92,7 +92,7 @@ class QuizView extends View {
     }
 
     public function getEditQuizPage(QuizModel $quiz) {
-        $html = "This will require just as much as the other one. Hold on for a long while until I fix this.";
+        $html = "";
         $html .= $this->getBreadCrumbs(array(array("link" => $this->rootBase, "name" => "Home"),
                                              array("link" => $this->rootBase . "quizes/", "name" => "Quizes"))
             , "Editing quiz '" . $quiz->getName() . "'");
@@ -405,7 +405,7 @@ class QuizView extends View {
     }
 
     public function getCUDPage() {
-        $html = "Hello this is the CUD page, what can I do for you?";
+        $html = "";
         $html .= $this->getQuizesPage(true);
 
         return $html;
@@ -555,7 +555,6 @@ class QuizView extends View {
         $html = "";
         $html .= $this->getMessages();
         $html .= "<h3>Result</h3>";
-        echo "Current user";
         foreach ($result as $key => $resultRow) {
             //Typesafety in PHP is, well, really bad, but I do not want the string keys, just the resultrows that contain the good info
 
