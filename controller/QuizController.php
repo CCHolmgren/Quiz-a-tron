@@ -47,9 +47,9 @@ class QuizController extends Controller {
         $didMatchQuiz = preg_match("/^\/quiz\/(?P<quizid>\d+)/", $route, $matches);
         if ($matches) {
             $quiz = $this->quizList->getQuizById($matches["quizid"]);
-
+            var_dump($_POST);
             if ($this->view->getRequestMethod() === "POST") {
-                $result = $quiz->validateAnswers($_POST);
+                $result = $quiz->validateAnswers($this->view->getAnswerData());
                 RedirectHandler::routeTo("quizes/" . QuizView::$resultMethodName . "/" . $quiz->getId());
                 //return $this->view->getResultsPage($result, $quiz);
             }

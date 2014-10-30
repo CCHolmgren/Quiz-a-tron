@@ -38,8 +38,8 @@ class RegisterController extends Controller {
                         //We get another user out of the registerUser function
                         //Might as well capture it.
                         $tempUser = $tempUser->registerUser($username, $password, $email);
-                        $this->view->messages->saveMessage("You registered. Now you may login.");
-                        RedirectHandler::routeTo("/login/");
+                        $this->registerView->messages->saveMessage("You registered. Now you may login.");
+                        RedirectHandler::routeTo("login/");
                     } catch (Exception $e) {
                         $message = $e->getMessage();
                     }

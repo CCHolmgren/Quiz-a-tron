@@ -107,12 +107,14 @@ class QuestionModel extends Model {
          */
         $rightStreak = 0;
         $wrongCount = 0;
+        $rightCount = 0;
 
         $result = array();
         foreach ($data as $key => $answer) {
             if (in_array($answer, $rightAnswersIds)) {
                 $result[$key] = true;
                 $rightStreak += 1;
+                $rightCount += 1;
             } else {
                 if (in_array($answer, $wrongAnswersIds)) {
                     $result[$key] = false;
@@ -140,7 +142,7 @@ class QuestionModel extends Model {
         $result["countWrongAnswers"] = array_reduce($result, $countWrongAnswers, 0);
         //Here we check to see if we only got correct answers, we could do it some other way,
         //but I think this is the nicest
-        if ($rightStreak === $this->getCountRightAnswers()) {
+        if ($rightStreak === $this->getCountRightAnswers() || $this->getCountRightAnswers() === 0 && $wrongCount !== 0) {
             $result["onlyCorrect"] = true;
         } else {
             $result["onlyCorrect"] = false;

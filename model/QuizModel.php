@@ -101,7 +101,7 @@ class QuizModel extends Model {
      */
     public function validateAnswers(array $data) {
         $result = array();
-        foreach ($data as $key => $dataRow) {
+        /*foreach ($data as $key => $dataRow) {
 
             $question = $this->getQuestionById($key);
             if ($question) {
@@ -110,7 +110,7 @@ class QuizModel extends Model {
                 $result[] = ["What the fuck"];
             }
 
-        }
+        }*/
         /** @var QuestionModel $question */
         foreach ($this->questions as $key => $question) {
             if (isset($data[$question->getId()])) {
@@ -141,6 +141,15 @@ class QuizModel extends Model {
         return $result;
     }
 
+    public function saveAnswers(array $data, array $result) {
+        $conn = $this->getConnection();
+        $sth = $conn->prepare("INSERT INTO donequizes(quizid, userid, donewhen, answers, result) VALUES(?,?,?,?,?)");
+        $sth->execute(array($this->id, UserModel::getCurrentUser()->getId(), date("Y-m-d h:i:s",
+                                                                                  time()), json_encode($data), json_encode($result)));
+
+        return true;
+    }
+
     /**
      * @param $id
      * @return null|QuestionModel
@@ -161,15 +170,6 @@ class QuizModel extends Model {
      */
     public function getQuestions() {
         return $this->questions;
-    }
-
-    public function saveAnswers(array $data, array $result) {
-        $conn = $this->getConnection();
-        $sth = $conn->prepare("INSERT INTO donequizes(quizid, userid, donewhen, answers, result) VALUES(?,?,?,?,?)");
-        $sth->execute(array($this->id, UserModel::getCurrentUser()->getId(), date("Y-m-d h:i:s",
-                                                                                  time()), json_encode($data), json_encode($result)));
-
-        return true;
     }
 
     public function saveQuiz(array $questions) {

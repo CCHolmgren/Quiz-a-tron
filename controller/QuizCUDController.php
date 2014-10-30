@@ -141,18 +141,18 @@ class QuizCUDController extends Controller {
                     /** @var QuizModel $quiz */
                     $question = $quiz->getQuestionById($matches["questionid"]);
                     $question->removeQuestion();
-                    $this->view->messages->save("The question was removed");
+                    $this->view->messages->saveMessage("The question was removed");
                     RedirectHandler::routeTo($this->view->rootAndMethod(QuizView::$editMethodName) . "/" . $quiz->getId());
                 } else if (isset($matches["answerid"])) {
                     $question = $quiz->getQuestionById($matches["questionid"]);
                     $answer = $question->getAnswerById($matches["answerid"]);
                     $answer->removeAnswer();
-                    $this->view->messages->save("The answer was removed");
+                    $this->view->messages->saveMessage("The answer was removed");
                     RedirectHandler::routeTo($this->view->rootAndMethod(QuizView::$editMethodName) . "/" . $quiz->getId() . "/" . $question->getId());
                 } else if (isset($matches["quizid"])) {
                     $quiz = $this->quizList->getQuizById($matches["quizid"]);
                     $quiz->removeQuiz();
-                    $this->view->messages->save("The quiz was removed");
+                    $this->view->messages->saveMessage("The quiz was removed");
                     RedirectHandler::routeTo($this->view->rootAndMethod(QuizView::$editMethodName) . "/");
                 }
 

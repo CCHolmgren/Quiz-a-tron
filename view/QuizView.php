@@ -41,7 +41,8 @@ class QuizView extends View {
             $html .= "<form method='post'>";
             foreach ($questions as $question) {
 
-                $html .= "<div class='question' style='border:1px solid grey'>";
+                $html .= "<div class='panel panel-default'>";
+                $html .= "<div class='panel-body'>";
 
 
                 /** @var AnswerModel $answer */
@@ -49,17 +50,18 @@ class QuizView extends View {
                 foreach ($question->getAnswers() as $answer) {
                     $html .= "<div class='answer'>";
                     $html .= "<span class='answertext'>" . $answer->getAnswertext() . "</span>";
-                    if ($question->getCountRightAnswers() === 1) {
-                        $html .= "<input type='radio' name='{$question->getId()}' value='{$answer->getId()}' class='radio'>";
-                    } else {
+                    //if ($question->getCountRightAnswers() === 1) {
+                    //    $html .= "<input type='radio' name='{$question->getId()}' value='{$answer->getId()}' class='radio'>";
+                    //} else {
                         $html .= "<input type='checkbox' name='{$question->getId()}[]' value='{$answer->getId()}' class='checkbox' >";
-                    }
+                    //}
 
 
                     $html .= "<br/>";
 
                     $html .= "</div>";
                 }
+                $html .= "</div>";
                 $html .= "</div>";
             }
             $html .= "<input type='submit' value='Submit answers'>";
@@ -286,7 +288,8 @@ class QuizView extends View {
                                              array("link" => $this->rootBase . "/" . "quizes/", "name" => "Quizes"),
                                              array("link" => $this->rootAndMethod(QuizView::$editMethodName) . "/" . $quiz->getId(), "name" => StringHelper::shortenString(strip_tags($quiz->getName()),
                                                                                                                                                                            10))),
-                                       StringHelper::shortenString(strip_tags($question->getQuestionText()), 10));
+                                       "Editing question: " . StringHelper::shortenString(strip_tags($question->getQuestionText()),
+                                                                                          10));
         $html .= $this->getAddButton("Add answers", "/{$quiz->getId()}/{$question->getId()}", "btn-default");
 
         $html .= $this->getQuestionForm($question);
@@ -352,13 +355,15 @@ class QuizView extends View {
                                                                                                                                                                                                       10)))
             , "Adding answer");
         $html .= $this->getMessages();
-        $html .= $this->getEditAnswerPage($quiz, $question, new AnswerModel());
+        $html .= $this->getEditAnswerPage($quiz, $question, new AnswerModel(), false);
 
         return $html;
     }
 
-    public function getEditAnswerPage(QuizModel $quiz, QuestionModel $question, AnswerModel $answer) {
+    public function getEditAnswerPage(QuizModel $quiz, QuestionModel $question, AnswerModel $answer, $breadcrumbs = true) {
         $html = "You are now in the Answer page";
+        if ($breadcrumbs) {
+
         $html .= $this->getBreadCrumbs(array(array("link" => $this->rootBase, "name" => "Home"),
                                              array("link" => $this->rootBase . "quizes/", "name" => "Quizes"),
                                              array("link" => $this->rootAndMethod(QuizView::$editMethodName) . "/" . $quiz->getId(), "name" => StringHelper::shortenString(strip_tags($quiz->getName()),
@@ -366,24 +371,12 @@ class QuizView extends View {
                                              array("link" => $this->rootAndMethod(QuizView::$editMethodName) . "/" . $quiz->getId() . "/" . $question->getId(), "name" => StringHelper::shortenString(strip_tags($question->getQuestionText()),
                                                                                                                                                                                                       10)))
             , "Editing answer");
+
+        }
         $html .= $this->getMessages();
         $html .= $this->getAnswerForm($answer);
 
-        $html .= "
-            <table class='table'>
-                <thead>
-                    <tr>
-                        <th>Answer text</th>
-                        <th>Is correct?</th>
-                        <th>Methods</th>
-                    </tr>
-                </thead>
-                <tbody>
-                ";
         $html .= $this->loopThroughAnswers($question->getAnswers(), $quiz->getId(), $question->getId());
-        $html .= "
-                </tbody>
-                </table>";
 
         return $html;
     }
@@ -528,19 +521,22 @@ class QuizView extends View {
             $results = $getCurrentUser->getResults($quiz->getId());
             foreach ($results as $key => $result) {
                 $resultarray = json_decode($result["result"], true);
+                $html .= "<div class='panel panel-default'>";
+                $html .= "<div class='panel-body'>";
                 $html .= "<h4>Round #" . ($key + 1) . "</h4>";
                 foreach ($resultarray as $key2 => $ra) {
-
                     if (gettype($key2) === "string") {
                         continue;
                     }
                     if ($ra["onlyCorrect"]) {
-                        $html .= "<p>You answered all questions correctly.</p>";
-                    }
-                    if ($ra["onlyCorrect"]) {
-                        //$html .= //"<p>You answered all questions correctly.</p>";
+                        $html .= "<p class='bg-success'>Question number " . ($key2 + 1) . ": You answered completely correctly. ";
+                        $html .= $ra["countRightAnswers"] . " right answers and " .
+                            $ra["countWrongAnswers"] . " wrong answers out of " .
+                            $ra["rightAnswerCount"] . " right answers with " .
+                            $ra["wrongAnswerCount"] . " wrong answers.";
+                        $html .= "</p>";
                     } else {
-                        $html .= "<p>";
+                        $html .= "<p class='bg-danger' style='width:auto'>Question number " . ($key2 + 1) . ": ";
                         $html .= $ra["countRightAnswers"] . " right answers and " .
                             $ra["countWrongAnswers"] . " wrong answers out of " .
                             $ra["rightAnswerCount"] . " right answers with " .
@@ -548,6 +544,7 @@ class QuizView extends View {
                         $html .= "</p>";
                     }
                 }
+                $html .= "</div></div>";
             }
         }
 
@@ -565,7 +562,7 @@ class QuizView extends View {
             if (gettype($key) === "integer") {
                 $questionCount = $key + 1;
                 $html .= "<h4>Question $questionCount</h4>";
-                $html .= $resultRow["countRightAnswers"];
+                $html .= "<p class='bg-primary'>" . $resultRow["countRightAnswers"];
                 $html .= " out of " . $resultRow["rightAnswerCount"];
                 if ($resultRow["countWrongAnswers"] > 0) {
                     $html .= " with " . $resultRow["countWrongAnswers"] . " extra wrong answers.";
@@ -574,7 +571,7 @@ class QuizView extends View {
                 }
             }
             if ($key === "allCorrect" && $resultRow["allCorrect"] === true) {
-                $html .= "<p>Wow you got all the questions correct!</p>";
+                $html .= "<p class='bg-success'>Wow you got all the questions correct!</p>";
             }
         }
 
@@ -601,5 +598,9 @@ class QuizView extends View {
         $html .= "</tbody></table>";
 
         return $html;
+    }
+
+    public function getAnswerData() {
+        return $_POST;
     }
 }
