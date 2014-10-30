@@ -72,7 +72,6 @@ class UserModel extends Model {
         } catch (Exception $e) {
             throw new Exception("Something broke");
         }
-
         return $user;
     }
 
@@ -288,7 +287,6 @@ class UserModel extends Model {
 
         return $result;
     }
-
     public function getDoneQuizes2() {
         $conn = $this->getConnection();
         $sth =

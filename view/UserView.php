@@ -8,7 +8,6 @@
 require_once("View.php");
 require_once("QuizView.php");
 require_once(__ROOT__ . "model/UserModel.php");
-
 class UserView extends View {
     private $user;
     private $quizView;
@@ -38,7 +37,6 @@ class UserView extends View {
             $html .= "</tr>";
         }
         $html .= "</tbody></div></div>";
-
         return $html;
 
     }

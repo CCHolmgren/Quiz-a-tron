@@ -28,7 +28,6 @@ class UserController extends Controller {
     protected function __getHTML($route) {
         preg_match("/\/([a-zA-Z0-9]+)/", $route, $username);
         $this->userView = new UserView(UserModel::getUserByUsername($username[1]));
-
         return $this->userView->getUserPage();
     }
 }
