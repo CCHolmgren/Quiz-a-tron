@@ -63,7 +63,7 @@ class QuizView extends View {
                 $html .= "</div>";
                 $html .= "</div>";
             }
-            $html .= "<input type='submit' value='Submit answers'>";
+            $html .= "<input type='submit' value='Submit answers' class='btn btn-default'>";
             $html .= "</form>";
         } else {
             return $this->getQuizMissingPage();
