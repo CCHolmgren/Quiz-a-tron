@@ -345,7 +345,7 @@ class QuizView extends View {
     }
 
     public function getAddAnswerPage(QuizModel $quiz, QuestionModel $question) {
-        $html = "You are now in the add answer page";
+        $html = "";
         $html .= $this->getBreadCrumbs(array(array("link" => $this->rootBase, "name" => "Home"),
                                              array("link" => $this->rootBase . "quizes/", "name" => "Quizes"),
                                              array("link" => $this->rootAndMethod(QuizView::$editMethodName) . "/" . $quiz->getId(), "name" => StringHelper::shortenString(strip_tags($quiz->getName()),
@@ -360,7 +360,7 @@ class QuizView extends View {
     }
 
     public function getEditAnswerPage(QuizModel $quiz, QuestionModel $question, AnswerModel $answer, $breadcrumbs = true) {
-        $html = "You are now in the Answer page";
+        $html = "";
         if ($breadcrumbs) {
 
         $html .= $this->getBreadCrumbs(array(array("link" => $this->rootBase, "name" => "Home"),
@@ -373,6 +373,7 @@ class QuizView extends View {
 
         }
         $html .= $this->getMessages();
+        $html .= "<h4>Question: </h4>" . $this->text($question->getQuestionText());
         $html .= $this->getAnswerForm($answer);
 
         $html .= $this->loopThroughAnswers($question->getAnswers(), $quiz->getId(), $question->getId());
