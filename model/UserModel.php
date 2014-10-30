@@ -61,6 +61,21 @@ class UserModel extends Model {
         return isset($_SESSION["loggedin"]);
     }
 
+    public static function getUserByUsername($username) {
+        try {
+
+            $conn = self::getConnection();
+            $sth = $conn->prepare("SELECT * FROM users WHERE username = ?");
+            $sth->execute(array($username));
+            $user = $sth->fetchObject("UserModel");
+
+        } catch (Exception $e) {
+            throw new Exception("Something broke");
+        }
+
+        return $user;
+    }
+
     public function hasDoneQuiz($quizid) {
         $conn = $this->getConnection();
         $sth = $conn->prepare("SELECT 1 FROM donequizes WHERE userid = ? AND quizid = ?");
@@ -264,7 +279,20 @@ class UserModel extends Model {
     public function getDoneQuizes() {
         $conn = $this->getConnection();
         $sth =
-            $conn->prepare("SELECT quiz.* FROM quiz, donequizes WHERE quiz.id = donequizes.quizid AND donequizes.userid = ?");
+            $conn->prepare("SELECT quiz.*, donequizes.donewhen FROM quiz, donequizes WHERE quiz.id = donequizes.quizid AND donequizes.userid = ?");
+        $sth->execute(array($this->id));
+        $result = [];
+        while ($row = $sth->fetchObject("QuizModel")) {
+            $result[] = $row;
+        }
+
+        return $result;
+    }
+
+    public function getDoneQuizes2() {
+        $conn = $this->getConnection();
+        $sth =
+            $conn->prepare("SELECT quiz.*, donequizes.donewhen FROM quiz, donequizes WHERE quiz.id = donequizes.quizid AND donequizes.userid = ? ORDER BY quiz.name, donequizes.donewhen DESC");
         $sth->execute(array($this->id));
         $result = [];
         while ($row = $sth->fetchObject("QuizModel")) {

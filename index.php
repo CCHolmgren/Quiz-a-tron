@@ -21,6 +21,7 @@ require_once(__ROOT__ . "controller/LogoutController.php");
 require_once(__ROOT__ . "controller/QuizController.php");
 require_once(__ROOT__ . "controller/DefaultController.php");
 require_once(__ROOT__ . "controller/RoutingDirective.php");
+require_once(__ROOT__ . "controller/UserController.php");
 require_once(__ROOT__ . "model/Messages.php");
 require_once("Settings.php");
 
@@ -36,6 +37,7 @@ $routes = array(new RoutingDirective("/register/", "RegisterController", "getHTM
                 new RoutingDirective("/login/", "LoginController", "getHTML", "login"),
                 new RoutingDirective("/logout/", "LogoutController", "getHTML", "logout"),
                 new RoutingDirective("/PHP-project\/quizes\/?/", "QuizController", "getHTML", "quizes"),
+                new RoutingDirective("/PHP-project\/user\//", "UserController", "getHTML", "user"),
                 new RoutingDirective("//", "DefaultController", "getHTML", "default"));
 
 // The Route is a class that handles routes, at this moment it only does handleRoute, but maybe more in the future

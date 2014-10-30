@@ -493,7 +493,7 @@ class QuizView extends View {
         return $html;
     }
 
-    public function getResultLink($text = "Remove quiz", $extra = "", $class = "") {
+    public function getResultLink($text = "Get results", $extra = "", $class = "") {
         return $this->getAnchor($this->rootAndMethod(QuizView::$resultMethodName) . $extra, $class, $text);
     }
 

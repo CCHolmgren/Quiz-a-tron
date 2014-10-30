@@ -144,8 +144,8 @@ class QuizModel extends Model {
     public function saveAnswers(array $data, array $result) {
         $conn = $this->getConnection();
         $sth = $conn->prepare("INSERT INTO donequizes(quizid, userid, donewhen, answers, result) VALUES(?,?,?,?,?)");
-        $sth->execute(array($this->id, UserModel::getCurrentUser()->getId(), date("Y-m-d h:i:s",
-                                                                                  time()), json_encode($data), json_encode($result)));
+        $sth->execute(array($this->id, UserModel::getCurrentUser()
+                                                ->getId(), (new DateTime(time()))->format("Y-m-d h:i:s"), json_encode($data), json_encode($result)));
 
         return true;
     }
