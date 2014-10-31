@@ -33,9 +33,10 @@ class NotImplementedException extends Exception {
 /*
  * Define the RoutingDirectives so that the routing knows to what controller to send the controls to
  */
-$routes = array(new RoutingDirective("/register/", "RegisterController", "getHTML", "register"),
-                new RoutingDirective("/login/", "LoginController", "getHTML", "login"),
-                new RoutingDirective("/logout/", "LogoutController", "getHTML", "logout"),
+
+$routes = new RouteList(new RoutingDirective("/PHP-project\/register/", "RegisterController", "getHTML", "register"),
+                        new RoutingDirective("/PHP-project\/login/", "LoginController", "getHTML", "login"),
+                        new RoutingDirective("/PHP-project\/logout/", "LogoutController", "getHTML", "logout"),
                 new RoutingDirective("/PHP-project\/quizes\/?/", "QuizController", "getHTML", "quizes"),
                 new RoutingDirective("/PHP-project\/user\//", "UserController", "getHTML", "user"),
                 new RoutingDirective("//", "DefaultController", "getHTML", "default"));
@@ -45,52 +46,15 @@ $routing = new Route($routes);
 
 // PHP is ugly and can't handle several argument returns, not as of 5.5 but from 5.6
 // We use 5.5 here
-$values = $routing->handleRoute();
-$rd = $values["routingdirective"];
-$matches = $values["matches"];
+$routingmatch = $routing->handleRoute();
+$rd = $routingmatch->getRoutingDirective();
+$matches = $routingmatch->getMatches();
 
 //$controller, $matches = $routing->handleRoute();
 
 /*
  * This is an ugly way to handle stuff, but it works, doesn't it?
  */
-$x = new $rd->controllername();
+$controller = new $rd->controllername();
 $fn = $rd->functionname;
-echo $x->$fn(preg_replace($rd->regex, "", View::getRequestURI()));
-
-/*
-switch($rd->name){
-    case "register":
-        $x = new $rd->controllername();
-        $fn = $rd->functionname;
-        echo $x->$fn(preg_replace($rd->regex, "", $_SERVER["QUERY_STRING"]));
-        //$x->($rd->$functionname)();
-        break;
-    case "login":
-        $x = new $rd->controllername();
-        $fn = $rd->functionname;
-        echo $x->$fn(preg_replace($rd->regex, "", $_SERVER["QUERY_STRING"]));
-        break;
-    case "default":
-        $x = new $rd->controllername();
-        $fn = $rd->functionname;
-        echo $x->$fn(preg_replace($rd->regex, "", $_SERVER["QUERY_STRING"]));
-        break;
-    default:
-        break;
-}
-*/
-
-
-/*
-$routes = array("/(?P<hej>whatnow)/"=>array("thisismycontroller","Route"));
-$Routing = new Route($routes);
-echo "<pre>";
-$controller = $Routing->handleRoute();
-var_dump($controller);
-$func = new $controller["controller"][0];
-var_dump($func);
-$func->$controller["controller"][1]($controller["matches"]);
-
-echo "</pre>";
-*/
+echo $controller->$fn(preg_replace($rd->regex, "", View::getRequestURI()));

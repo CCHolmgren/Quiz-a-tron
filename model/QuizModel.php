@@ -28,6 +28,7 @@ class QuizModel extends Model {
         if ($opento !== null) {
             $this->opento = $opento;
         }
+        $this->questions = new QuestionList();
 
         $this->loadQuestions();
         $this->userWhoCreated = UserModel::getUserById($this->creator);
@@ -39,7 +40,7 @@ class QuizModel extends Model {
             $sth = $conn->prepare("SELECT * FROM questions WHERE quizid = ?");
             $sth->execute(array($this->id));
             while ($object = $sth->fetchObject("QuestionModel")) {
-                $this->questions[] = $object;
+                $this->questions->addQuestion($object);
             }
         }
     }
@@ -55,16 +56,6 @@ class QuizModel extends Model {
 
         return $quizes;
     }
-
-    static public function getDoneQuizes($userid) {
-        $conn = self::getConnection();
-        $sth = $conn->prepare("SELECT * FROM donequizes WHERE userid = ?");
-        $sth->execute(array($userid));
-        $result = $sth->fetchAll(PDO::FETCH_ASSOC);
-
-        return $result;
-    }
-
     static public function getMostPopularQuizes($amount = 5) {
         $conn = self::getConnection();
         $sth = $conn->prepare("SELECT quiz.*, count(donequizes.*) AS cnt
@@ -74,11 +65,15 @@ class QuizModel extends Model {
                                   ORDER BY cnt DESC
                                   LIMIT ?");
         $sth->execute(array($amount));
+
+
         $result = [];
         while ($row = $sth->fetchObject("QuizModel")) {
             $result[] = $row;
         }
-        return $result;
+        $quizResults = new QuizList(false, $result);
+
+        return $quizResults;
     }
 
     static public function getMostDoneQuizes($amount = 5) {

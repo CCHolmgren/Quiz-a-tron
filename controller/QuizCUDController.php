@@ -37,10 +37,11 @@ class QuizCUDController extends Controller {
         /** @var String $requestMethod */
         $requestMethod = $this->view->getRequestMethod();
         /** @var QuizModel $quiz */
-        $quiz = false;
 
         if (isset($matches[self::$quizid])) {
             $quiz = $this->quizList->getQuizById($matches[self::$quizid]);
+        } else {
+            $quiz = false;
         }
 
         return $this->handleRoute($quiz, $requestMethod, $matches);
@@ -66,37 +67,55 @@ class QuizCUDController extends Controller {
     function handleEdit($quiz, $requestMethod, $matches) {
         //Request method was POST
         if ($requestMethod === "POST") {
-            if (isset($matches["answerid"])) {
-                $this->editAnswer($quiz, $matches);
-                RedirectHandler::routeTo($this->view->rootAndMethod($matches["method"]) . "/{$matches[self::$quizid]}/{$matches["questionid"]}");
-            } else if (isset($matches["questionid"])) {
-                $this->editQuestion($quiz, $matches);
-                RedirectHandler::routeTo($this->view->rootAndMethod($matches["method"]) . "/{$matches["quizid"]}");
-            } else if (isset($matches["quizid"])) {
-                $this->editQuiz($quiz);
-                RedirectHandler::routeTo($this->view->rootAndMethod($matches["method"]) . "/");
+            if ($quiz !== false && UserModel::getCurrentUser()->getId() === $quiz->getCreator()) {
+
+                if (isset($matches["answerid"])) {
+                    $this->editAnswer($quiz, $matches);
+                    $this->view->messages->saveMessage("The answer was updated");
+                    RedirectHandler::routeTo($this->view->rootAndMethod($matches["method"]) . "/{$matches[self::$quizid]}/{$matches["questionid"]}");
+                } else if (isset($matches["questionid"])) {
+                    $this->editQuestion($quiz, $matches);
+                    $this->view->messages->saveMessage("The question was updated");
+                    RedirectHandler::routeTo($this->view->rootAndMethod($matches["method"]) . "/{$matches["quizid"]}");
+                } else if (isset($matches["quizid"])) {
+                    $this->editQuiz($quiz);
+                    $this->view->messages->saveMessage("The quiz was updated");
+                    RedirectHandler::routeTo($this->view->rootAndMethod($matches["method"]) . "/");
+                }
+            } else {
+                $this->view->messages->saveMessage("You are not the creator of this quiz");
+                RedirectHandler::routeTo("");
             }
             //Request method was GET
         } else {
-            if (isset($matches["answerid"])) {
-                /** @var QuestionModel $question */
-                /** @var AnswerModel $answer */
-                /** @var QuizModel $quiz */
-                $question = $quiz->getQuestionById($matches["questionid"]);
-                $answer = $question->getAnswerById($matches["answerid"]);
+            if ($quiz !== false) {
+                if (UserModel::getCurrentUser()->getId() === $quiz->getCreator()) {
+                } else {
+                    $this->view->messages->saveMessage("You are not the creator of this quiz");
+                    RedirectHandler::routeTo("");
+                }
+                if (isset($matches["answerid"])) {
+                    /** @var QuestionModel $question */
+                    /** @var AnswerModel $answer */
+                    /** @var QuizModel $quiz */
+                    $question = $quiz->getQuestionById($matches["questionid"]);
+                    $answer = $question->getAnswerById($matches["answerid"]);
 
-                return $this->view->getEditAnswerPage($quiz, $question, $answer);
-            } else if (isset($matches["questionid"])) {
-                $question = $quiz->getQuestionById($matches["questionid"]);
+                    return $this->view->getEditAnswerPage($quiz, $question, $answer);
+                } else if (isset($matches["questionid"])) {
+                    $question = $quiz->getQuestionById($matches["questionid"]);
 
-                return $this->view->getEditQuestionPage($quiz, $question);
-            } else if ($quiz !== false) {
-                return $this->view->getEditQuizPage($quiz);
+                    return $this->view->getEditQuestionPage($quiz, $question);
+                } else if ($quiz !== false) {
+                    return $this->view->getEditQuizPage($quiz);
+                }
+
             } else {
                 return $this->view->getQuizesPage(true);
             }
         }
     }
+
 
     public
     function editAnswer($quiz, $matches) {
@@ -173,12 +192,15 @@ class QuizCUDController extends Controller {
         if ($requestMethod === "POST") {
             if (isset($matches["questionid"])) {
                 $this->createAnswer($matches);
+                $this->view->messages->saveMessage("The answer was created");
                 RedirectHandler::routeTo($this->view->rootAndMethod($matches["method"]) . "/{$matches["quizid"]}/{$matches["questionid"]}");
             } else if (isset($matches["quizid"])) {
                 $this->createQuestion($matches);
+                $this->view->messages->saveMessage("The question was created");
                 RedirectHandler::routeTo($this->view->rootAndMethod($matches["method"]) . "/{$matches["quizid"]}");
             } else {
                 $this->createQuiz();
+                $this->view->messages->saveMessage("The quiz was created");
                 RedirectHandler::routeTo($this->view->rootAndMethod(QuizView::$editMethodName) . "/");
             }
             //Request method was GET

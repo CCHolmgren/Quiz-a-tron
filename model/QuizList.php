@@ -10,12 +10,15 @@ require_once("QuizModel.php");
 require_once("QuestionModel.php");
 require_once("AnswerModel.php");
 
-class QuizList {
+class QuizList implements Iterator {
     private $quizes;
 
-    public function __construct() {
-        $this->quizes = $this->loadQuizes();
-
+    public function __construct($load = true, $quizes = []) {
+        if ($load) {
+            $this->quizes = $this->loadQuizes();
+        } else {
+            $this->quizes = $quizes;
+        }
         //$question = new QuestionModel();
         //$question->addAnswers(array(new AnswerModel("Whatnow", true)));
 
@@ -26,19 +29,43 @@ class QuizList {
      *  This might not be the optimal way and will probably depend on something like the user that is logged in
      *  (or not logged in)
      */
-    private function loadQuizes() {
+    private function loadQuizes($asQuizList = false) {
+        if ($asQuizList) {
+            return new QuizList(false, QuizModel::getAllQuizes());
+        }
+
         return QuizModel::getAllQuizes();
     }
 
-    static public function getPopular() {
+    static public function getPopular($asQuizList = false) {
+        if ($asQuizList) {
+            return new QuizList(false, QuizModel::getMostPopularQuizes());
+        }
+
         return QuizModel::getMostPopularQuizes();
     }
 
-    static public function getMostDone() {
+    static public function getMostDone($asQuizList = false) {
+        if ($asQuizList) {
+            return new QuizList(false, QuizModel::getMostDoneQuizes());
+        }
         return QuizModel::getMostDoneQuizes();
     }
+
     public function getAllQuizes() {
-        return $this->quizes;
+        return $this;
+    }
+
+    public function getByCreator($creatorid) {
+        /** @var QuizModel $quiz */
+        $result = [];
+        foreach ($this->quizes as $quiz) {
+            if ($quiz->getCreator() === $creatorid) {
+                $result[] = $quiz;
+            }
+        }
+
+        return new QuizList(false, $result);
     }
 
     /**
@@ -56,5 +83,28 @@ class QuizList {
         }
 
         return false;
+    }
+
+    public function rewind() {
+        reset($this->quizes);
+    }
+
+    public function current() {
+        return current($this->quizes);
+    }
+
+    public function key() {
+        return key($this->quizes);
+    }
+
+    public function next() {
+        return next($this->quizes);
+    }
+
+    public function valid() {
+        $key = key($this->quizes);
+        $var = ($key !== null && $key !== false);
+
+        return $var;
     }
 }

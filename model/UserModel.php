@@ -7,6 +7,7 @@ defined("__ROOT__") or die("Noh!");
  * Time: 11:51
  */
 require_once("Model.php");
+require_once("DoneQuizesModel.php");
 
 /*
  * Represents a user, with all of its might (not right now)
@@ -24,7 +25,7 @@ class UserModel extends Model {
 
     public function __construct() {
         parent::__construct();
-        $this->quizes = QuizModel::getDoneQuizes($this->id);
+        $this->quizes = DoneQuizesList::getDoneQuizesByUserId($this->id);
     }
 
     /**
@@ -275,19 +276,11 @@ class UserModel extends Model {
         return $sth->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function getDoneQuizes() {
-        $conn = $this->getConnection();
-        $sth =
-            $conn->prepare("SELECT quiz.*, donequizes.donewhen FROM quiz, donequizes WHERE quiz.id = donequizes.quizid AND donequizes.userid = ?");
-        $sth->execute(array($this->id));
-        $result = [];
-        while ($row = $sth->fetchObject("QuizModel")) {
-            $result[] = $row;
-        }
-
-        return $result;
-    }
     public function getDoneQuizes2() {
+        return $this->getDoneQuizes();
+    }
+
+    public function getDoneQuizes() {
         $conn = $this->getConnection();
         $sth =
             $conn->prepare("SELECT quiz.*, donequizes.donewhen FROM quiz, donequizes WHERE quiz.id = donequizes.quizid AND donequizes.userid = ? ORDER BY quiz.name, donequizes.donewhen DESC");
@@ -296,8 +289,22 @@ class UserModel extends Model {
         while ($row = $sth->fetchObject("QuizModel")) {
             $result[] = $row;
         }
+        $dql = new DoneQuizesList($result);
 
-        return $result;
+        return $dql;
+    }
+
+    public function getCreatedQuizes() {
+        $conn = $this->getConnection();
+        $sth = $conn->prepare("SELECT * FROM quiz WHERE creator=? ORDER BY created DESC");
+        $sth->execute(array($this->id));
+        $result = [];
+        while ($row = $sth->fetchObject("QuizModel")) {
+            $result[] = $row;
+        }
+        $dql = new QuizList(false, $result);
+
+        return $dql;
     }
     public function logout() {
         session_destroy();

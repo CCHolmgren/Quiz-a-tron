@@ -8,6 +8,7 @@
 require_once("View.php");
 require_once("QuizView.php");
 require_once(__ROOT__ . "model/UserModel.php");
+
 class UserView extends View {
     private $user;
     private $quizView;
@@ -23,21 +24,56 @@ class UserView extends View {
         }
         $html = "";
         /** @var QuizModel $quiz */
-        $html .= "Done quizes:";
-        $html .= "<div class='panel panel-default'><div class='panel-body'>";
-        $html .= "<table class='table'><thead><tr><th>Name</th><th>Done when</th><th></th></tr></thead><tbody>";
-        foreach ($this->user->getDoneQuizes2() as $quiz) {
+
+        $html .= "<div class='panel panel-default'>";
+        $html .= "<div class='panel-heading'><h4 class='panel-title'>Created quizes:</h4></div>";
+        $html .= "<div class='panel-body'>All the quizes that the user has created will be listed here.</div>";
+
+        $html .= $this->quizView->getQuizesPage($this->currentUserSameAsTargetUser(), $this->user->getCreatedQuizes(),
+                                                false, false, false);
+
+        $html .= "</div>";
+
+        $html .= "<div class='panel panel-default'>";
+        $html .= "<div class='panel-heading'><h4 class='panel-title'>Done quizes:</h4></div>";
+        $html .= "<div class='panel-body'>Here all the quizes that the user has done will be listed.</div>";
+        $html .= "
+                    <table class='table'>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Done when</th>
+                                ";
+        if ($this->currentUserSameAsTargetUser()) {
+            $html .= "
+                                <th></th>
+                                ";
+        }
+        $html .= "
+                            </tr>
+                        </thead>
+                        <tbody>";
+
+        foreach ($this->user->getDoneQuizes() as $quiz) {
             $date = new DateTime($quiz->donewhen);
 
             $html .= "<tr>";
             $html .= "<td>" . $quiz->getName() . "</td>";
             $html .= "<td>" . $date->format("Y-m-d h:i:s") . "</td>";
-            $html .= "<td>" . $this->quizView->getResultLink("Results", "/" . $quiz->getId(),
-                                                             "btn btn-default") . "</td>";
+            if ($this->currentUserSameAsTargetUser()) {
+                $html .= "<td>" . $this->quizView->getResultLink("Results", "/" . $quiz->getId(),
+                                                                 "btn btn-default") . "</td>";
+            }
             $html .= "</tr>";
         }
-        $html .= "</tbody></div></div>";
+
+        $html .= "</tbody></div>";
+
         return $html;
 
+    }
+
+    public function currentUserSameAsTargetUser() {
+        return $this->user->getId() === UserModel::getCurrentUser()->getId();
     }
 }

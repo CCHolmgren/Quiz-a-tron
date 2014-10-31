@@ -7,6 +7,8 @@ defined("__ROOT__") or die("Noh!");
  * Date: 2014-10-09
  * Time: 13:01
  */
+
+require_once("AnswerList.php");
 class QuestionModel extends Model {
     private $id;
     private $answers;
@@ -16,9 +18,9 @@ class QuestionModel extends Model {
     private $quizid;
 
     public function __construct() {
-        $this->answers = array();
-        $this->rightAnswers = array();
-        $this->wrongAnswers = array();
+        $this->answers = new AnswerList();
+        $this->rightAnswers = new AnswerList();
+        $this->wrongAnswers = new AnswerList();
         $this->loadAnswers();
     }
 
@@ -28,12 +30,12 @@ class QuestionModel extends Model {
         $sth->execute(array($this->id));
 
         while ($object = $sth->fetchObject("AnswerModel")) {
-            $this->answers[] = $object;
+            $this->answers->addAnswer($object);
             if ($object->getIscorrect() === 1) {
-                $this->rightAnswers[] = $object;
+                $this->rightAnswers->addAnswer($object);
             } else {
                 if ($object->getIscorrect() === 0) {
-                    $this->wrongAnswers[] = $object;
+                    $this->wrongAnswers->addAnswer($object);
                 }
             }
         }
@@ -43,14 +45,14 @@ class QuestionModel extends Model {
      * Adds the answers to this->answers, $this->rightAnswers and $this->wrongAnswers based on if getIscorrect()
      * @param array $answers
      */
-    public function addAnswers(array $answers) {
+    public function addAnswers(AnswerList $answers) {
         /** @var AnswerModel $answer */
         foreach ($answers as $answer) {
-            $this->answers[] = $answer;
+            $this->answers->addAnswer($answer);
             if ($answer->getIsCorrect()) {
-                $this->rightAnswers[] = $answer;
+                $this->rightAnswers->addAnswer($answer);
             } else {
-                $this->wrongAnswers[] = $answer;
+                $this->wrongAnswers->addAnswer($answer);
             }
         }
     }
@@ -205,7 +207,7 @@ class QuestionModel extends Model {
     }
 
     /**
-     * @return array
+     * @return AnswerList
      */
     public function getAnswers() {
         return $this->answers;
@@ -286,5 +288,36 @@ class QuestionModel extends Model {
      */
     public function setQuizid($quizid) {
         $this->quizid = $quizid;
+    }
+}
+
+class QuestionList implements Iterator {
+    private $questions;
+
+    public function addQuestion(QuestionModel $question) {
+        $this->questions[] = $question;
+    }
+
+    public function rewind() {
+        reset($this->questions);
+    }
+
+    public function current() {
+        return current($this->questions);
+    }
+
+    public function key() {
+        return key($this->questions);
+    }
+
+    public function next() {
+        return next($this->questions);
+    }
+
+    public function valid() {
+        $key = key($this->questions);
+        $var = ($key !== null && $key !== false);
+
+        return $var;
     }
 }
