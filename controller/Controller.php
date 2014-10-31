@@ -40,8 +40,9 @@ class Controller {
         $head = $this->__getHead();
         $body = $this->__getHTML($route);
         $navigation = $this->navigationView->getNavigation();
+        $messages = $this->navigationView->getMessages();
         if ($splice) {
-            return HTMLHelper::spliceBaseHTML($head, $navigation, $body);
+            return HTMLHelper::spliceBaseHTML($head, $navigation, $messages, $body);
         }
 
         return $body;

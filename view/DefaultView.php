@@ -14,11 +14,7 @@ class DefaultView extends View {
     }
     public function getDefaultPage(){
         $html = '';
-        if ($messages = $this->messages->getMessages()) {
-            foreach ($messages as $message) {
-                $html .= $message;
-            }
-        }
+
         if (UserModel::isLoggedIn()) {
             $html .= '<h2>Hello there ' . UserModel::getCurrentUser()->getUsername() . '. You are logged in!</h2>';
             $html .= 'You are logged in as ' . UserModel::getCurrentUser()->getUsername();
@@ -32,12 +28,11 @@ class DefaultView extends View {
             $html .= "<p>You are free to do what you please.</p>";
         }
         $html .= "<p class='lead'>Here are the top 5 quizes of all time:</p>";
-        $html .= $this->quizview->getQuizesPage(false, QuizList::getPopular(), false, true);
+        $html .= $this->quizview->getQuizesPage(false, QuizList::getPopular(), false, false, true);
         $html .= "<div style='width:50%;margin: 0 auto; min-width:200px;'>";
         $html .= $this->quizview->getMostDone(QuizList::getMostDone());
         $html .= "</div>";
 
-        //$html .= json_encode(QuizList::getMostDone());
         return $html;
     }
 }

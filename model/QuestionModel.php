@@ -294,6 +294,9 @@ class QuestionModel extends Model {
 class QuestionList implements Iterator {
     private $questions;
 
+    public function __construct() {
+        $this->questions = [];
+    }
     public function addQuestion(QuestionModel $question) {
         $this->questions[] = $question;
     }

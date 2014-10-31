@@ -14,7 +14,7 @@ class HTMLHelper
      * @param $body string code to put into the body of the html code
      * @return string spliced with the input parameters
      */
-    public static function spliceBaseHTML($head, $navigation, $body)
+    public static function spliceBaseHTML($head, $navigation, $messages, $body)
     {
 
 
@@ -48,6 +48,7 @@ class HTMLHelper
     </head>
     <body>{$navigation}
         <main class='center-block'>
+        <div>{$messages}</div>
         {$body}
         </main>
         <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->

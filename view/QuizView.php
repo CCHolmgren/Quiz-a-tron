@@ -33,7 +33,6 @@ class QuizView extends View {
     public function getQuizPage($quiz) {
         /** @var QuizModel $quiz */
         $html = "";
-        $html .= $this->getMessages();
         if ($quiz) {
             /** @var QuestionModel $question */
             $questions = $quiz->getQuestions();
@@ -53,11 +52,8 @@ class QuizView extends View {
                 foreach ($question as $answer) {
                     $html .= "<div class='answer'>";
                     $html .= $this->text($answer->getAnswertext());
-                    //if ($question->getCountRightAnswers() === 1) {
-                    //    $html .= "<input type='radio' name='{$question->getId()}' value='{$answer->getId()}' class='radio'>";
-                    //} else {
-                        $html .= "<input type='checkbox' name='{$question->getId()}[]' value='{$answer->getId()}' class='checkbox' >";
-                    //}
+
+                    $html .= "<input type='checkbox' name='{$question->getId()}[]' value='{$answer->getId()}' class='checkbox' >";
 
                     $html .= "</div>";
                     $html .= "<hr>";
@@ -92,7 +88,6 @@ class QuizView extends View {
         $bcList = new BreadCrumbsRowList($breadCrumbsRow, $breadCrumbsRow2);
         $html .= BreadCrumbs::getBreadCrumbs($bcList, "Editing quiz '" . $quiz->getName() . "'");
 
-        $html .= $this->getMessages();
         $html .= $this->getAddButton("Add questions", "/{$quiz->getId()}", "btn-default");
 
         $html .= $this->getQuizForm($quiz);
@@ -195,7 +190,7 @@ class QuizView extends View {
 
     public function getAddQuizPage() {
         $html = "";
-        $html .= $this->getMessages();
+
         $html .= $this->getQuizForm(new QuizModel);
 
         return $html;
@@ -209,7 +204,6 @@ class QuizView extends View {
 
         $html .= BreadCrumbs::getBreadCrumbs($bcList, "Removing quiz '" . $quiz->getName() . "'");
 
-        $html .= $this->getMessages();
         $html .= "
                     <form method='post'>
                         <p>Are you totally sure that you want to delete this quiz? It can't be undone and it will erase everything associated with that quiz.</p>
@@ -230,7 +224,6 @@ class QuizView extends View {
         $bcList = new BreadCrumbsRowList($breadCrumbsRow, $breadCrumbsRow2, $breadCrumbsRow3);
         $html .= BreadCrumbs::getBreadCrumbs($bcList, "Adding question");
 
-        $html .= $this->getMessages();
         $html .= "<h3>You are now in the add question page</h3>";
         //$html .= $this->getAddButton("Add answers", "/{$quiz->getId()}/{$question->getId()}", "btn-default");
         $html .= $this->getQuestionForm(new QuestionModel());
@@ -284,7 +277,7 @@ class QuizView extends View {
 
     private function loopThroughAnswers(AnswerList $answers, $quizid, $questionid) {
         $html = "";
-        $html .= $this->getMessages();
+
         $html .= "
                 <table class='table'>
                 <thead>
@@ -340,7 +333,6 @@ class QuizView extends View {
         $bcList = new BreadCrumbsRowList($breadCrumbsRow, $breadCrumbsRow2, $breadCrumbsRow3);
         $html .= BreadCrumbs::getBreadCrumbs($bcList, "Adding answer");
 
-        $html .= $this->getMessages();
         $html .= $this->getEditAnswerPage($quiz, $question, new AnswerModel(), false);
 
         return $html;
@@ -360,7 +352,6 @@ class QuizView extends View {
             $bcList = new BreadCrumbsRowList($breadCrumbsRow, $breadCrumbsRow2, $breadCrumbsRow3);
             $html .= BreadCrumbs::getBreadCrumbs($bcList, "Editing answer");
         }
-        $html .= $this->getMessages();
         $html .= "<h4>Question: </h4>" . $this->text($question->getQuestionText());
         $html .= $this->getAnswerForm($answer);
 
@@ -412,7 +403,6 @@ class QuizView extends View {
             $html = "";
         }
 
-        $html .= $this->getMessages();
         if ($editMethods && $addbutton) {
             $html .= $this->getAddButton();
         }
@@ -487,7 +477,6 @@ class QuizView extends View {
 
     public function getResultPage($quiz, UserModel $getCurrentUser) {
         $html = "";
-        $html .= $this->getMessages();
         if ($quiz) {
             /** @var QuizModel $quiz */
             $results = $getCurrentUser->getResults($quiz->getId());
@@ -525,7 +514,6 @@ class QuizView extends View {
 
     public function getResultsPage($result, $quiz) {
         $html = "";
-        $html .= $this->getMessages();
         $html .= "<h3>Result</h3>";
         foreach ($result as $key => $resultRow) {
             //Typesafety in PHP is, well, really bad, but I do not want the string keys, just the resultrows that contain the good info
@@ -551,7 +539,7 @@ class QuizView extends View {
 
     public function getMostDone($getMostDone) {
         $html = "";
-        $html .= $this->getMessages();
+
         $html .= "
             <table class='table'>
                 <thead>

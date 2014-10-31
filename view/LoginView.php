@@ -16,11 +16,7 @@ class LoginView extends View{
 
     public function getLoginPage($message) {
         $html = "";
-        if ($messages = $this->messages->getMessages()) {
-            foreach ($messages as $message) {
-                $html .= $message;
-            }
-        }
+
         $html .= "
                     <form method='post' role='form' class='form-horizontal'>
                         <div class='form-group'>
