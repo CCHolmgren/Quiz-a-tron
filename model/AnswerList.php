@@ -51,4 +51,8 @@ class AnswerList implements Iterator {
 
         return $var;
     }
+
+    public function count() {
+        return count($this->answers);
+    }
 }

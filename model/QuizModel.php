@@ -277,7 +277,7 @@ class QuizModel extends Model {
     }
 
     public function getQuestionCount() {
-        return count($this->questions);
+        return $this->questions->count();
     }
 
     /**

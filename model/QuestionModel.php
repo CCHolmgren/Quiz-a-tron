@@ -157,11 +157,11 @@ class QuestionModel extends Model {
     }
 
     public function getCountRightAnswers() {
-        return count($this->rightAnswers);
+        return $this->rightAnswers->count();
     }
 
     public function getCountWrongAnswers() {
-        return count($this->wrongAnswers);
+        return $this->wrongAnswers->count();
     }
 
     public function addQuestion() {
@@ -203,7 +203,7 @@ class QuestionModel extends Model {
     }
 
     public function getCountAnswers() {
-        return count($this->answers);
+        return $this->answers->count();
     }
 
     /**

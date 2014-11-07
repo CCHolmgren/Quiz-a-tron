@@ -39,4 +39,8 @@ class QuestionList implements Iterator {
 
         return $var;
     }
+
+    public function count() {
+        return count($this->questions);
+    }
 }

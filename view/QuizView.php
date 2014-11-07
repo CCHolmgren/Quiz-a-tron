@@ -381,9 +381,9 @@ class QuizView extends View {
 
                 <div class='form-group'>
                     <!-- HTML please -->
-                    <input type='hidden' name='" . QuizView::ANSWER_ISCORRECT_FORM_FORM . "' value='off'>
+                    <input type='hidden' name='" . QuizView::ANSWER_ISCORRECT_FORM . "' value='off'>
                     <label>
-                        <input type='checkbox' name='" . QuizView::ANSWER_ISCORRECT_FORM_FORM . "' " . ($answer->getIscorrect() == 1 ? "checked" : "") . " class='checkbox'>Is this answer correct?
+                        <input type='checkbox' name='" . QuizView::ANSWER_ISCORRECT_FORM . "' " . ($answer->getIscorrect() == 1 ? "checked" : "") . " class='checkbox'>Is this answer correct?
                     </label>
                 </div>
                 <input type='submit' value='Save' class='btn btn-primary form-control'>
