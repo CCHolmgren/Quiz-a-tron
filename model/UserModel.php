@@ -147,18 +147,16 @@ class UserModel extends Model {
         $repeatedpassword = $data["repeatedpassword"];
         $email = $data["email"];
         $errors = array();
+
         if (mb_strlen($username) < 6) {
             $errors[] = "The username can't be less than 6 letters long";
         }
-        /*if ($username !== filter_input(FILTER_SANITIZE_FULL_SPECIAL_CHARS, $username)) {
+        if ($username !== htmlspecialchars($username)) {
             $errors[] = "The username can't contain other symbols than a-z, A-Z, 0-9";
-        }*/
+        }
         if ($this->usernameExists($username)) {
             $errors[] = "The username already exists.";
         }
-        /*if ($email !== filter_input(FILTER_VALIDATE_EMAIL, $email)) {
-            $errors[] = "The email isn't really an email";
-        }*/
         if ($this->emailExists($email)) {
             $errors[] = "The email already exists.";
         }
@@ -283,7 +281,11 @@ class UserModel extends Model {
     public function getDoneQuizes() {
         $conn = $this->getConnection();
         $sth =
-            $conn->prepare("SELECT quiz.*, donequizes.donewhen FROM quiz, donequizes WHERE quiz.id = donequizes.quizid AND donequizes.userid = ? ORDER BY quiz.name, donequizes.donewhen DESC");
+            $conn->prepare("SELECT quiz.*, donequizes.donewhen
+                              FROM quiz, donequizes
+                              WHERE quiz.id = donequizes.quizid
+                                AND donequizes.userid = ?
+                              ORDER BY quiz.name, donequizes.donewhen DESC");
         $sth->execute(array($this->id));
         $result = [];
         while ($row = $sth->fetchObject("QuizModel")) {

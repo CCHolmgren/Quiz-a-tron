@@ -19,10 +19,6 @@ class QuizList implements Iterator {
         } else {
             $this->quizes = $quizes;
         }
-        //$question = new QuestionModel();
-        //$question->addAnswers(array(new AnswerModel("Whatnow", true)));
-
-        //$this->quizes = array(new QuizModel(array($question)));
     }
 
     /**

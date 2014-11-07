@@ -9,6 +9,7 @@ defined("__ROOT__") or die("Noh!");
  */
 
 require_once("AnswerList.php");
+require_once("QuestionList.php");
 class QuestionModel extends Model {
     private $id;
     private $answers;
@@ -175,7 +176,6 @@ class QuestionModel extends Model {
         $conn = $this->getConnection();
         $sth = $conn->prepare("INSERT INTO questions (questiontext, quizid) VALUES(?,?) RETURNING id");
         $sth->execute(array($this->questiontext, $quizId));
-        echo "RETURNING ID from question";
         $result = $sth->fetch(PDO::FETCH_ASSOC);
         $this->id = $result["id"];
 
@@ -288,39 +288,5 @@ class QuestionModel extends Model {
      */
     public function setQuizid($quizid) {
         $this->quizid = $quizid;
-    }
-}
-
-class QuestionList implements Iterator {
-    private $questions;
-
-    public function __construct() {
-        $this->questions = [];
-    }
-    public function addQuestion(QuestionModel $question) {
-        $this->questions[] = $question;
-    }
-
-    public function rewind() {
-        reset($this->questions);
-    }
-
-    public function current() {
-        return current($this->questions);
-    }
-
-    public function key() {
-        return key($this->questions);
-    }
-
-    public function next() {
-        return next($this->questions);
-    }
-
-    public function valid() {
-        $key = key($this->questions);
-        $var = ($key !== null && $key !== false);
-
-        return $var;
     }
 }

@@ -6,8 +6,8 @@ defined("__ROOT__") or die("Noh!");
  * Date: 2014-10-06
  * Time: 21:32
  */
-require_once(__ROOT__ . "view/RedirectHandler.php");
 require_once("Controller.php");
+require_once(__ROOT__ . "view/RedirectHandler.php");
 require_once(__ROOT__ . "view/RegisterView.php");
 require_once(__ROOT__ . "model/UserModel.php");
 
@@ -22,6 +22,7 @@ class RegisterController extends Controller {
     protected function __getHTML($route) {
         $message = "";
         $errors = "";
+
         if ($this->user->isLoggedIn()) {
             RedirectHandler::routeTo("");
         } else {

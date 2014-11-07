@@ -10,10 +10,19 @@ require_once(__ROOT__ . "model/QuizList.php");
 require_once(__ROOT__ . "helpers/StringHelper.php");
 
 class QuizView extends View {
-    public static $editMethodName = "edit";
-    public static $addMethodName = "add";
-    public static $removeMethodName = "delete";
-    public static $resultMethodName = "result";
+    const EDIT_METHOD_NAME       = "edit";
+    const ADD_METHOD_NAME        = "add";
+    const REMOVE_METHOD_NAME     = "delete";
+    const RESULT_METHOD_NAME     = "result";
+    const TOTALLY_SURE           = "totallysure";
+    const TOTALLY_SURE_VALUE     = "true";
+    const QUESTION_TEXT_FORM     = "questiontext";
+    const QUIZ_NAME_FORM         = "name";
+    const QUIZ_DESCRIPTION_FORM  = "description";
+    const QUIZ_OPENTO_FORM       = "opento";
+    const ANSWER_ANSWERTEXT_FORM = "answertext";
+    const ANSWER_ISCORRECT_FORM  = "isccorect";
+
     private $quizes;
     private $pd;
 
@@ -98,7 +107,7 @@ class QuizView extends View {
     }
 
     public function getAddButton($text = "Add quiz", $extra = "", $class = "btn-default") {
-        return $this->getButton($this->rootAndMethod(QuizView::$addMethodName) . $extra, $class, $text);
+        return $this->getButton($this->rootAndMethod(QuizView::ADD_METHOD_NAME) . $extra, $class, $text);
     }
 
     private function getButton($href, $class, $text) {
@@ -116,18 +125,18 @@ class QuizView extends View {
         $html = "
                     <form method='post'>
                         <div class='form-group'>
-                            <label for='name'>Quiz name</label>
+                            <label for='" . QuizView::QUIZ_NAME_FORM . "'>Quiz name</label>
                             <small>The name that the quiz will have. Must be atleast 5 characters long, no whitespaces allowed</small>
-                            <input type='text' name='name' class='form-control' value='" . $quiz->getName() . "' required pattern='^(.){5,}$' title='at least 5 letters'>
+                            <input type='text' name='" . QuizView::QUIZ_NAME_FORM . "' class='form-control' value='" . $quiz->getName() . "' required pattern='^(.){5,}$' title='at least 5 letters'>
                         </div>
                         <div class='form-group'>
-                            <label for='description'>Quiz description</label>
+                            <label for='" . QuizView::QUIZ_DESCRIPTION_FORM . "'>Quiz description</label>
                             <small>The description of the quiz. Must be atleast 5 characters long, whitespaces allowed</small>
-                            <textarea name='description' class='form-control' required pattern='([.\s]){5,}' title='at least 5 letters' rows=5>" . $quiz->getDescription() . "</textarea>
+                            <textarea name='" . QuizView::QUIZ_DESCRIPTION_FORM . "' class='form-control' required pattern='([.\s]){5,}' title='at least 5 letters' rows=5>" . $quiz->getDescription() . "</textarea>
                         </div>
                         <div class='form-group'>
-                            <label for='opento'>Open to (only one currently)</label>
-                            <select name='opento' class='form-control' required>
+                            <label for='" . QuizView::QUIZ_OPENTO_FORM . "'>Open to (only one currently)</label>
+                            <select name='" . QuizView::QUIZ_OPENTO_FORM . "' class='form-control' required>
                                 <option value='all'>All</option>
                             </select>
                         </div>
@@ -181,11 +190,11 @@ class QuizView extends View {
     }
 
     public function getEditButton($text = "Edit quiz", $extra = "", $class = "btn-default") {
-        return $this->getButton($this->rootAndMethod(QuizView::$editMethodName) . $extra, $class, $text);
+        return $this->getButton($this->rootAndMethod(QuizView::EDIT_METHOD_NAME) . $extra, $class, $text);
     }
 
     public function getRemoveButton($text = "Remove quiz", $extra = "", $class = "btn-danger") {
-        return $this->getButton($this->rootAndMethod(QuizView::$removeMethodName) . $extra, $class, $text);
+        return $this->getButton($this->rootAndMethod(QuizView::REMOVE_METHOD_NAME) . $extra, $class, $text);
     }
 
     public function getAddQuizPage() {
@@ -207,7 +216,7 @@ class QuizView extends View {
         $html .= "
                     <form method='post'>
                         <p>Are you totally sure that you want to delete this quiz? It can't be undone and it will erase everything associated with that quiz.</p>
-                        <input type='hidden' name='totallysure' value='true'>
+                        <input type='hidden' name='" . QuizView::TOTALLY_SURE . "' value='" . QuizView::TOTALLY_SURE_VALUE . "'>
                         <input type='submit' value='Delete' class='btn btn-danger'>
                     </form>";
 
@@ -217,15 +226,15 @@ class QuizView extends View {
     public function getAddQuestionPage(QuizModel $quiz) {
         $html = "";
         $breadCrumbsRow = new BreadCrumbsRow($this->rootBase, "Home");
-        $breadCrumbsRow2 = new BreadCrumbsRow($this->rootAndMethod(QuizView::$addMethodName) . "/", "Edit Quizes");
-        $breadCrumbsRow3 = new BreadCrumbsRow($this->rootAndMethod(QuizView::$addMethodName) . "/" . $quiz->getId(),
+        $breadCrumbsRow2 = new BreadCrumbsRow($this->rootAndMethod(QuizView::ADD_METHOD_NAME) . "/", "Edit Quizes");
+        $breadCrumbsRow3 = new BreadCrumbsRow($this->rootAndMethod(QuizView::ADD_METHOD_NAME) . "/" . $quiz->getId(),
                                               StringHelper::shortenString(strip_tags($quiz->getName()),
                                                                           10));
         $bcList = new BreadCrumbsRowList($breadCrumbsRow, $breadCrumbsRow2, $breadCrumbsRow3);
         $html .= BreadCrumbs::getBreadCrumbs($bcList, "Adding question");
 
         $html .= "<h3>You are now in the add question page</h3>";
-        //$html .= $this->getAddButton("Add answers", "/{$quiz->getId()}/{$question->getId()}", "btn-default");
+
         $html .= $this->getQuestionForm(new QuestionModel());
 
         $html .= $this->loopThroughQuestions($quiz);
@@ -237,15 +246,14 @@ class QuizView extends View {
     /*
      * Helper functions
      */
-
     public function getQuestionForm($question) {
         /** @var QuestionModel $question */
         $html = "
                 <form method='post'>
                     <div class='form-group'>
-                        <label for='questiontext'>Question text</label>
+                        <label for='" . QuizView::QUESTION_TEXT_FORM . "'>Question text</label>
                         <small>The question text. Must be at least 5 characters long, whitespaces allowed. This input supports <a href='http://parsedown.org/demo'>Markdown</a>.</small>
-                        <textarea name='questiontext' class='form-control' required rows=5 pattern='^([.\s]){5,}$' title='at least 5 letters'>" . $question->getQuestionText() . "</textarea>
+                        <textarea name='" . QuizView::QUESTION_TEXT_FORM . "' class='form-control' required rows=5 pattern='^([.\s]){5,}$' title='at least 5 letters'>" . $question->getQuestionText() . "</textarea>
                     </div>
                     <input type='submit' value='Save' class='btn btn-primary form-control'>
                 </form>";
@@ -256,8 +264,8 @@ class QuizView extends View {
     public function getEditQuestionPage(QuizModel $quiz, QuestionModel $question) {
         $html = "";
         $breadCrumbsRow = new BreadCrumbsRow($this->rootBase, "Home");
-        $breadCrumbsRow2 = new BreadCrumbsRow($this->rootAndMethod(QuizView::$editMethodName) . "/", "Edit Quizes");
-        $breadCrumbsRow3 = new BreadCrumbsRow($this->rootAndMethod(QuizView::$editMethodName) . "/" . $quiz->getId(),
+        $breadCrumbsRow2 = new BreadCrumbsRow($this->rootAndMethod(QuizView::EDIT_METHOD_NAME) . "/", "Edit Quizes");
+        $breadCrumbsRow3 = new BreadCrumbsRow($this->rootAndMethod(QuizView::EDIT_METHOD_NAME) . "/" . $quiz->getId(),
                                               StringHelper::shortenString(strip_tags($quiz->getName()),
                                                                           10));
         $bcList = new BreadCrumbsRowList($breadCrumbsRow, $breadCrumbsRow2, $breadCrumbsRow3);
@@ -323,11 +331,11 @@ class QuizView extends View {
         $html = "";
 
         $breadCrumbsRow = new BreadCrumbsRow($this->rootBase, "Home");
-        $breadCrumbsRow2 = new BreadCrumbsRow($this->rootAndMethod(QuizView::$editMethodName) . "/",
+        $breadCrumbsRow2 = new BreadCrumbsRow($this->rootAndMethod(QuizView::EDIT_METHOD_NAME) . "/",
                                               StringHelper::shortenString(strip_tags($quiz->getName()),
                                                                           10));
         $breadCrumbsRow3 =
-            new BreadCrumbsRow($this->rootAndMethod(QuizView::$editMethodName) . "/" . $quiz->getId() . "/" . $question->getId(),
+            new BreadCrumbsRow($this->rootAndMethod(QuizView::EDIT_METHOD_NAME) . "/" . $quiz->getId() . "/" . $question->getId(),
                                StringHelper::shortenString(strip_tags($question->getQuestionText()),
                                                            10));
         $bcList = new BreadCrumbsRowList($breadCrumbsRow, $breadCrumbsRow2, $breadCrumbsRow3);
@@ -342,11 +350,11 @@ class QuizView extends View {
         $html = "";
         if ($breadcrumbs) {
             $breadCrumbsRow = new BreadCrumbsRow($this->rootBase, "Home");
-            $breadCrumbsRow2 = new BreadCrumbsRow($this->rootAndMethod(QuizView::$editMethodName) . "/",
+            $breadCrumbsRow2 = new BreadCrumbsRow($this->rootAndMethod(QuizView::EDIT_METHOD_NAME) . "/",
                                                   StringHelper::shortenString(strip_tags($quiz->getName()),
                                                                               10));
             $breadCrumbsRow3 =
-                new BreadCrumbsRow($this->rootAndMethod(QuizView::$editMethodName) . "/" . $quiz->getId() . "/" . $question->getId(),
+                new BreadCrumbsRow($this->rootAndMethod(QuizView::EDIT_METHOD_NAME) . "/" . $quiz->getId() . "/" . $question->getId(),
                                    StringHelper::shortenString(strip_tags($question->getQuestionText()),
                                                                10));
             $bcList = new BreadCrumbsRowList($breadCrumbsRow, $breadCrumbsRow2, $breadCrumbsRow3);
@@ -366,16 +374,16 @@ class QuizView extends View {
         $html .= "
             <form method='post'>
                 <div class='form-group'>
-                    <label for='answertext'>Answer text</label>
+                    <label for='" . QuizView::ANSWER_ANSWERTEXT_FORM . "'>Answer text</label>
                     <small>The answer text. Must be at least 5 characters long, whitespace allowed. This input supports <a href='http://parsedown.org/demo'>Markdown</a>.</small>
-                    <textarea name='answertext' class='form-control' required pattern='^([.\s]){5,}$' title='at least 5 letters, whitespaces allowed'>{$answer->getAnswertext()}</textarea>
+                    <textarea name='" . QuizView::ANSWER_ANSWERTEXT_FORM . "' class='form-control' required pattern='^([.\s]){5,}$' title='at least 5 letters, whitespaces allowed'>{$answer->getAnswertext()}</textarea>
                 </div>
 
                 <div class='form-group'>
                     <!-- HTML please -->
-                    <input type='hidden' name='iscorrect' value='off'>
-                    <label for='iscorrect'>
-                        <input type='checkbox' name='iscorrect' " . ($answer->getIscorrect() == 1 ? "checked" : "") . " class='checkbox'>Is this answer correct?
+                    <input type='hidden' name='" . QuizView::ANSWER_ISCORRECT_FORM_FORM . "' value='off'>
+                    <label>
+                        <input type='checkbox' name='" . QuizView::ANSWER_ISCORRECT_FORM_FORM . "' " . ($answer->getIscorrect() == 1 ? "checked" : "") . " class='checkbox'>Is this answer correct?
                     </label>
                 </div>
                 <input type='submit' value='Save' class='btn btn-primary form-control'>
@@ -468,7 +476,7 @@ class QuizView extends View {
     }
 
     public function getResultLink($text = "Get results", $extra = "", $class = "") {
-        return $this->getAnchor($this->rootAndMethod(QuizView::$resultMethodName) . $extra, $class, $text);
+        return $this->getAnchor($this->rootAndMethod(QuizView::RESULT_METHOD_NAME) . $extra, $class, $text);
     }
 
     private function getAnchor($href, $class, $text) {
@@ -568,7 +576,7 @@ class QuizView extends View {
     }
 
     public function getTotallySure() {
-        return $_POST["totallysure"];
+        return $_POST[QuizView::TOTALLY_SURE];
     }
 
     /*

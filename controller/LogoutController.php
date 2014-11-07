@@ -28,7 +28,7 @@ class LogoutController extends Controller {
             return $this->view->getLogoutPage();
         }
         $this->view->messages->saveMessage("You are already logged out!");
-        RedirectHandler::routeTo("/");
+        RedirectHandler::routeTo("");
 
         return "";
     }

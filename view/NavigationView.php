@@ -23,7 +23,7 @@ class NavigationView extends View
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="/PHP-project/">QUIZ-A-TRON</a>
+            <a class="navbar-brand" href="' . $this->rootBase . '">QUIZ-A-TRON</a>
         </div>
 
         <!-- Collect the nav links, forms, and other content for toggling -->
@@ -35,14 +35,14 @@ class NavigationView extends View
                 <li>
 
                     <div class="btn-group">
-                    <a href="/PHP-project/quizes" class="btn btn-default navbar-btn">Quizes</a>
+                    <a href="' . $this->rootBase . 'quizes/" class="btn btn-default navbar-btn">Quizes</a>
                         <button type="button" class="btn btn-default dropdown-toggle navbar-btn" data-toggle="dropdown">
                             <span class="caret"></span>
                             <span class="sr-only">Toggle Dropdown</span>
                         </button>
                         <ul class="dropdown-menu" role="menu">
-                            <li><a href="/PHP-project/quizes/add/">Add a quiz</a></li>
-                            <li><a href="/PHP-project/quizes/edit/">Edit quizes</a></li>
+                            <li><a href="' . $this->rootBase . 'quizes/' . QuizView::ADD_METHOD_NAME . '/">Add a quiz</a></li>
+                            <li><a href="' . $this->rootBase . 'quizes/' . QuizView::EDIT_METHOD_NAME . '/">Edit quizes</a></li>
                         </ul>
                     </div>
                 </li>
@@ -52,18 +52,18 @@ class NavigationView extends View
         if (!UserModel::isLoggedIn()) {
             $html .= '
                 <li>
-                    <a href="/PHP-project/login">Login</a>
+                    <a href="' . $this->rootBase . 'login">Login</a>
                 </li>';
             $html .= '
                 <li>
-                    <a href="/PHP-project/register">Register</a>
+                    <a href="' . $this->rootBase . 'register">Register</a>
                 </li>';
         } else {
             $username = UserModel::getCurrentUser()->getUsername();
             $userid = UserModel::getCurrentUser()->getId();
             $html .= '
             <li>
-                <a href="/PHP-project/user/' . $username . '"> ' . $username . '</a>
+                <a href="' . $this->rootBase . 'user/' . $username . '"> ' . $username . '</a>
             </li>
             <li>
                 <a>User id: ' . $userid . '</a>
@@ -71,7 +71,7 @@ class NavigationView extends View
             ';
             $html .= '
                 <li>
-                    <a href="/PHP-project/logout">Logout</a>
+                    <a href="' . $this->rootBase . 'logout">Logout</a>
                 </li>';
         }
         $html .= '
@@ -80,24 +80,6 @@ class NavigationView extends View
     </div><!-- /.container-fluid -->
 </nav>
 ';
-
-        /*        $html = "<ul>
-                            <li>
-                                <a href='?/'>Home</a>
-                            </li>
-                            <li>
-                                <a href='?/login'>Login</a>
-                            </li>
-                            <li>
-                                <a href='?/logout'>Logout</a>
-                            </li>
-                            <li>
-                                <a href='?/register'>Register</a>
-                            </li>
-                            <li>
-                                <a href='?/quizes'>Quizes</a>
-                            </li>
-                        </ul>";*/
         return $html;
     }
 }

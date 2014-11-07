@@ -19,6 +19,7 @@ require_once(__ROOT__ . "model/UserModel.php");
  */
 
 class UserController extends Controller {
+    private static $usernameRegex = "/\/([a-zA-Z0-9]+)/";
     private $userView;
 
     public function __construct($view = null, $model = null) {
@@ -26,7 +27,7 @@ class UserController extends Controller {
     }
 
     protected function __getHTML($route) {
-        preg_match("/\/([a-zA-Z0-9]+)/", $route, $username);
+        preg_match(self::$usernameRegex, $route, $username);
         $this->userView = new UserView(UserModel::getUserByUsername($username[1]));
         return $this->userView->getUserPage();
     }

@@ -14,10 +14,9 @@ class LoginView extends View{
         return $head;
     }
 
-    public function getLoginPage($message) {
+    public function getLoginPage($message, $errors) {
         $html = "";
-
-        $html .= "
+        $html .= "<p class='bg-info'>$message</p> <p class='bg-danger'>$errors</p>
                     <form method='post' role='form' class='form-horizontal'>
                         <div class='form-group'>
                             <label for='username' class='col-sm-2 control-label'>Username</label>

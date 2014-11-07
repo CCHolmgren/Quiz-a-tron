@@ -12,6 +12,8 @@ defined("__ROOT__") or die("Noh!");
  * and then a controller that you want to handle that query
  *
  */
+require_once("RouteList.php");
+require_once("RouteMatch.php");
 
 class Route {
     private $routes;
@@ -31,7 +33,7 @@ class Route {
         foreach ($this->routes as $routingDirective) {
             //If the regex or the controllername is empty, then there is no way to do this.
             assert(!empty($routingDirective->regex) && !empty($routingDirective->controllername),
-                   "You have to provide a regular expression and a controller pair");
+                   "You must provide a regular expression and a controller pair");
 
             //If the route is matched, we return the routingdirective, with all its information and also all the matched
             //parameters so that the controller can do something with them
@@ -39,74 +41,5 @@ class Route {
                 return new RouteMatch($routingDirective, $matches);
             }
         }
-    }
-}
-
-class RouteList implements Iterator {
-    private $routes;
-
-    public function __construct() {
-        $this->routes = func_get_args();
-    }
-
-    public function rewind() {
-        reset($this->routes);
-    }
-
-    public function current() {
-        return current($this->routes);
-    }
-
-    public function key() {
-        return key($this->routes);
-    }
-
-    public function next() {
-        return next($this->routes);
-    }
-
-    public function valid() {
-        $key = key($this->routes);
-        $var = ($key !== null && $key !== false);
-
-        return $var;
-    }
-}
-
-class RouteMatch {
-    private $routingDirective;
-    private $matches;
-
-    public function __construct($routingDirective, $matches) {
-        $this->routingDirective = $routingDirective;
-        $this->matches = $matches;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getRoutingDirective() {
-        return $this->routingDirective;
-    }
-
-    /**
-     * @param mixed $routingDirective
-     */
-    public function setRoutingDirective($routingDirective) {
-        $this->routingDirective = $routingDirective;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getMatches() {
-        return $this->matches;
-    }
-
-    /**
-     * @param mixed $matches
-     */
-    public function setMatches($matches) {
-        $this->matches = $matches;
     }
 }

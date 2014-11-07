@@ -8,6 +8,10 @@ defined("__ROOT__") or die("Noh!");
  * Time: 13:03
  */
 class AnswerModel extends Model {
+    private static $queryAnswerText = "answertext";
+    private static $queryAnswerIsCorrect = "iscorrect";
+    private static $queryQuestionId = "questionid";
+    private static $queryAnswerId = "answerid";
     private $id;
     private $answertext;
     private $iscorrect;
@@ -70,8 +74,11 @@ class AnswerModel extends Model {
     public function updateAnswer() {
         $conn = $this->getConnection();
         $sth =
-            $conn->prepare("UPDATE answers SET (answertext, iscorrect, questionid) = (:answertext,:iscorrect,:questionid) WHERE id = :answerid");
-        $sth->execute(array("answertext" => $this->answertext, "iscorrect" => $this->iscorrect, "questionid" => $this->questionid, "answerid" => $this->id));
+            $conn->prepare("UPDATE answers
+                                  SET (answertext, iscorrect, questionid) =
+                                      (:answertext,:iscorrect,:questionid)
+                                  WHERE id = :answerid");
+        $sth->execute(array(self::$queryAnswerText => $this->answertext, self::$queryAnswerIsCorrect => $this->iscorrect, self::$queryQuestionId => $this->questionid, self::$queryAnswerId => $this->id));
 
         return;
     }
@@ -79,8 +86,10 @@ class AnswerModel extends Model {
     public function saveAnswer() {
         $conn = $this->getConnection();
         $sth =
-            $conn->prepare("INSERT INTO answers(answertext, iscorrect, questionid) VALUES(:answertext,:iscorrect,:questionid) RETURNING id");
-        $sth->execute(array("answertext" => $this->answertext, "iscorrect" => $this->iscorrect, "questionid" => $this->questionid));
+            $conn->prepare("INSERT INTO answers(answertext, iscorrect, questionid)
+                                        VALUES(:answertext,:iscorrect,:questionid)
+                                        RETURNING id");
+        $sth->execute(array(self::$queryAnswerText => $this->answertext, self::$queryAnswerIsCorrect => $this->iscorrect, self::$queryQuestionId => $this->questionid));
         $result = $sth->fetch(PDO::FETCH_ASSOC);
         $this->id = $result["id"];
 

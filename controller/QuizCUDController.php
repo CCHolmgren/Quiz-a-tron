@@ -9,7 +9,10 @@ defined("__ROOT__") or die("Noh!");
 require_once("Controller.php");
 
 class QuizCUDController extends Controller {
-    public static $quizid = "quizid";
+    private static $quizIdName = "quizid";
+    private static $methodName = "method";
+    private static $questionIdName = "questionid";
+    private static $answerIdName = "answerid";
     private $view;
 
     public function __construct() {
@@ -24,22 +27,24 @@ class QuizCUDController extends Controller {
      */
     protected function __getHTML($route) {
         $didMatch =
-            preg_match("/^\/(?P<method>" .
-                       QuizView::$editMethodName . "|" .
-                       QuizView::$addMethodName . "|" .
-                       QuizView::$removeMethodName . "|" .
-                       QuizView::$resultMethodName .
+            preg_match("/^\/(?P<" . self::$methodName . ">" .
+                       QuizView::EDIT_METHOD_NAME . "|" .
+                       QuizView::ADD_METHOD_NAME . "|" .
+                       QuizView::REMOVE_METHOD_NAME . "|" .
+                       QuizView::RESULT_METHOD_NAME .
                        ")\/?(?P<" .
-                       self::$quizid .
-                       ">\d+)?\/?(?P<questionid>\d+)?\/?(?P<answerid>\d+)?/",
+                       self::$quizIdName .
+                       ">\d+)?\/?(?P<" .
+                       self::$questionIdName . ">\d+)?\/?(?P<" .
+                       self::$answerIdName . ">\d+)?/",
                        $route, $matches);
 
         /** @var String $requestMethod */
         $requestMethod = $this->view->getRequestMethod();
         /** @var QuizModel $quiz */
 
-        if (isset($matches[self::$quizid])) {
-            $quiz = $this->quizList->getQuizById($matches[self::$quizid]);
+        if (isset($matches[self::$quizIdName])) {
+            $quiz = $this->quizList->getQuizById($matches[self::$quizIdName]);
         } else {
             $quiz = false;
         }
@@ -50,13 +55,13 @@ class QuizCUDController extends Controller {
     }
 
     private function handleRoute($quiz, $requestMethod, $matches) {
-        if ($matches["method"] === QuizView::$editMethodName) {
+        if ($matches[self::$methodName] === QuizView::EDIT_METHOD_NAME) {
             return $this->handleEdit($quiz, $requestMethod, $matches);
-        } else if ($matches["method"] === QuizView::$removeMethodName) {
+        } else if ($matches[self::$methodName] === QuizView::REMOVE_METHOD_NAME) {
             return $this->handleRemove($quiz, $requestMethod, $matches);
-        } else if ($matches["method"] === QuizView::$addMethodName) {
+        } else if ($matches[self::$methodName] === QuizView::ADD_METHOD_NAME) {
             return $this->handleAdd($quiz, $requestMethod, $matches);
-        } else if ($matches["method"] === QuizView::$resultMethodName) {
+        } else if ($matches[self::$methodName] === QuizView::RESULT_METHOD_NAME) {
             return $this->handleResult($quiz, $requestMethod, $matches);
         } else {
             return $this->view->getCUDPage();
@@ -69,18 +74,18 @@ class QuizCUDController extends Controller {
         if ($requestMethod === "POST") {
             if ($quiz !== false && UserModel::getCurrentUser()->getId() === $quiz->getCreator()) {
 
-                if (isset($matches["answerid"])) {
+                if (isset($matches[self::$answerIdName])) {
                     $this->editAnswer($quiz, $matches);
                     $this->view->messages->saveMessage("The answer was updated");
-                    RedirectHandler::routeTo($this->view->rootAndMethod($matches["method"]) . "/{$matches[self::$quizid]}/{$matches["questionid"]}");
-                } else if (isset($matches["questionid"])) {
+                    RedirectHandler::routeTo($this->view->rootAndMethod($matches[self::$methodName]) . "/{$matches[self::$quizIdName]}/{$matches[self::$questionIdName]}");
+                } else if (isset($matches[self::$questionIdName])) {
                     $this->editQuestion($quiz, $matches);
                     $this->view->messages->saveMessage("The question was updated");
-                    RedirectHandler::routeTo($this->view->rootAndMethod($matches["method"]) . "/{$matches["quizid"]}");
-                } else if (isset($matches["quizid"])) {
+                    RedirectHandler::routeTo($this->view->rootAndMethod($matches[self::$methodName]) . "/{$matches[self::$quizIdName]}");
+                } else if (isset($matches[self::$quizIdName])) {
                     $this->editQuiz($quiz);
                     $this->view->messages->saveMessage("The quiz was updated");
-                    RedirectHandler::routeTo($this->view->rootAndMethod($matches["method"]) . "/");
+                    RedirectHandler::routeTo($this->view->rootAndMethod($matches[self::$methodName]) . "/");
                 }
             } else {
                 $this->view->messages->saveMessage("You are not the creator of this quiz");
@@ -94,16 +99,16 @@ class QuizCUDController extends Controller {
                     $this->view->messages->saveMessage("You are not the creator of this quiz");
                     RedirectHandler::routeTo("");
                 }
-                if (isset($matches["answerid"])) {
+                if (isset($matches[self::$answerIdName])) {
                     /** @var QuestionModel $question */
                     /** @var AnswerModel $answer */
                     /** @var QuizModel $quiz */
-                    $question = $quiz->getQuestionById($matches["questionid"]);
-                    $answer = $question->getAnswerById($matches["answerid"]);
+                    $question = $quiz->getQuestionById($matches[self::$questionIdName]);
+                    $answer = $question->getAnswerById($matches[self::$answerIdName]);
 
                     return $this->view->getEditAnswerPage($quiz, $question, $answer);
-                } else if (isset($matches["questionid"])) {
-                    $question = $quiz->getQuestionById($matches["questionid"]);
+                } else if (isset($matches[self::$questionIdName])) {
+                    $question = $quiz->getQuestionById($matches[self::$questionIdName]);
 
                     return $this->view->getEditQuestionPage($quiz, $question);
                 } else if ($quiz !== false) {
@@ -120,9 +125,9 @@ class QuizCUDController extends Controller {
     public
     function editAnswer($quiz, $matches) {
         $data = $this->view->getEditData();
-        $answer = $quiz->getQuestionById($matches["questionid"])->getAnswerById($matches["answerid"]);
-        $answer->setAnswertext($data["answertext"]);
-        $answer->setIscorrect($data["iscorrect"] == "on" ? 1 : 0);
+        $answer = $quiz->getQuestionById($matches[self::$questionIdName])->getAnswerById($matches[self::$answerIdName]);
+        $answer->setAnswertext($data[QuizView::ANSWER_ANSWERTEXT_FORM]);
+        $answer->setIscorrect($data[QuizView::ANSWER_ISCORRECT_FORM] == "on" ? 1 : 0);
         $answer->updateAnswer();
     }
 
@@ -130,17 +135,17 @@ class QuizCUDController extends Controller {
     function editQuestion($quiz, $matches) {
         $data = $this->view->getEditData();
         /** @var QuestionModel $question */
-        $question = $quiz->getQuestionById($matches["questionid"]);
-        $question->setQuestiontext($data["questiontext"]);
+        $question = $quiz->getQuestionById($matches[self::$questionIdName]);
+        $question->setQuestiontext($data[QuizView::QUESTION_TEXT_FORM]);
         $question->updateQuestion();
     }
 
     public
     function editQuiz(QuizModel $quiz) {
         $data = $this->view->getEditData();
-        $quiz->setName($data["name"]);
-        $quiz->setOpento($data["opento"]);
-        $quiz->setDescription($data["description"]);
+        $quiz->setName($data[QuizView::QUIZ_NAME_FORM]);
+        $quiz->setOpento($data[QuizView::QUIZ_OPENTO_FORM]);
+        $quiz->setDescription($data[QuizView::QUIZ_DESCRIPTION_FORM]);
         $quiz->updateQuiz();
     }
 
@@ -155,24 +160,24 @@ class QuizCUDController extends Controller {
     function handleRemove($quiz, $requestMethod, $matches) {
         //Request method was POST
         if ($requestMethod === "POST") {
-            if ($this->view->getTotallySure() === "true") {
-                if (isset($matches["questionid"])) {
+            if ($this->view->getTotallySure() === QuizView::TOTALLY_SURE_VALUE) {
+                if (isset($matches[self::$questionIdName])) {
                     /** @var QuizModel $quiz */
-                    $question = $quiz->getQuestionById($matches["questionid"]);
+                    $question = $quiz->getQuestionById($matches[self::$questionIdName]);
                     $question->removeQuestion();
                     $this->view->messages->saveMessage("The question was removed");
-                    RedirectHandler::routeTo($this->view->rootAndMethod(QuizView::$editMethodName) . "/" . $quiz->getId());
-                } else if (isset($matches["answerid"])) {
-                    $question = $quiz->getQuestionById($matches["questionid"]);
-                    $answer = $question->getAnswerById($matches["answerid"]);
+                    RedirectHandler::routeTo($this->view->rootAndMethod(QuizView::EDIT_METHOD_NAME) . "/" . $quiz->getId());
+                } else if (isset($matches[self::$answerIdName])) {
+                    $question = $quiz->getQuestionById($matches[self::$questionIdName]);
+                    $answer = $question->getAnswerById($matches[self::$answerIdName]);
                     $answer->removeAnswer();
                     $this->view->messages->saveMessage("The answer was removed");
-                    RedirectHandler::routeTo($this->view->rootAndMethod(QuizView::$editMethodName) . "/" . $quiz->getId() . "/" . $question->getId());
-                } else if (isset($matches["quizid"])) {
-                    $quiz = $this->quizList->getQuizById($matches["quizid"]);
+                    RedirectHandler::routeTo($this->view->rootAndMethod(QuizView::EDIT_METHOD_NAME) . "/" . $quiz->getId() . "/" . $question->getId());
+                } else if (isset($matches[self::$quizIdName])) {
+                    $quiz = $this->quizList->getQuizById($matches[self::$quizIdName]);
                     $quiz->removeQuiz();
                     $this->view->messages->saveMessage("The quiz was removed");
-                    RedirectHandler::routeTo($this->view->rootAndMethod(QuizView::$editMethodName) . "/");
+                    RedirectHandler::routeTo($this->view->rootAndMethod(QuizView::EDIT_METHOD_NAME) . "/");
                 }
 
 
@@ -190,28 +195,28 @@ class QuizCUDController extends Controller {
     private
     function handleAdd($quiz, $requestMethod, $matches) {
         if ($requestMethod === "POST") {
-            if (isset($matches["questionid"])) {
+            if (isset($matches[self::$questionIdName])) {
                 $this->createAnswer($matches);
                 $this->view->messages->saveMessage("The answer was created");
-                RedirectHandler::routeTo($this->view->rootAndMethod($matches["method"]) . "/{$matches["quizid"]}/{$matches["questionid"]}");
-            } else if (isset($matches["quizid"])) {
+                RedirectHandler::routeTo($this->view->rootAndMethod($matches[self::$methodName]) . "/{$matches[self::$quizIdName]}/{$matches[self::$questionIdName]}");
+            } else if (isset($matches[self::$quizIdName])) {
                 $this->createQuestion($matches);
                 $this->view->messages->saveMessage("The question was created");
-                RedirectHandler::routeTo($this->view->rootAndMethod($matches["method"]) . "/{$matches["quizid"]}");
+                RedirectHandler::routeTo($this->view->rootAndMethod($matches[self::$methodName]) . "/{$matches[self::$quizIdName]}");
             } else {
                 $this->createQuiz();
                 $this->view->messages->saveMessage("The quiz was created");
-                RedirectHandler::routeTo($this->view->rootAndMethod(QuizView::$editMethodName) . "/");
+                RedirectHandler::routeTo($this->view->rootAndMethod(QuizView::EDIT_METHOD_NAME) . "/");
             }
             //Request method was GET
         } else {
-            if (isset($matches["questionid"])) {
-                $quiz = $this->quizList->getQuizById($matches["quizid"]);
-                $question = $quiz->getQuestionById($matches["questionid"]);
+            if (isset($matches[self::$questionIdName])) {
+                $quiz = $this->quizList->getQuizById($matches[self::$quizIdName]);
+                $question = $quiz->getQuestionById($matches[self::$questionIdName]);
 
                 return $this->view->getAddAnswerPage($quiz, $question);
-            } else if (isset($matches["quizid"])) {
-                $quiz = $this->quizList->getQuizById($matches["quizid"]);
+            } else if (isset($matches[self::$quizIdName])) {
+                $quiz = $this->quizList->getQuizById($matches[self::$quizIdName]);
 
                 return $this->view->getAddQuestionPage($quiz);
             } else {
@@ -224,9 +229,9 @@ class QuizCUDController extends Controller {
     function createAnswer($matches) {
         $data = $this->view->getAddData();
         $answer = new AnswerModel();
-        $answer->setQuestionid($matches["questionid"]);
-        $answer->setAnswertext($data["answertext"]);
-        $answer->setIscorrect($data["iscorrect"] == "on" ? 1 : 0);
+        $answer->setQuestionid($matches[self::$questionIdName]);
+        $answer->setAnswertext($data[QuizView::ANSWER_ANSWERTEXT_FORM]);
+        $answer->setIscorrect($data[QuizView::ANSWER_ISCORRECT_FORM] == "on" ? 1 : 0);
         $answer->saveAnswer();
     }
 
@@ -235,8 +240,8 @@ class QuizCUDController extends Controller {
         $data = $this->view->getAddData();
         /** @var QuestionModel $question */
         $question = new QuestionModel();
-        $question->setQuestiontext($data["questiontext"]);
-        $question->setQuizid($matches["quizid"]);
+        $question->setQuestiontext($data[QuizView::QUESTION_TEXT_FORM]);
+        $question->setQuizid($matches[self::$quizIdName]);
         $question->addQuestion();
     }
 
@@ -244,10 +249,10 @@ class QuizCUDController extends Controller {
     function createQuiz() {
         $data = $this->view->getAddData();
         $quiz = new QuizModel();
-        $quiz->setDescription($data["description"]);
+        $quiz->setDescription($data[QuizView::QUIZ_DESCRIPTION_FORM]);
         $quiz->setCreator(UserModel::getCurrentUser()->getId());
-        $quiz->setName($data["name"]);
-        $quiz->setOpento($data["opento"]);
+        $quiz->setName($data[QuizView::QUIZ_NAME_FORM]);
+        $quiz->setOpento($data[QuizView::QUIZ_OPENTO_FORM]);
         $quiz->addQuiz();
     }
 

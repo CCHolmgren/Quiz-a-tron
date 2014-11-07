@@ -23,6 +23,8 @@ class LoginController extends Controller {
 
     protected function __getHTML($route) {
         $message = "";
+        $error = "";
+
         if ($this->user->isLoggedIn()) {
             RedirectHandler::routeTo("");
         } else {
@@ -31,10 +33,10 @@ class LoginController extends Controller {
                     $this->view->messages->saveMessage("You logged in!");
                     RedirectHandler::routeTo("");
                 }
-                $message = "You tried to login and it failed";
+                $error = "Please check the username and password and try again.";
             }
 
-            return $this->view->getLoginPage($message);
+            return $this->view->getLoginPage($message, $error);
         }
     }
 }
