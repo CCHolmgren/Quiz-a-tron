@@ -90,12 +90,12 @@ class QuizView extends View {
         return $html;
     }
 
-    public function getEditQuizPage(QuizModel $quiz) {
+    public function getEditQuizPage(QuizModel $quiz, $breadcrumbs = true) {
         $html = "";
-        $breadCrumbsRow = new BreadCrumbsRow($this->rootBase, "Home");
-        $breadCrumbsRow2 = new BreadCrumbsRow($this->rootBase . "quizes/edit/", "Edit Quizes");
-        $bcList = new BreadCrumbsRowList($breadCrumbsRow, $breadCrumbsRow2);
-        $html .= BreadCrumbs::getBreadCrumbs($bcList, "Editing quiz '" . $quiz->getName() . "'");
+
+        if ($breadcrumbs) {
+            $html .= $this->QuizPageBreadCrumbs("Editing quiz '" . $quiz->getName() . "'");
+        }
 
         $html .= $this->getAddButton("Add questions", "/{$quiz->getId()}", "btn-default");
 
@@ -106,18 +106,27 @@ class QuizView extends View {
         return $html;
     }
 
-    public function getAddButton($text = "Add quiz", $extra = "", $class = "btn-default") {
-        return $this->getButton($this->rootAndMethod(QuizView::ADD_METHOD_NAME) . $extra, $class, $text);
-    }
+    private function QuizPageBreadCrumbs($breadCrumbsMessage) {
+        $breadCrumbsRow = new BreadCrumbsRow($this->rootBase, "Home");
+        $breadCrumbsRow2 = new BreadCrumbsRow($this->rootAndMethod(QuizView::EDIT_METHOD_NAME), "Edit Quizes");
+        $bcList = new BreadCrumbsRowList($breadCrumbsRow, $breadCrumbsRow2);
+        $html = BreadCrumbs::getBreadCrumbs($bcList, $breadCrumbsMessage);
 
-    private function getButton($href, $class, $text) {
-        return "<a href='$href' class='btn $class'>$text</a>";
+        return $html;
     }
 
     public function rootAndMethod($editMethod) {
         $result = $this->rootBase . "quizes/" . $editMethod;
 
         return $result;
+    }
+
+    public function getAddButton($text = "Add quiz", $extra = "", $class = "btn-default") {
+        return $this->getButton($this->rootAndMethod(QuizView::ADD_METHOD_NAME) . $extra, $class, $text);
+    }
+
+    private function getButton($href, $class, $text) {
+        return "<a href='$href' class='btn $class'>$text</a>";
     }
 
     public function getQuizForm($quiz) {
@@ -197,21 +206,21 @@ class QuizView extends View {
         return $this->getButton($this->rootAndMethod(QuizView::REMOVE_METHOD_NAME) . $extra, $class, $text);
     }
 
-    public function getAddQuizPage() {
+    public function getAddQuizPage($breadcrumbs = true) {
         $html = "";
-
+        if ($breadcrumbs) {
+            $html .= $this->QuizPageBreadCrumbs("Adding a quiz");
+        }
         $html .= $this->getQuizForm(new QuizModel);
 
         return $html;
     }
 
-    public function getRemoveQuizPage(QuizModel $quiz) {
+    public function getRemoveQuizPage(QuizModel $quiz, $breadcrumbs = true) {
         $html = "";
-        $breadCrumbsRow = new BreadCrumbsRow($this->rootBase, "Home");
-        $breadCrumbsRow2 = new BreadCrumbsRow($this->rootBase . "quizes/edit/", "Edit Quizes");
-        $bcList = new BreadCrumbsRowList($breadCrumbsRow, $breadCrumbsRow2);
-
-        $html .= BreadCrumbs::getBreadCrumbs($bcList, "Removing quiz '" . $quiz->getName() . "'");
+        if ($breadcrumbs) {
+            $html .= $this->QuizPageBreadCrumbs("Removing quiz '" . $quiz->getName() . "'");
+        }
 
         $html .= "
                     <form method='post'>
@@ -223,15 +232,11 @@ class QuizView extends View {
         return $html;
     }
 
-    public function getAddQuestionPage(QuizModel $quiz) {
+    public function getAddQuestionPage(QuizModel $quiz, $breadcrumbs = true) {
         $html = "";
-        $breadCrumbsRow = new BreadCrumbsRow($this->rootBase, "Home");
-        $breadCrumbsRow2 = new BreadCrumbsRow($this->rootAndMethod(QuizView::ADD_METHOD_NAME) . "/", "Edit Quizes");
-        $breadCrumbsRow3 = new BreadCrumbsRow($this->rootAndMethod(QuizView::ADD_METHOD_NAME) . "/" . $quiz->getId(),
-                                              StringHelper::shortenString(strip_tags($quiz->getName()),
-                                                                          10));
-        $bcList = new BreadCrumbsRowList($breadCrumbsRow, $breadCrumbsRow2, $breadCrumbsRow3);
-        $html .= BreadCrumbs::getBreadCrumbs($bcList, "Adding question");
+        if ($breadcrumbs) {
+            $html .= $this->QuestionPageBreadCrumbs($quiz, "Adding question");
+        }
 
         $html .= "<h3>You are now in the add question page</h3>";
 
@@ -243,9 +248,18 @@ class QuizView extends View {
         return $html;
     }
 
-    /*
-     * Helper functions
-     */
+    private function QuestionPageBreadCrumbs(QuizModel $quiz, $breadCrumbsMessage) {
+        $breadCrumbsRow = new BreadCrumbsRow($this->rootBase, "Home");
+        $breadCrumbsRow2 = new BreadCrumbsRow($this->rootAndMethod(QuizView::EDIT_METHOD_NAME) . "/", "Edit Quizes");
+        $breadCrumbsRow3 = new BreadCrumbsRow($this->rootAndMethod(QuizView::EDIT_METHOD_NAME) . "/" . $quiz->getId(),
+                                              StringHelper::shortenString(strip_tags($quiz->getName()),
+                                                                          10));
+        $bcList = new BreadCrumbsRowList($breadCrumbsRow, $breadCrumbsRow2, $breadCrumbsRow3);
+        $html = BreadCrumbs::getBreadCrumbs($bcList, $breadCrumbsMessage);
+
+        return $html;
+    }
+
     public function getQuestionForm($question) {
         /** @var QuestionModel $question */
         $html = "
@@ -260,18 +274,17 @@ class QuizView extends View {
 
         return $html;
     }
+    /*
+     * Helper functions
+     */
 
-    public function getEditQuestionPage(QuizModel $quiz, QuestionModel $question) {
+    public function getEditQuestionPage(QuizModel $quiz, QuestionModel $question, $breadcrumbs = true) {
         $html = "";
-        $breadCrumbsRow = new BreadCrumbsRow($this->rootBase, "Home");
-        $breadCrumbsRow2 = new BreadCrumbsRow($this->rootAndMethod(QuizView::EDIT_METHOD_NAME) . "/", "Edit Quizes");
-        $breadCrumbsRow3 = new BreadCrumbsRow($this->rootAndMethod(QuizView::EDIT_METHOD_NAME) . "/" . $quiz->getId(),
-                                              StringHelper::shortenString(strip_tags($quiz->getName()),
-                                                                          10));
-        $bcList = new BreadCrumbsRowList($breadCrumbsRow, $breadCrumbsRow2, $breadCrumbsRow3);
-        $html .= BreadCrumbs::getBreadCrumbs($bcList,
-                                             "Editing question: " . StringHelper::shortenString(strip_tags($question->getQuestionText()),
-                                                                                                10));
+        if ($breadcrumbs) {
+            $html .= $this->QuestionPageBreadCrumbs($quiz, $question,
+                                                    "Editing question: " . StringHelper::shortenString(strip_tags($question->getQuestionText()),
+                                                                                                       10));
+        }
         $html .= $this->getAddButton("Add answers", "/{$quiz->getId()}/{$question->getId()}", "btn-default");
 
         $html .= $this->getQuestionForm($question);
@@ -327,38 +340,36 @@ class QuizView extends View {
         return $html;
     }
 
-    public function getAddAnswerPage(QuizModel $quiz, QuestionModel $question) {
+    public function getAddAnswerPage(QuizModel $quiz, QuestionModel $question, $breadcrumbs = true) {
         $html = "";
-
-        $breadCrumbsRow = new BreadCrumbsRow($this->rootBase, "Home");
-        $breadCrumbsRow2 = new BreadCrumbsRow($this->rootAndMethod(QuizView::EDIT_METHOD_NAME) . "/",
-                                              StringHelper::shortenString(strip_tags($quiz->getName()),
-                                                                          10));
-        $breadCrumbsRow3 =
-            new BreadCrumbsRow($this->rootAndMethod(QuizView::EDIT_METHOD_NAME) . "/" . $quiz->getId() . "/" . $question->getId(),
-                               StringHelper::shortenString(strip_tags($question->getQuestionText()),
-                                                           10));
-        $bcList = new BreadCrumbsRowList($breadCrumbsRow, $breadCrumbsRow2, $breadCrumbsRow3);
-        $html .= BreadCrumbs::getBreadCrumbs($bcList, "Adding answer");
+        if ($breadcrumbs) {
+            $html .= $this->AnswerPageBreadCrumbs($quiz, $question, "Adding answer");
+        }
 
         $html .= $this->getEditAnswerPage($quiz, $question, new AnswerModel(), false);
 
         return $html;
     }
 
+    private function AnswerPageBreadCrumbs(QuizModel $quiz, QuestionModel $question, $breadCrumbsMessage) {
+        $breadCrumbsRow = new BreadCrumbsRow($this->rootBase, "Home");
+        $breadCrumbsRow4 = new BreadCrumbsRow($this->rootAndMethod(QuizView::EDIT_METHOD_NAME) . "/", "Edit quizes");
+        $breadCrumbsRow2 = new BreadCrumbsRow($this->rootAndMethod(QuizView::EDIT_METHOD_NAME) . "/" . $quiz->getId(),
+                                              StringHelper::shortenString(strip_tags($quiz->getName()),
+                                                                          10));
+        $breadCrumbsRow3 =
+            new BreadCrumbsRow($this->rootAndMethod(QuizView::EDIT_METHOD_NAME) . "/" . $quiz->getId() . "/" . $question->getId(),
+                               StringHelper::shortenString(strip_tags($question->getQuestionText()),
+                                                           10));
+        $bcList = new BreadCrumbsRowList($breadCrumbsRow, $breadCrumbsRow4, $breadCrumbsRow2, $breadCrumbsRow3);
+        $html = BreadCrumbs::getBreadCrumbs($bcList, $breadCrumbsMessage);
+
+        return $html;
+    }
     public function getEditAnswerPage(QuizModel $quiz, QuestionModel $question, AnswerModel $answer, $breadcrumbs = true) {
         $html = "";
         if ($breadcrumbs) {
-            $breadCrumbsRow = new BreadCrumbsRow($this->rootBase, "Home");
-            $breadCrumbsRow2 = new BreadCrumbsRow($this->rootAndMethod(QuizView::EDIT_METHOD_NAME) . "/",
-                                                  StringHelper::shortenString(strip_tags($quiz->getName()),
-                                                                              10));
-            $breadCrumbsRow3 =
-                new BreadCrumbsRow($this->rootAndMethod(QuizView::EDIT_METHOD_NAME) . "/" . $quiz->getId() . "/" . $question->getId(),
-                                   StringHelper::shortenString(strip_tags($question->getQuestionText()),
-                                                               10));
-            $bcList = new BreadCrumbsRowList($breadCrumbsRow, $breadCrumbsRow2, $breadCrumbsRow3);
-            $html .= BreadCrumbs::getBreadCrumbs($bcList, "Editing answer");
+            $html .= $this->AnswerPageBreadCrumbs($quiz, $question, "Editing answer");
         }
         $html .= "<h4>Question: </h4>" . $this->text($question->getQuestionText());
         $html .= $this->getAnswerForm($answer);

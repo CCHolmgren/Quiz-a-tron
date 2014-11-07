@@ -10,6 +10,9 @@ require_once("AnswerModel.php");
 class AnswerList implements Iterator {
     private $answers;
 
+    public function __construct() {
+        $this->answers = [];
+    }
     /**
      * @param AnswerModel $answers
      */
