@@ -161,26 +161,34 @@ class QuizCUDController extends Controller {
         //Request method was POST
         if ($requestMethod === "POST") {
             if ($this->view->getTotallySure() === QuizView::TOTALLY_SURE_VALUE) {
-                if (isset($matches[self::$questionIdName])) {
-                    /** @var QuizModel $quiz */
-                    $question = $quiz->getQuestionById($matches[self::$questionIdName]);
-                    $question->removeQuestion();
-                    $this->view->messages->saveMessage("The question was removed");
-                    RedirectHandler::routeTo($this->view->rootAndMethod(QuizView::EDIT_METHOD_NAME) . "/" . $quiz->getId());
-                } else if (isset($matches[self::$answerIdName])) {
-                    $question = $quiz->getQuestionById($matches[self::$questionIdName]);
-                    $answer = $question->getAnswerById($matches[self::$answerIdName]);
-                    $answer->removeAnswer();
-                    $this->view->messages->saveMessage("The answer was removed");
-                    RedirectHandler::routeTo($this->view->rootAndMethod(QuizView::EDIT_METHOD_NAME) . "/" . $quiz->getId() . "/" . $question->getId());
-                } else if (isset($matches[self::$quizIdName])) {
-                    $quiz = $this->quizList->getQuizById($matches[self::$quizIdName]);
-                    $quiz->removeQuiz();
-                    $this->view->messages->saveMessage("The quiz was removed");
-                    RedirectHandler::routeTo($this->view->rootAndMethod(QuizView::EDIT_METHOD_NAME) . "/");
+                if ($quiz !== false && UserModel::getCurrentUser()->getId() === $quiz->getCreator()) {
+
+                    if (isset($matches[self::$questionIdName])) {
+                        /** @var QuizModel $quiz */
+                        $question = $quiz->getQuestionById($matches[self::$questionIdName]);
+                        $question->removeQuestion();
+                        $this->view->messages->saveMessage("The question was removed");
+                        RedirectHandler::routeTo($this->view->rootAndMethod(QuizView::EDIT_METHOD_NAME) . "/" . $quiz->getId());
+                    } else if (isset($matches[self::$answerIdName])) {
+                        $question = $quiz->getQuestionById($matches[self::$questionIdName]);
+                        $answer = $question->getAnswerById($matches[self::$answerIdName]);
+                        $answer->removeAnswer();
+                        $this->view->messages->saveMessage("The answer was removed");
+                        RedirectHandler::routeTo($this->view->rootAndMethod(QuizView::EDIT_METHOD_NAME) . "/" . $quiz->getId() . "/" . $question->getId());
+                    } else if (isset($matches[self::$quizIdName])) {
+                        $quiz = $this->quizList->getQuizById($matches[self::$quizIdName]);
+                        $quiz->removeQuiz();
+                        $this->view->messages->saveMessage("The quiz was removed");
+                        RedirectHandler::routeTo($this->view->rootAndMethod(QuizView::EDIT_METHOD_NAME) . "/");
+                    }
+
+                } else {
+                    $this->view->messages->saveMessage("You are not the creator of this quiz");
+                    RedirectHandler::routeTo("");
                 }
-
-
+            } else {
+                $this->view->messages->saveMessage("You submitted something other than the expected form.");
+                RedirectHandler::routeTo("");
             }
             //Request method was GET
         } else {
