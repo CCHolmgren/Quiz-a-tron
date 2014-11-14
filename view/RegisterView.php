@@ -51,19 +51,19 @@ class RegisterView extends View {
                         <div class='form-group'>
                             <label for='" . self::$username . "' class='col-sm-2 control-label'>Username</label>
                             <div class='col-sm-9'>
-                                <input type='text' name='" . self::$username . "' placeholder='Write a username' class='form-control'>
+                                <input type='text' name='" . self::$username . "' placeholder='Write a username' class='form-control' required pattern='^[a-zA-Z0-9]{6,}$' title='at least 6 characters, letters or numbers'>
                             </div>
                         </div>
                         <div class='form-group'>
                             <label for='" . self::$password . "' class='col-sm-2 control-label'>Password</label>
                             <div class='col-sm-9'>
-                                <input type='password' name='" . self::$password . "' placeholder='Write a password' class='form-control'>
+                                <input type='password' name='" . self::$password . "' placeholder='Write a password' class='form-control' required pattern='^.{6,}$' title='at least 6 characters, any character except linebreaks'>
                             </div>
                         </div>
                         <div class='form-group'>
                             <label for='" . self::$repeatedPassword . "' class='col-sm-2 control-label'>Repeat password</label>
                             <div class='col-sm-9'>
-                                <input type='password' name='" . self::$repeatedPassword . "' placeholder='Repeat password' class='form-control'>
+                                <input type='password' name='" . self::$repeatedPassword . "' placeholder='Repeat password' class='form-control' required pattern='^.{6,}$' title='at least 6 characters, any character except linebreaks'>
                             </div>
                         </div>
                         <div class='form-group'>

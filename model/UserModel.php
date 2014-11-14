@@ -163,6 +163,9 @@ class UserModel extends Model {
         if ($password !== $repeatedpassword) {
             $errors[] = "The two passwords do not match.";
         }
+        if (mb_strlen($password) < 6 || mb_strlen($repeatedpassword) < 6) {
+            $errors[] = "The passwords must be at least 6 letters long.";
+        }
         if (count($errors)) {
             return $errors;
         }

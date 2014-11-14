@@ -21,13 +21,13 @@ class LoginView extends View{
                         <div class='form-group'>
                             <label for='username' class='col-sm-2 control-label'>Username</label>
                             <div class='col-sm-9'>
-                                <input type='text' name='username' placeholder='Username' class='form-control'>
+                                <input type='text' name='username' placeholder='Username' class='form-control' required>
                             </div>
                         </div>
                         <div class='form-group'>
                             <label for='username' class='col-sm-2 control-label'>Password</label>
                             <div class='col-sm-9'>
-                                <input type='password' name='password' placeholder='Password' class='form-control'></div>
+                                <input type='password' name='password' placeholder='Password' class='form-control' required></div>
                             </div>
                         <div class='form-group'>
                             <div class='col-sm-offset-2 col-sm-10'>
