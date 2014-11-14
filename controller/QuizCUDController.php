@@ -95,26 +95,26 @@ class QuizCUDController extends Controller {
         } else {
             if ($quiz !== false) {
                 if (UserModel::getCurrentUser()->getId() === $quiz->getCreator()) {
+                    if (isset($matches[self::$answerIdName])) {
+                        /** @var QuestionModel $question */
+                        /** @var AnswerModel $answer */
+                        /** @var QuizModel $quiz */
+                        $question = $quiz->getQuestionById($matches[self::$questionIdName]);
+                        $answer = $question->getAnswerById($matches[self::$answerIdName]);
+
+                        return $this->view->getEditAnswerPage($quiz, $question, $answer);
+                    } else if (isset($matches[self::$questionIdName])) {
+                        $question = $quiz->getQuestionById($matches[self::$questionIdName]);
+
+                        return $this->view->getEditQuestionPage($quiz, $question);
+                    } else if ($quiz !== false) {
+                        return $this->view->getEditQuizPage($quiz);
+                    }
+
                 } else {
                     $this->view->messages->saveMessage("You are not the creator of this quiz");
                     RedirectHandler::routeTo("");
                 }
-                if (isset($matches[self::$answerIdName])) {
-                    /** @var QuestionModel $question */
-                    /** @var AnswerModel $answer */
-                    /** @var QuizModel $quiz */
-                    $question = $quiz->getQuestionById($matches[self::$questionIdName]);
-                    $answer = $question->getAnswerById($matches[self::$answerIdName]);
-
-                    return $this->view->getEditAnswerPage($quiz, $question, $answer);
-                } else if (isset($matches[self::$questionIdName])) {
-                    $question = $quiz->getQuestionById($matches[self::$questionIdName]);
-
-                    return $this->view->getEditQuestionPage($quiz, $question);
-                } else if ($quiz !== false) {
-                    return $this->view->getEditQuizPage($quiz);
-                }
-
             } else {
                 return $this->view->getQuizesPage(true);
             }
@@ -193,7 +193,12 @@ class QuizCUDController extends Controller {
             //Request method was GET
         } else {
             if ($quiz !== false) {
-                return $this->view->getRemoveQuizPage($quiz);
+                if (UserModel::getCurrentUser()->getId() === $quiz->getCreator()) {
+                    return $this->view->getRemoveQuizPage($quiz);
+                } else {
+                    $this->view->messages->saveMessage("You are not the creator of this quiz");
+                    RedirectHandler::routeTo("");
+                }
             } else {
                 return $this->view->getQuizesPage(true);
             }
